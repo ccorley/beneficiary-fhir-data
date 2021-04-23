@@ -20,7 +20,7 @@ variable "stateful_config" {
 
 variable "module_features" {
   description = "Module specific feature toggles"
-  type = map(bool)
+  type        = map(bool)
   default = {
     beta_reader = false
   }

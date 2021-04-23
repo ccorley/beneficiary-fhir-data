@@ -12,6 +12,9 @@ module "stateful" {
 
   aurora_config = {
     instance_class = "db.r5.12xlarge"
+
+    # With aurora you do not designate primary and replicas. Instead, you simply add RDS Instances and
+    # Aurora manages the replication. So if you want 1 writer and 3 readers, you set cluster_nodes to 4
     cluster_nodes  = 3
     engine_version = "11.6"
     param_version  = "aurora-postgresql11"

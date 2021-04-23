@@ -194,7 +194,7 @@ resource "aws_sns_topic_subscription" "ok" {
 # alarms modules
 #
 module "aurora" {
-  source = "../resources/aurora"
+  source             = "../resources/aurora"
   module_features    = var.module_features
   env_config         = local.env_config
   aurora_config      = var.aurora_config
