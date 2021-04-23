@@ -10,9 +10,14 @@ provider "aws" {
 module "stateful" {
   source = "../../../modules/stateful"
 
+  # feature toggles
+  module_features = {
+    beta_reader = true
+  }
+
   aurora_config = {
     instance_class = "db.r5.2xlarge"
-    cluster_nodes  = 3
+    cluster_nodes  = 4
     engine_version = "11.6"
     param_version  = "aurora-postgresql11"
   }
