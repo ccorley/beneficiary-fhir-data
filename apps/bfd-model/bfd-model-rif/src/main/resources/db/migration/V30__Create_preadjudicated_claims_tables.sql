@@ -3,11 +3,12 @@
  * https://confluenceent.cms.gov/pages/viewpage.action?spaceKey=MPSM&title=MVP+0.1+Data+Dictionary+for+Replicated+Data+Access+API
  */
 
-CREATE SCHEMA IF NOT EXISTS "pre_adj";
+--CREATE SCHEMA IF NOT EXISTS "pre_adj";
 
 /*
  * Where possible column names map directly to fields in the RDA API result message.
  */
+ /*
 create table "pre_adj"."FissClaims"
 (
     "dcn"               varchar(23) not null,
@@ -28,15 +29,17 @@ create table "pre_adj"."FissClaims"
     "lastUpdated"       timestamp with time zone,
     constraint "FissClaims_pkey" primary key ("dcn")
 );
-
+*/
 /*
  * Index the MedicareBeneficiaryIdentifier (MBI) hash column for mbi searches.
  * The search is used by partners to find claims for specific beneficiaries.
  * Since this is a frequent operation, the hash is indexed.
  */
 
+/*
 create index "FissClaims_mbi_hash_idx"
     on "pre_adj"."FissClaims" ("mbiHash");
+*/
 
 /*
  * Where possible column names map directly to fields in the RDA API result message.
@@ -44,6 +47,7 @@ create index "FissClaims_mbi_hash_idx"
  * The priority column is a 0 based index indicating the order in which the codes
  * appear in the RDA API result message for the claim.
  */
+ /*
 create table "pre_adj"."FissProcCodes"
 (
     "dcn"         varchar(23) not null,
@@ -55,3 +59,4 @@ create table "pre_adj"."FissProcCodes"
     constraint "FissProcCodes_pkey" primary key ("dcn", "priority"),
     constraint "FissProcCodes_claim" foreign key ("dcn") references "pre_adj"."FissClaims" ("dcn")
 );
+*/
