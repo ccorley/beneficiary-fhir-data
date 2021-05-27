@@ -37,8 +37,7 @@ public final class DatabaseTestHelper {
    * We need to inform Flyway of all of our schemas in order for {@link Flyway.clean()} to work
    * properly.
    */
-  public static final ImmutableList<String> FLYWAY_CLEAN_SCHEMAS =
-      ImmutableList.of("PUBLIC", "pre_adj");
+  public static final ImmutableList<String> FLYWAY_CLEAN_SCHEMAS = ImmutableList.of("PUBLIC");
 
   private static final String HSQL_SERVER_USERNAME = "test";
   private static final String HSQL_SERVER_PASSWORD = "test";
