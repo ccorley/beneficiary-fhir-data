@@ -120,10 +120,10 @@
 									<groupId>${project.groupId}</groupId>
 									<artifactId>bfd-pipeline-app</artifactId>
 									<version>${project.version}</version>
-									<classifier>capsule-fat</classifier>
+									<!-- <classifier>capsule-fat</classifier> -->
 									<type>jar</type>
 									<outputDirectory>${project.build.directory}/pipeline-app</outputDirectory>
-									<destFileName>bfd-pipeline-app-capsule-fat.jar</destFileName>
+									<destFileName>bfd-pipeline-app.jar</destFileName>
 								</artifactItem>
 							</artifactItems>
 						</configuration>

@@ -158,22 +158,24 @@
 				<plugin>
 					<!-- Used to build executable JARs, with all dependencies included in
 						them. -->
+					<groupId>com.hubspot.maven.plugins</groupId>
+                    <artifactId>slimfast-plugin</artifactId>
+                    <version>0.18</version>
+					<configuration>
+						<mainClass>gov.cms.bfd.server.launcher.DataServerLauncherApp</mainClass>
+					</configuration>
+				</plugin>
+				<!-- <plugin>
 					<groupId>com.github.chrischristo</groupId>
 					<artifactId>capsule-maven-plugin</artifactId>
 					<version>1.0.1</version>
 					<configuration>
 						<appClass>gov.cms.bfd.server.launcher.DataServerLauncherApp</appClass>
-
-						<!-- Building the "really executable" .x files is tempting, but ultimately
-							not very useful, as there's no way to pass JVM args into such launchers,
-							which prevents customizing the heap size at runtime. -->
 						<chmod>false</chmod>
 
 						<types>fat</types>
 						<manifest>
 							<entry>
-								<!-- This will almost certainly be overridden on the command line;
-									think of this as a bare-minimum default. -->
 								<key>JVM-Args</key>
 								<value>-Xmx1g</value>
 							</entry>
@@ -183,7 +185,7 @@
 							</entry>
 						</manifest>
 					</configuration>
-				</plugin>
+				</plugin> -->
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -202,9 +204,18 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<!-- Used to build executable JARs, with all dependencies included in
-					them. -->
+				<plugin>
+				<groupId>com.hubspot.maven.plugins</groupId>
+                <artifactId>slimfast-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- <plugin>
 				<groupId>com.github.chrischristo</groupId>
 				<artifactId>capsule-maven-plugin</artifactId>
 				<executions>
@@ -214,7 +225,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
 			<plugin>
 				<!-- Will run the `*IT.java` integration tests in this project, as part
 					of the build. -->

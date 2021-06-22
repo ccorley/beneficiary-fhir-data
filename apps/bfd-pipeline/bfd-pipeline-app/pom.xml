@@ -93,40 +93,41 @@
 	<build>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<!-- Used to build executable JARs, with all dependencies included in 
-						them. -->
-					<groupId>com.github.chrischristo</groupId>
-					<artifactId>capsule-maven-plugin</artifactId>
+			  <plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
 					<configuration>
-						<appClass>gov.cms.bfd.pipeline.app.PipelineApplication</appClass>
-
-						<!-- Building the "really executable" .x files is tempting, but ultimately 
-							not very useful, as there's no way to pass JVM args into such launchers, 
-							which prevents customizing the heap size at runtime. -->
-						<chmod>false</chmod>
-
-						<types>fat</types>
+					<archive>
 						<manifest>
-							<entry>
-								<key>JVM-Args</key>
-								<value>-Xmx1g</value>
-							</entry>
-							<entry>
-								<key>Min-Java-Version</key>
-								<value>1.8.0</value>
-							</entry>
+						<addClasspath>true</addClasspath>
+						<mainClass>gov.cms.bfd.pipeline.app.PipelineApplication</mainClass>
+						<classpathPrefix>lib/</classpathPrefix>
+						<classpathLayoutType>repository</classpathLayoutType>
 						</manifest>
+					</archive>
 					</configuration>
 				</plugin>
-			</plugins>
+				<plugin>
+					<groupId>com.hubspot.maven.plugins</groupId>
+					<artifactId>slimfast-plugin</artifactId>
+					<version>0.18</version>
+					<executions>
+					<execution>
+						<goals>
+						<goal>copy</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+					</executions>
+				</plugin>
+				</plugins>
 		</pluginManagement>
 		<plugins>
 			<plugin>
 				<!-- Used to build executable JARs, with all dependencies included in 
 					them. -->
-				<groupId>com.github.chrischristo</groupId>
-				<artifactId>capsule-maven-plugin</artifactId>
+				<groupId>com.hubspot.maven.plugins</groupId>
+				<artifactId>slimfast-plugin</artifactId>
 				<executions>
 					<execution>
 						<goals>
@@ -150,6 +151,62 @@
 				</executions>
 			</plugin>
 		</plugins>
-	</build>
-
+	</build> 
 </project>
+
+	<!-- <build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>com.github.chrischristo</groupId>
+					<artifactId>capsule-maven-plugin</artifactId>
+					<configuration>
+						<appClass>gov.cms.bfd.pipeline.app.PipelineApplication</appClass>
+						<chmod>false</chmod>
+
+						<types>fat</types>
+						<manifest>
+							<entry>
+								<key>JVM-Args</key>
+								<value>-Xmx1g</value>
+							</entry>
+							<entry>
+								<key>Min-Java-Version</key>
+								<value>1.8.0</value>
+							</entry>
+						</manifest>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>com.github.chrischristo</groupId>
+				<artifactId>capsule-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build> 
+</project> -->
+
+
+		
+

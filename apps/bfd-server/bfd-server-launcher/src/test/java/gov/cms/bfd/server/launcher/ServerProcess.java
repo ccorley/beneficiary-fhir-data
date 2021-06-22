@@ -189,8 +189,10 @@ public final class ServerProcess implements AutoCloseable {
       Path buildTargetDir = Paths.get(".", "target");
       Path appJar =
           Files.list(buildTargetDir)
-              .filter(f -> f.getFileName().toString().startsWith("bfd-server-launcher-"))
-              .filter(f -> f.getFileName().toString().endsWith("-capsule-fat.jar"))
+             //.filter(f -> f.getFileName().toString().startsWith("bfd-server-launcher-"))
+              .filter(f -> f.getFileName().toString().startsWith("bfd-server-launcher"))
+              .filter(f -> f.getFileName().toString().endsWith(".jar"))
+              //.filter(f -> f.getFileName().toString().endsWith("-capsule-fat.jar"))
               .findFirst()
               .get();
 

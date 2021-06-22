@@ -23,13 +23,13 @@
 		<module>bfd-pipeline-benchmarks</module>
 	</modules>
 
-	<properties>
-		<!-- The version of the capsule library for the capsule-maven-plugin to 
+	<!--<properties>
+		 The version of the capsule library for the capsule-maven-plugin to 
 			use. We need to override the default, to avoid https://github.com/puniverse/capsule/issues/90, 
 			as this is seen in whichever version of the library is used by default in 
-			the 1.0.1 version of the plugin. -->
+			the 1.0.1 version of the plugin. 
 		<capsule.version>1.0.1</capsule.version>
-	</properties>
+	</properties>-->
 
 	<dependencyManagement>
 		<dependencies>
@@ -89,12 +89,15 @@
 						<redirectTestOutputToFile>true</redirectTestOutputToFile>
 					</configuration>
 				</plugin>
-				<plugin>
-					<!-- Used to build executable JARs, with all dependencies included in 
-						them. -->
+				<!-- <plugin>
 					<groupId>com.github.chrischristo</groupId>
 					<artifactId>capsule-maven-plugin</artifactId>
 					<version>1.0.1</version>
+				</plugin> -->
+				<plugin>
+					<groupId>com.hubspot.maven.plugins</groupId>
+                    <artifactId>slimfast-plugin</artifactId>
+                    <version>0.18</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-scm-plugin</artifactId>
