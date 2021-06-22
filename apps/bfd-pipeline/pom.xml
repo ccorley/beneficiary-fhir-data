@@ -139,7 +139,7 @@
 												<artifactId>maven-dependency-plugin</artifactId>
 												<versionRange>[1.0.0,)</versionRange>
 												<goals>
-													<goal>copy</goal>
+													<goal>build</goal>
 												</goals>
 											</pluginExecutionFilter>
 											<action>

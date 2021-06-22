@@ -301,7 +301,7 @@
 								<groupId>${project.groupId}</groupId>
 								<artifactId>bfd-server-launcher</artifactId>
 								<version>${project.version}</version>
-								<classifier>capsule-fat</classifier>
+								<!-- <classifier>capsule-fat</classifier> -->
 								<type>jar</type>
 								<outputDirectory>${project.build.directory}/server-work</outputDirectory>
 							</artifactItem>
@@ -337,7 +337,7 @@
 						<id>server-copy-artifacts</id>
 						<phase>pre-integration-test</phase>
 						<goals>
-							<goal>copy</goal>
+							<goal>build</goal>
 						</goals>
 					</execution>
 				</executions>

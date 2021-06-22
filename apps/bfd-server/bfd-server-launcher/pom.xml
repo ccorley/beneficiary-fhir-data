@@ -199,7 +199,7 @@
 						<id>server-copy-artifacts</id>
 						<phase>pre-integration-test</phase>
 						<goals>
-							<goal>copy</goal>
+							<goal>build</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -210,7 +210,7 @@
 				<executions>
 					<execution>
 						<goals>
-							<goal>build</goal>
+							<goal>copy</goal>
 						</goals>
 					</execution>
 				</executions>

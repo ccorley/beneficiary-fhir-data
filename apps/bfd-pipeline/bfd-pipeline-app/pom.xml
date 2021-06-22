@@ -131,7 +131,7 @@
 				<executions>
 					<execution>
 						<goals>
-							<goal>build</goal>
+							<goal>copy</goal>
 						</goals>
 					</execution>
 				</executions>
