@@ -112,7 +112,7 @@
 						<id>benchmarks-copy-artifacts</id>
 						<phase>pre-integration-test</phase>
 						<goals>
-							<goal>build</goal>
+							<goal>copy</goal>
 						</goals>
 						<configuration>
 							<artifactItems>
