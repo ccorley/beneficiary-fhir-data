@@ -105,6 +105,15 @@
 	<build>
 		<pluginManagement>
 			<plugins>
+			    <plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>3.3.0</version>
+					<configuration>
+					<descriptors>
+						<descriptor>src/assembly/src.xml</descriptor>
+					</descriptors>
+					</configuration>
+				</plugin>
 				<plugin>
 					<!-- Used to build executable JARs, with all dependencies included in
 						them. -->
