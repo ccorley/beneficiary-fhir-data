@@ -16,6 +16,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,7 +30,7 @@ public class PreAdjFissClaimContainer {
   @Column(name = "`lastUpdated`", nullable = false)
   private Instant lastUpdated;
 
-  @Column(name = "`claim`", nullable = false, columnDefinition = "json")
+  @Column(name = "`claim`", nullable = false, columnDefinition = "jsonb")
   @Convert(converter = PreAdjFissClaimConverter.class)
   private PreAdjFissClaim claim;
 }
