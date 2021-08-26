@@ -82,6 +82,7 @@ public final class DatabaseSchemaManager {
         placeholders.put("logic.sequence-start", "start with");
         placeholders.put("logic.sequence-increment", "increment by");
         placeholders.put("logic.perms", "--");
+        placeholders.put("logic.hsql", "");
       } else if (DatabaseUtils.isPostgresConnection(connection)) {
         placeholders.put("type.int4", "int4");
         placeholders.put("type.text", "text");
@@ -92,6 +93,7 @@ public final class DatabaseSchemaManager {
         placeholders.put("logic.sequence-start", "start");
         placeholders.put("logic.sequence-increment", "increment");
         placeholders.put("logic.perms", "");
+        placeholders.put("logic.hsql", "--");
       } else {
         throw new BadCodeMonkeyException(
             String.format(

@@ -55,6 +55,7 @@ public class SchemaMigrationIT {
             .currLoc1('A')
             .currLoc2("1A")
             .pracLocCity("city name can be very long indeed")
+            .lastUpdated(Instant.now())
             .sequenceNumber(3L)
             .build();
 
@@ -86,6 +87,7 @@ public class SchemaMigrationIT {
             .priority((short) 0)
             .diagCd2("cd2")
             .diagPoaInd("Q")
+            .lastUpdated(Instant.now())
             .build();
     claim.getDiagCodes().add(diagCode0);
 
@@ -95,6 +97,7 @@ public class SchemaMigrationIT {
             .priority((short) 1)
             .diagCd2("cd2")
             .diagPoaInd("R")
+            .lastUpdated(Instant.now())
             .build();
     claim.getDiagCodes().add(diagCode1);
 
@@ -104,6 +107,7 @@ public class SchemaMigrationIT {
             .priority((short) 0)
             .payerType(PreAdjFissPayer.PayerType.BeneZ)
             .estAmtDue(new BigDecimal("1.23"))
+            .lastUpdated(Instant.now())
             .build();
     claim.getPayers().add(payer0);
 
@@ -113,22 +117,29 @@ public class SchemaMigrationIT {
             .priority((short) 1)
             .payerType(PreAdjFissPayer.PayerType.Insured)
             .estAmtDue(new BigDecimal("4.56"))
+            .lastUpdated(Instant.now())
             .build();
     claim.getPayers().add(payer1);
 
+    final PreAdjFissClaimContainer container =
+        PreAdjFissClaimContainer.builder()
+            .dcn(claim.getDcn())
+            .lastUpdated(claim.getLastUpdated())
+            .claim(claim)
+            .build();
     // Insert a record and read it back to verify some columns and that the detail records were
     // written
     entityManager.getTransaction().begin();
-    entityManager.persist(claim);
+    entityManager.persist(container);
     entityManager.getTransaction().commit();
 
-    List<PreAdjFissClaim> claims =
+    List<PreAdjFissClaimContainer> claims =
         entityManager
-            .createQuery("select c from PreAdjFissClaim c", PreAdjFissClaim.class)
+            .createQuery("select c from PreAdjFissClaimContainer c", PreAdjFissClaimContainer.class)
             .getResultList();
     assertEquals(1, claims.size());
 
-    PreAdjFissClaim resultClaim = claims.get(0);
+    PreAdjFissClaim resultClaim = claims.get(0).getClaim();
     assertEquals("h1", resultClaim.getHicNo());
     assertEquals(Long.valueOf(3), resultClaim.getSequenceNumber());
     assertEquals("city name can be very long indeed", resultClaim.getPracLocCity());
@@ -146,13 +157,14 @@ public class SchemaMigrationIT {
     diagCode1.setDiagPoaInd("S");
     payer1.setEstAmtDue(new BigDecimal("7.89"));
     entityManager.getTransaction().begin();
-    entityManager.persist(claim);
+    entityManager.persist(container);
     entityManager.getTransaction().commit();
     resultClaim =
         entityManager
-            .createQuery("select c from PreAdjFissClaim c", PreAdjFissClaim.class)
+            .createQuery("select c from PreAdjFissClaimContainer c", PreAdjFissClaimContainer.class)
             .getResultList()
-            .get(0);
+            .get(0)
+            .getClaim();
     assertEquals("0:H", summarizeFissProcCodes(resultClaim));
     assertEquals("1:S", summarizeFissDiagCodes(resultClaim));
     assertEquals("1:Insured:7.89", summarizeFissPayers(resultClaim));

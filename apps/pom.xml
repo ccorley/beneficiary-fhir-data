@@ -106,6 +106,9 @@
 
 		<!-- Whether the preadj endpoints should be enabled -->
 		<local.preadj.enabled>true</local.preadj.enabled>
+
+		<!-- The version of the jackson library used for JSON ser/deserialization. -->
+		<jackson.version>2.12.3</jackson.version>
 	</properties>
 
 	<dependencyManagement>
@@ -278,6 +281,31 @@
 				<artifactId>junit</artifactId>
 				<version>4.13.1</version>
 				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<!-- Used to serialize and deserialize objects to JSON. -->
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<!-- Used to serialize and deserialize objects to JSON. -->
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<!-- Adds java-8 types to jackson. -->
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jdk8</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<!-- Adds java-8 date/time classes to jackson. -->
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jsr310</artifactId>
+				<version>${jackson.version}</version>
 			</dependency>
 
 		</dependencies>
