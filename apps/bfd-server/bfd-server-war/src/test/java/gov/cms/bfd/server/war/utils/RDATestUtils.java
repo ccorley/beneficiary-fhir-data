@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import gov.cms.bfd.model.rda.PreAdjFissClaim;
+import gov.cms.bfd.model.rda.PreAdjFissClaimContainer;
 import gov.cms.bfd.model.rda.PreAdjFissProcCode;
 import gov.cms.bfd.model.rda.PreAdjMcsClaim;
 import gov.cms.bfd.model.rda.PreAdjMcsDetail;
@@ -31,8 +32,7 @@ public class RDATestUtils {
 
   private static final List<Class<?>> TABLE_ENTITIES =
       ImmutableList.of(
-          PreAdjFissProcCode.class,
-          PreAdjFissClaim.class,
+          PreAdjFissClaimContainer.class,
           PreAdjMcsDetail.class,
           PreAdjMcsDiagnosisCode.class,
           PreAdjMcsClaim.class);
@@ -98,11 +98,11 @@ public class RDATestUtils {
     return expectedResponse.toString();
   }
 
-  public List<PreAdjFissClaim> fissTestData() {
+  public List<PreAdjFissClaimContainer> fissTestData() {
     return Arrays.asList(fissTestDataA(), fissTestDataB());
   }
 
-  private PreAdjFissClaim fissTestDataA() {
+  private PreAdjFissClaimContainer fissTestDataA() {
     PreAdjFissClaim claim =
         PreAdjFissClaim.builder()
             .sequenceNumber(1L)
@@ -146,10 +146,10 @@ public class RDATestUtils {
 
     claim.setProcCodes(codes);
 
-    return claim;
+    return new PreAdjFissClaimContainer(claim);
   }
 
-  private PreAdjFissClaim fissTestDataB() {
+  private PreAdjFissClaimContainer fissTestDataB() {
     PreAdjFissClaim claim =
         PreAdjFissClaim.builder()
             .sequenceNumber(2L)
@@ -185,7 +185,7 @@ public class RDATestUtils {
 
     claim.setProcCodes(Collections.singleton(code));
 
-    return claim;
+    return new PreAdjFissClaimContainer(claim);
   }
 
   public List<PreAdjMcsClaim> mcsTestData() {

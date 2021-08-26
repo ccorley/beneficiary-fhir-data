@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
 import gov.cms.bfd.model.rda.PreAdjFissClaim;
+import gov.cms.bfd.model.rda.PreAdjFissClaimContainer;
 import gov.cms.bfd.model.rda.PreAdjMcsClaim;
 import gov.cms.bfd.pipeline.rda.grpc.server.EmptyMessageSource;
 import gov.cms.bfd.pipeline.rda.grpc.server.ExceptionMessageSource;
@@ -29,6 +30,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import org.junit.Before;
@@ -227,8 +229,10 @@ public class RdaLoadJobIT {
 
   private List<PreAdjFissClaim> getPreAdjFissClaims(EntityManager entityManager) {
     return entityManager
-        .createQuery("select c from PreAdjFissClaim c", PreAdjFissClaim.class)
-        .getResultList();
+        .createQuery("select c from PreAdjFissClaimContainer c", PreAdjFissClaimContainer.class)
+        .getResultList().stream()
+        .map(PreAdjFissClaimContainer::getClaim)
+        .collect(Collectors.toList());
   }
 
   private static RdaLoadOptions createRdaLoadOptions(int serverPort) {

@@ -5,8 +5,9 @@ ${logic.hsql} CREATE TYPE json AS longvarchar;
   querying outside of the json.
  */
 create table "pre_adj"."FissClaimsJson" (
-    "dcn"         varchar(23)   not null,
-    "lastUpdated" timestamp with time zone,
-    "claim"       ${type.jsonb} not null,
+    "dcn"            varchar(23)   not null,
+    "sequenceNumber" bigint        not null,
+    "lastUpdated"    timestamp with time zone,
+    "claim"          ${type.jsonb} not null,
     constraint "FissClaimsJson_pkey" primary key ("dcn")
 );

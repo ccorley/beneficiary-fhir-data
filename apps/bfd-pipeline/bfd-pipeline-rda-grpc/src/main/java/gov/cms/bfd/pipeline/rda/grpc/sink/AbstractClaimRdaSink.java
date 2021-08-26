@@ -96,6 +96,10 @@ abstract class AbstractClaimRdaSink<TClaim> implements RdaSink<RdaChange<TClaim>
     return metrics;
   }
 
+  protected Object convertClaimToEntity(TClaim claim) {
+    return claim;
+  }
+
   private void persistBatch(Iterable<RdaChange<TClaim>> changes) {
     boolean commit = false;
     try {
@@ -103,10 +107,10 @@ abstract class AbstractClaimRdaSink<TClaim> implements RdaSink<RdaChange<TClaim>
       for (RdaChange<TClaim> change : changes) {
         switch (change.getType()) {
           case INSERT:
-            entityManager.persist(change.getClaim());
+            entityManager.persist(convertClaimToEntity(change.getClaim()));
             break;
           case UPDATE:
-            entityManager.merge(change.getClaim());
+            entityManager.merge(convertClaimToEntity(change.getClaim()));
             break;
           case DELETE:
             // TODO: [DCGEO-131] accept DELETE changes from RDA API
@@ -131,7 +135,7 @@ abstract class AbstractClaimRdaSink<TClaim> implements RdaSink<RdaChange<TClaim>
       entityManager.getTransaction().begin();
       for (RdaChange<TClaim> change : changes) {
         if (change.getType() != RdaChange.Type.DELETE) {
-          entityManager.merge(change.getClaim());
+          entityManager.merge(convertClaimToEntity(change.getClaim()));
         } else {
           // TODO: [DCGEO-131] accept DELETE changes from RDA API
           throw new IllegalArgumentException("RDA API DELETE changes are not currently supported");

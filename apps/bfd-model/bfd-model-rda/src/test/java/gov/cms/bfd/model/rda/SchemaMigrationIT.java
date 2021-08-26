@@ -121,12 +121,8 @@ public class SchemaMigrationIT {
             .build();
     claim.getPayers().add(payer1);
 
-    final PreAdjFissClaimContainer container =
-        PreAdjFissClaimContainer.builder()
-            .dcn(claim.getDcn())
-            .lastUpdated(claim.getLastUpdated())
-            .claim(claim)
-            .build();
+    final PreAdjFissClaimContainer container = new PreAdjFissClaimContainer(claim);
+
     // Insert a record and read it back to verify some columns and that the detail records were
     // written
     entityManager.getTransaction().begin();

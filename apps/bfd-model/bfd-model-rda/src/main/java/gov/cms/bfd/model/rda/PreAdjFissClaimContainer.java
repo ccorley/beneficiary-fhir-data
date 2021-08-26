@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 @Entity
 @Getter
@@ -20,8 +21,13 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldNameConstants
 @Table(name = "`FissClaimsJson`", schema = "`pre_adj`")
 public class PreAdjFissClaimContainer {
+  public PreAdjFissClaimContainer(PreAdjFissClaim claim) {
+    this(claim.getDcn(), claim.getLastUpdated(), claim.getSequenceNumber(), claim);
+  }
+
   @Id
   @Column(name = "`dcn`", length = 23, nullable = false)
   @EqualsAndHashCode.Include
@@ -29,6 +35,9 @@ public class PreAdjFissClaimContainer {
 
   @Column(name = "`lastUpdated`", nullable = false)
   private Instant lastUpdated;
+
+  @Column(name = "`sequenceNumber`", nullable = false)
+  private Long sequenceNumber;
 
   @Column(name = "`claim`", nullable = false, columnDefinition = "jsonb")
   @Convert(converter = PreAdjFissClaimConverter.class)
