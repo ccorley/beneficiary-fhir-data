@@ -11,7 +11,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.ImmutableList;
 import com.zaxxer.hikari.HikariDataSource;
 import gov.cms.bfd.model.rda.PreAdjFissClaim;
-import gov.cms.bfd.model.rda.PreAdjFissClaimContainer;
+import gov.cms.bfd.model.rda.PreAdjFissClaimJson;
 import gov.cms.bfd.pipeline.rda.grpc.ProcessingException;
 import gov.cms.bfd.pipeline.rda.grpc.RdaChange;
 import gov.cms.bfd.pipeline.sharedutils.PipelineApplicationState;
@@ -217,8 +217,8 @@ public class FissClaimRdaSinkTest {
     assertEquals(false, isDuplicateKeyException(new IOException("nothing to see here")));
   }
 
-  private PreAdjFissClaimContainer wrapClaim(PreAdjFissClaim claim) {
-    return new PreAdjFissClaimContainer(claim);
+  private PreAdjFissClaimJson wrapClaim(PreAdjFissClaim claim) {
+    return new PreAdjFissClaimJson(claim);
   }
 
   private RdaChange<PreAdjFissClaim> createClaim(String dcn) {

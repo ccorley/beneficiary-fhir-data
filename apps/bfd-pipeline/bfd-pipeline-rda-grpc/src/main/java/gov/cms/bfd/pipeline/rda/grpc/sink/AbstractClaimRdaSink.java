@@ -96,9 +96,7 @@ abstract class AbstractClaimRdaSink<TClaim> implements RdaSink<RdaChange<TClaim>
     return metrics;
   }
 
-  protected Object convertClaimToEntity(TClaim claim) {
-    return claim;
-  }
+  protected abstract Object convertClaimToEntity(TClaim claim);
 
   private void persistBatch(Iterable<RdaChange<TClaim>> changes) {
     boolean commit = false;

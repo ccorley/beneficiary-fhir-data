@@ -2,7 +2,7 @@ package gov.cms.bfd.pipeline.sharedutils;
 
 import com.codahale.metrics.MetricRegistry;
 import com.zaxxer.hikari.HikariDataSource;
-import gov.cms.bfd.model.rda.PreAdjFissClaimContainer;
+import gov.cms.bfd.model.rda.PreAdjFissClaimJson;
 import gov.cms.bfd.model.rif.Beneficiary;
 import gov.cms.bfd.model.rif.BeneficiaryHistory;
 import gov.cms.bfd.model.rif.BeneficiaryMonthly;
@@ -140,7 +140,7 @@ public final class PipelineTestUtils {
             Beneficiary.class,
             LoadedBatch.class,
             LoadedFile.class,
-            PreAdjFissClaimContainer.class);
+            PreAdjFissClaimJson.class);
 
     try (Connection connection = pipelineApplicationState.getPooledDataSource().getConnection(); ) {
       // Disable auto-commit and remember the default schema name.

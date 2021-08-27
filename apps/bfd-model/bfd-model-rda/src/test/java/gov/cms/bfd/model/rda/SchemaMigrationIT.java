@@ -121,7 +121,7 @@ public class SchemaMigrationIT {
             .build();
     claim.getPayers().add(payer1);
 
-    final PreAdjFissClaimContainer container = new PreAdjFissClaimContainer(claim);
+    final PreAdjFissClaimJson container = new PreAdjFissClaimJson(claim);
 
     // Insert a record and read it back to verify some columns and that the detail records were
     // written
@@ -129,9 +129,9 @@ public class SchemaMigrationIT {
     entityManager.persist(container);
     entityManager.getTransaction().commit();
 
-    List<PreAdjFissClaimContainer> claims =
+    List<PreAdjFissClaimJson> claims =
         entityManager
-            .createQuery("select c from PreAdjFissClaimContainer c", PreAdjFissClaimContainer.class)
+            .createQuery("select c from PreAdjFissClaimJson c", PreAdjFissClaimJson.class)
             .getResultList();
     assertEquals(1, claims.size());
 
@@ -157,7 +157,7 @@ public class SchemaMigrationIT {
     entityManager.getTransaction().commit();
     resultClaim =
         entityManager
-            .createQuery("select c from PreAdjFissClaimContainer c", PreAdjFissClaimContainer.class)
+            .createQuery("select c from PreAdjFissClaimJson c", PreAdjFissClaimJson.class)
             .getResultList()
             .get(0)
             .getClaim();
@@ -179,6 +179,7 @@ public class SchemaMigrationIT {
             .idrHic("hc")
             .idrClaimType("c")
             .sequenceNumber(3L)
+            .lastUpdated(Instant.now())
             .build();
 
     claim.getDetails().add(quickMcsDetail(claim, 0, "P"));
@@ -193,18 +194,20 @@ public class SchemaMigrationIT {
     PreAdjMcsDiagnosisCode diag2 = quickMcsDiagCode(claim, 2, "V");
     claim.getDiagCodes().add(diag2);
 
+    final PreAdjMcsClaimJson container = new PreAdjMcsClaimJson(claim);
+
     // Insert a record and read it back to verify some columns and that the detail records were
     // written
     entityManager.getTransaction().begin();
-    entityManager.persist(claim);
+    entityManager.persist(container);
     entityManager.getTransaction().commit();
 
-    List<PreAdjMcsClaim> resultClaims =
+    List<PreAdjMcsClaimJson> resultClaims =
         entityManager
-            .createQuery("select c from PreAdjMcsClaim c", PreAdjMcsClaim.class)
+            .createQuery("select c from PreAdjMcsClaimJson c", PreAdjMcsClaimJson.class)
             .getResultList();
     assertEquals(1, resultClaims.size());
-    PreAdjMcsClaim resultClaim = resultClaims.get(0);
+    PreAdjMcsClaim resultClaim = resultClaims.get(0).getClaim();
     assertEquals("0:P,1:Q,2:R", summarizeMcsDetails(resultClaim));
     assertEquals("0:T,1:U,2:V", summarizeMcsDiagCodes(resultClaim));
 
@@ -216,15 +219,15 @@ public class SchemaMigrationIT {
     diag0.setIdrDiagIcdType("W");
 
     entityManager.getTransaction().begin();
-    entityManager.persist(claim);
+    entityManager.persist(container);
     entityManager.getTransaction().commit();
 
     resultClaims =
         entityManager
-            .createQuery("select c from PreAdjMcsClaim c", PreAdjMcsClaim.class)
+            .createQuery("select c from PreAdjMcsClaimJson c", PreAdjMcsClaimJson.class)
             .getResultList();
     assertEquals(1, resultClaims.size());
-    resultClaim = resultClaims.get(0);
+    resultClaim = resultClaims.get(0).getClaim();
     assertEquals(Long.valueOf(3), resultClaim.getSequenceNumber());
     assertEquals("0:P,2:S", summarizeMcsDetails(resultClaim));
     assertEquals("0:W,1:U", summarizeMcsDiagCodes(resultClaim));

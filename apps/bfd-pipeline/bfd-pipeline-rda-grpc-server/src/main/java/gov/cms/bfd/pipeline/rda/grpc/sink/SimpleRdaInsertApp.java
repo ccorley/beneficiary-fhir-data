@@ -4,10 +4,14 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.zaxxer.hikari.HikariDataSource;
 import gov.cms.bfd.model.rda.PreAdjFissClaim;
-import gov.cms.bfd.model.rda.PreAdjFissClaimContainer;
+import gov.cms.bfd.model.rda.PreAdjFissClaimJson;
 import gov.cms.bfd.model.rda.PreAdjFissDiagnosisCode;
 import gov.cms.bfd.model.rda.PreAdjFissPayer;
 import gov.cms.bfd.model.rda.PreAdjFissProcCode;
+import gov.cms.bfd.model.rda.PreAdjMcsClaim;
+import gov.cms.bfd.model.rda.PreAdjMcsClaimJson;
+import gov.cms.bfd.model.rda.PreAdjMcsDetail;
+import gov.cms.bfd.model.rda.PreAdjMcsDiagnosisCode;
 import gov.cms.bfd.model.rif.schema.DatabaseSchemaManager;
 import gov.cms.bfd.pipeline.sharedutils.DatabaseOptions;
 import gov.cms.bfd.pipeline.sharedutils.PipelineApplicationState;
@@ -56,58 +60,8 @@ public class SimpleRdaInsertApp {
       EntityManager entityManager = null;
       try {
         entityManager = appState.getEntityManagerFactory().createEntityManager();
-        final PreAdjFissClaim claim =
-            PreAdjFissClaim.builder()
-                .dcn("1")
-                .hicNo("h1")
-                .currStatus('1')
-                .currLoc1('A')
-                .currLoc2("1A")
-                .pracLocCity("city name can be very long indeed")
-                .lastUpdated(Instant.now())
-                .build();
-
-        final PreAdjFissProcCode procCode0 =
-            PreAdjFissProcCode.builder()
-                .dcn(claim.getDcn())
-                .priority((short) 0)
-                .procCode("P")
-                .procFlag("F")
-                .procDate(LocalDate.now())
-                .lastUpdated(Instant.now())
-                .build();
-        claim.getProcCodes().add(procCode0);
-
-        final PreAdjFissDiagnosisCode diagCode0 =
-            PreAdjFissDiagnosisCode.builder()
-                .dcn(claim.getDcn())
-                .priority((short) 0)
-                .diagCd2("cd2")
-                .diagPoaInd("Q")
-                .lastUpdated(Instant.now())
-                .build();
-        claim.getDiagCodes().add(diagCode0);
-
-        final PreAdjFissPayer payer0 =
-            PreAdjFissPayer.builder()
-                .dcn(claim.getDcn())
-                .priority((short) 0)
-                .payerType(PreAdjFissPayer.PayerType.BeneZ)
-                .estAmtDue(new BigDecimal("1.23"))
-                .lastUpdated(Instant.now())
-                .build();
-        claim.getPayers().add(payer0);
-
-        final PreAdjFissClaimContainer container =
-            PreAdjFissClaimContainer.builder()
-                .dcn(claim.getDcn())
-                .lastUpdated(claim.getLastUpdated())
-                .claim(claim)
-                .build();
-        entityManager.getTransaction().begin();
-        entityManager.merge(container);
-        entityManager.getTransaction().commit();
-
+        insertFissClaim(entityManager);
+        insertMcsClaim(entityManager);
       } finally {
         if (entityManager != null) {
           entityManager.close();
@@ -115,6 +69,93 @@ public class SimpleRdaInsertApp {
         reporter.report();
       }
     }
+  }
+
+  private static void insertFissClaim(EntityManager entityManager) {
+    final PreAdjFissClaim claim =
+        PreAdjFissClaim.builder()
+            .dcn("1")
+            .hicNo("h1")
+            .currStatus('1')
+            .currLoc1('A')
+            .currLoc2("1A")
+            .pracLocCity("city name can be very long indeed")
+            .sequenceNumber(1L)
+            .lastUpdated(Instant.now())
+            .build();
+
+    final PreAdjFissProcCode procCode0 =
+        PreAdjFissProcCode.builder()
+            .dcn(claim.getDcn())
+            .priority((short) 0)
+            .procCode("P")
+            .procFlag("F")
+            .procDate(LocalDate.now())
+            .lastUpdated(Instant.now())
+            .build();
+    claim.getProcCodes().add(procCode0);
+
+    final PreAdjFissDiagnosisCode diagCode0 =
+        PreAdjFissDiagnosisCode.builder()
+            .dcn(claim.getDcn())
+            .priority((short) 0)
+            .diagCd2("cd2")
+            .diagPoaInd("Q")
+            .lastUpdated(Instant.now())
+            .build();
+    claim.getDiagCodes().add(diagCode0);
+
+    final PreAdjFissPayer payer0 =
+        PreAdjFissPayer.builder()
+            .dcn(claim.getDcn())
+            .priority((short) 0)
+            .payerType(PreAdjFissPayer.PayerType.BeneZ)
+            .estAmtDue(new BigDecimal("1.23"))
+            .lastUpdated(Instant.now())
+            .build();
+    claim.getPayers().add(payer0);
+
+    entityManager.getTransaction().begin();
+    entityManager.merge(new PreAdjFissClaimJson(claim));
+    entityManager.getTransaction().commit();
+  }
+
+  private static void insertMcsClaim(EntityManager entityManager) {
+    final PreAdjMcsClaim claim =
+        PreAdjMcsClaim.builder()
+            .idrClmHdIcn("3")
+            .idrContrId("c1")
+            .idrHic("hc")
+            .idrClaimType("c")
+            .sequenceNumber(3L)
+            .lastUpdated(Instant.now())
+            .build();
+
+    claim.getDetails().add(quickMcsDetail(claim, 0, "P"));
+    claim.getDetails().add(quickMcsDetail(claim, 2, "R"));
+    claim.getDiagCodes().add(quickMcsDiagCode(claim, 0, "T"));
+
+    entityManager.getTransaction().begin();
+    entityManager.merge(new PreAdjMcsClaimJson(claim));
+    entityManager.getTransaction().commit();
+  }
+
+  private static PreAdjMcsDetail quickMcsDetail(
+      PreAdjMcsClaim claim, int priority, String dtlStatus) {
+    return PreAdjMcsDetail.builder()
+        .idrClmHdIcn(claim.getIdrClmHdIcn())
+        .priority((short) priority)
+        .idrDtlStatus(dtlStatus)
+        .build();
+  }
+
+  private static PreAdjMcsDiagnosisCode quickMcsDiagCode(
+      PreAdjMcsClaim claim, int priority, String icdType) {
+    return PreAdjMcsDiagnosisCode.builder()
+        .idrClmHdIcn(claim.getIdrClmHdIcn())
+        .priority((short) priority)
+        .idrDiagIcdType(icdType)
+        .build();
   }
 
   private static DatabaseOptions readDatabaseOptions(Properties props) {

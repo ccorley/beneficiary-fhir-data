@@ -3,7 +3,7 @@ package gov.cms.bfd.pipeline.rda.grpc.sink;
 import static org.junit.Assert.assertEquals;
 
 import gov.cms.bfd.model.rda.PreAdjFissClaim;
-import gov.cms.bfd.model.rda.PreAdjFissClaimContainer;
+import gov.cms.bfd.model.rda.PreAdjFissClaimJson;
 import gov.cms.bfd.model.rda.PreAdjFissDiagnosisCode;
 import gov.cms.bfd.model.rda.PreAdjFissProcCode;
 import gov.cms.bfd.pipeline.rda.grpc.RdaChange;
@@ -71,10 +71,9 @@ public class FissClaimRdaSinkIT {
 
           List<PreAdjFissClaim> claims =
               entityManager
-                  .createQuery(
-                      "select c from PreAdjFissClaimContainer c", PreAdjFissClaimContainer.class)
+                  .createQuery("select c from PreAdjFissClaimJson c", PreAdjFissClaimJson.class)
                   .getResultList().stream()
-                  .map(PreAdjFissClaimContainer::getClaim)
+                  .map(PreAdjFissClaimJson::getClaim)
                   .collect(Collectors.toList());
           assertEquals(1, claims.size());
           PreAdjFissClaim resultClaim = claims.get(0);

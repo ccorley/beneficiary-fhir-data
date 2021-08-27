@@ -4,9 +4,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import gov.cms.bfd.model.rda.PreAdjFissClaim;
-import gov.cms.bfd.model.rda.PreAdjFissClaimContainer;
+import gov.cms.bfd.model.rda.PreAdjFissClaimJson;
 import gov.cms.bfd.model.rda.PreAdjFissProcCode;
 import gov.cms.bfd.model.rda.PreAdjMcsClaim;
+import gov.cms.bfd.model.rda.PreAdjMcsClaimJson;
 import gov.cms.bfd.model.rda.PreAdjMcsDetail;
 import gov.cms.bfd.model.rda.PreAdjMcsDiagnosisCode;
 import gov.cms.bfd.model.rif.schema.DatabaseTestUtils;
@@ -31,11 +32,7 @@ import javax.sql.DataSource;
 public class RDATestUtils {
 
   private static final List<Class<?>> TABLE_ENTITIES =
-      ImmutableList.of(
-          PreAdjFissClaimContainer.class,
-          PreAdjMcsDetail.class,
-          PreAdjMcsDiagnosisCode.class,
-          PreAdjMcsClaim.class);
+      ImmutableList.of(PreAdjFissClaimJson.class, PreAdjMcsClaimJson.class);
 
   public static final String PERSISTENCE_UNIT_NAME = "gov.cms.bfd.rda";
 
@@ -98,11 +95,11 @@ public class RDATestUtils {
     return expectedResponse.toString();
   }
 
-  public List<PreAdjFissClaimContainer> fissTestData() {
+  public List<PreAdjFissClaimJson> fissTestData() {
     return Arrays.asList(fissTestDataA(), fissTestDataB());
   }
 
-  private PreAdjFissClaimContainer fissTestDataA() {
+  private PreAdjFissClaimJson fissTestDataA() {
     PreAdjFissClaim claim =
         PreAdjFissClaim.builder()
             .sequenceNumber(1L)
@@ -146,10 +143,10 @@ public class RDATestUtils {
 
     claim.setProcCodes(codes);
 
-    return new PreAdjFissClaimContainer(claim);
+    return new PreAdjFissClaimJson(claim);
   }
 
-  private PreAdjFissClaimContainer fissTestDataB() {
+  private PreAdjFissClaimJson fissTestDataB() {
     PreAdjFissClaim claim =
         PreAdjFissClaim.builder()
             .sequenceNumber(2L)
@@ -185,7 +182,7 @@ public class RDATestUtils {
 
     claim.setProcCodes(Collections.singleton(code));
 
-    return new PreAdjFissClaimContainer(claim);
+    return new PreAdjFissClaimJson(claim);
   }
 
   public List<PreAdjMcsClaim> mcsTestData() {

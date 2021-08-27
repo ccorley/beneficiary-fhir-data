@@ -22,16 +22,28 @@ import lombok.experimental.FieldNameConstants;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldNameConstants
-@Table(name = "`FissClaimsJson`", schema = "`pre_adj`")
-public class PreAdjFissClaimContainer {
-  public PreAdjFissClaimContainer(PreAdjFissClaim claim) {
-    this(claim.getDcn(), claim.getLastUpdated(), claim.getSequenceNumber(), claim);
+@Table(name = "`McsClaimsJson`", schema = "`pre_adj`")
+public class PreAdjMcsClaimJson {
+  public PreAdjMcsClaimJson(PreAdjMcsClaim claim) {
+    this(
+        claim.getIdrClmHdIcn(),
+        claim.getIdrClaimMbi(),
+        claim.getIdrClaimMbiHash(),
+        claim.getLastUpdated(),
+        claim.getSequenceNumber(),
+        claim);
   }
 
   @Id
-  @Column(name = "`dcn`", length = 23, nullable = false)
+  @Column(name = "`idrClmHdIcn`", length = 15, nullable = false)
   @EqualsAndHashCode.Include
-  private String dcn;
+  private String idrClmHdIcn;
+
+  @Column(name = "`idrClaimMbi`", length = 13)
+  private String idrClaimMbi;
+
+  @Column(name = "`idrClaimMbiHash`", length = 64)
+  private String idrClaimMbiHash;
 
   @Column(name = "`lastUpdated`", nullable = false)
   private Instant lastUpdated;
@@ -40,6 +52,6 @@ public class PreAdjFissClaimContainer {
   private Long sequenceNumber;
 
   @Column(name = "`claim`", nullable = false, columnDefinition = "jsonb")
-  @Convert(converter = PreAdjFissClaimConverter.class)
-  private PreAdjFissClaim claim;
+  @Convert(converter = PreAdjMcsClaimConverter.class)
+  private PreAdjMcsClaim claim;
 }

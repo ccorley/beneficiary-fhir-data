@@ -8,8 +8,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
 import gov.cms.bfd.model.rda.PreAdjFissClaim;
-import gov.cms.bfd.model.rda.PreAdjFissClaimContainer;
+import gov.cms.bfd.model.rda.PreAdjFissClaimJson;
 import gov.cms.bfd.model.rda.PreAdjMcsClaim;
+import gov.cms.bfd.model.rda.PreAdjMcsClaimJson;
 import gov.cms.bfd.pipeline.rda.grpc.server.EmptyMessageSource;
 import gov.cms.bfd.pipeline.rda.grpc.server.ExceptionMessageSource;
 import gov.cms.bfd.pipeline.rda.grpc.server.JsonMessageSource;
@@ -222,16 +223,17 @@ public class RdaLoadJobIT {
   }
 
   private List<PreAdjMcsClaim> getPreAdjMcsClaims(EntityManager entityManager) {
-    return entityManager
-        .createQuery("select c from PreAdjMcsClaim c", PreAdjMcsClaim.class)
-        .getResultList();
+    return entityManager.createQuery("select c from PreAdjMcsClaimJson c", PreAdjMcsClaimJson.class)
+        .getResultList().stream()
+        .map(PreAdjMcsClaimJson::getClaim)
+        .collect(Collectors.toList());
   }
 
   private List<PreAdjFissClaim> getPreAdjFissClaims(EntityManager entityManager) {
     return entityManager
-        .createQuery("select c from PreAdjFissClaimContainer c", PreAdjFissClaimContainer.class)
+        .createQuery("select c from PreAdjFissClaimJson c", PreAdjFissClaimJson.class)
         .getResultList().stream()
-        .map(PreAdjFissClaimContainer::getClaim)
+        .map(PreAdjFissClaimJson::getClaim)
         .collect(Collectors.toList());
   }
 
