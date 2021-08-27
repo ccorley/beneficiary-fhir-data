@@ -185,11 +185,11 @@ public class RDATestUtils {
     return new PreAdjFissClaimJson(claim);
   }
 
-  public List<PreAdjMcsClaim> mcsTestData() {
+  public List<PreAdjMcsClaimJson> mcsTestData() {
     return Collections.singletonList(mcsTestDataA());
   }
 
-  private PreAdjMcsClaim mcsTestDataA() {
+  private PreAdjMcsClaimJson mcsTestDataA() {
     PreAdjMcsClaim claim =
         PreAdjMcsClaim.builder()
             .sequenceNumber(1L)
@@ -249,6 +249,6 @@ public class RDATestUtils {
             new PreAdjMcsDiagnosisCode(
                 "654321", (short) 1, "1", "HF3IJIG", Instant.ofEpochMilli(4000))));
 
-    return claim;
+    return new PreAdjMcsClaimJson(claim);
   }
 }

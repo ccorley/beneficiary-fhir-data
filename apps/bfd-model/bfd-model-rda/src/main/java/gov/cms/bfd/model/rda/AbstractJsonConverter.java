@@ -3,7 +3,6 @@ package gov.cms.bfd.model.rda;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import javax.annotation.Nullable;
@@ -11,7 +10,7 @@ import javax.persistence.AttributeConverter;
 
 public class AbstractJsonConverter<T> implements AttributeConverter<T, String> {
   private static final ObjectMapper objectMapper =
-      new JsonMapper()
+      new ObjectMapper()
           .enable(SerializationFeature.INDENT_OUTPUT)
           .registerModule(new Jdk8Module())
           .registerModule(new JavaTimeModule())

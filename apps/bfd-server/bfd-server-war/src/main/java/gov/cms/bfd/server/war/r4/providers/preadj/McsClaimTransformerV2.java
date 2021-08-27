@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.newrelic.api.agent.Trace;
 import gov.cms.bfd.model.rda.PreAdjMcsClaim;
+import gov.cms.bfd.model.rda.PreAdjMcsClaimJson;
 import gov.cms.bfd.model.rda.PreAdjMcsDetail;
 import gov.cms.bfd.model.rda.PreAdjMcsDiagnosisCode;
 import gov.cms.bfd.server.war.commons.carin.C4BBIdentifierType;
@@ -44,12 +45,12 @@ public class McsClaimTransformerV2 {
    */
   @Trace
   static Claim transform(MetricRegistry metricRegistry, Object claimEntity) {
-    if (!(claimEntity instanceof PreAdjMcsClaim)) {
+    if (!(claimEntity instanceof PreAdjMcsClaimJson)) {
       throw new BadCodeMonkeyException();
     }
 
     try (Timer.Context ignored = metricRegistry.timer(METRIC_NAME).time()) {
-      return transformClaim((PreAdjMcsClaim) claimEntity);
+      return transformClaim(((PreAdjMcsClaimJson) claimEntity).getClaim());
     }
   }
 
