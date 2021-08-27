@@ -62,11 +62,8 @@
 		<appender-ref ref="STDOUT"/>
 	</logger>
 
-	<!-- At 'debug', Hibernate will log SQL statements. -->
-	<!-- <logger name="org.hibernate.SQL" level="debug" /> -->
-
 	<!-- At 'trace', Hibernate will log SQL parameter values. -->
-	<!-- <logger name="org.hibernate.type" level="trace" /> -->
+	<logger name="org.hibernate" level="trace" />
 	
 	<root level="info">
 		<appender-ref ref="STDOUT" />

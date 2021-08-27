@@ -83,7 +83,7 @@ public class SpringConfiguration {
    * run and each session's performance. Be sure to also adjust the related logging levels in
    * Wildfly or whatever (see <code>server-config.sh</code> for details).
    */
-  private static final boolean HIBERNATE_DETAILED_LOGGING = false;
+  private static final boolean HIBERNATE_DETAILED_LOGGING = true;
 
   /**
    * @param url the JDBC URL of the database for the application
