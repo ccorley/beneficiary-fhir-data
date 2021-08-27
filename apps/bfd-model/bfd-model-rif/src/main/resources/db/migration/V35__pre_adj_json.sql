@@ -17,6 +17,7 @@ create table "pre_adj"."FissClaimsJson" (
     "dcn"            varchar(23)   not null,
     "mbi"            varchar(13),
     "mbiHash"        varchar(64),
+    "stmtCovToDate"  date,
     "sequenceNumber" bigint        not null,
     "lastUpdated"    timestamp with time zone,
     "claim"          ${type.jsonb} not null,
@@ -28,12 +29,13 @@ create table "pre_adj"."FissClaimsJson" (
   querying outside of the json.
  */
 create table "pre_adj"."McsClaimsJson" (
-    "idrClmHdIcn"     varchar(15)   not null,
-    "idrClaimMbi"     varchar(13),
-    "idrClaimMbiHash" varchar(64),
-    "sequenceNumber"  bigint        not null,
-    "lastUpdated"     timestamp with time zone,
-    "claim"           ${type.jsonb} not null,
+    "idrClmHdIcn"       varchar(15)   not null,
+    "idrClaimMbi"       varchar(13),
+    "idrClaimMbiHash"   varchar(64),
+    "idrHdrToDateOfSvc" date,
+    "sequenceNumber"    bigint        not null,
+    "lastUpdated"       timestamp with time zone,
+    "claim"             ${type.jsonb} not null,
     constraint "McsClaimsJson_pkey" primary key ("idrClmHdIcn")
 );
 

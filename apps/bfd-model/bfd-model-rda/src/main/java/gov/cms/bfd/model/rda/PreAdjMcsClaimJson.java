@@ -1,6 +1,7 @@
 package gov.cms.bfd.model.rda;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -29,6 +30,7 @@ public class PreAdjMcsClaimJson {
         claim.getIdrClmHdIcn(),
         claim.getIdrClaimMbi(),
         claim.getIdrClaimMbiHash(),
+        claim.getIdrHdrToDateOfSvc(),
         claim.getLastUpdated(),
         claim.getSequenceNumber(),
         claim);
@@ -44,6 +46,9 @@ public class PreAdjMcsClaimJson {
 
   @Column(name = "`idrClaimMbiHash`", length = 64)
   private String idrClaimMbiHash;
+
+  @Column(name = "`idrHdrToDateOfSvc`")
+  private LocalDate idrHdrToDateOfSvc;
 
   @Column(name = "`lastUpdated`", nullable = false)
   private Instant lastUpdated;
