@@ -40,9 +40,21 @@ create table "pre_adj"."McsClaimsJson" (
 );
 
 /* Index to allow quick determination of where to resume stream in calls to RDA API. */
-create index "FissClaimsJson_sequenceNumber_idx" on "pre_adj"."FissClaimsJson" ("sequenceNumber");
-create index "McsClaimsJson_sequenceNumber_idx" on "pre_adj"."McsClaimsJson" ("sequenceNumber");
+create index "FissClaimsJson_sequenceNumber_idx" on "pre_adj"."FissClaimsJson"("sequenceNumber");
+create index "McsClaimsJson_sequenceNumber_idx" on "pre_adj"."McsClaimsJson"("sequenceNumber");
 
 /* Index to allow fast query by update time by BFD API. */
-create index "FissClaimsJson_lastUpdated_idx" on "pre_adj"."FissClaimsJson" ("lastUpdated");
-create index "McsClaimsJson_lastUpdated_idx" on "pre_adj"."McsClaimsJson" ("lastUpdated");
+create index "FissClaimsJson_lastUpdated_idx" on "pre_adj"."FissClaimsJson"("lastUpdated");
+create index "McsClaimsJson_lastUpdated_idx" on "pre_adj"."McsClaimsJson"("lastUpdated");
+
+/* Index to allow fast query by MBI by BFD API. */
+create index "FissClaimsJson_mbi_idx" on "pre_adj"."FissClaimsJson"("mbi");
+create index "McsClaimsJson_idrClaimMbi_idx" on "pre_adj"."McsClaimsJson"("idrClaimMbi");
+
+/* Index to allow fast query by MBI hash by BFD API. */
+create index "FissClaimsJson_mbiHash_idx" on "pre_adj"."FissClaimsJson"("mbiHash");
+create index "McsClaimsJson_idrClaimMbiHash_idx" on "pre_adj"."McsClaimsJson"("idrClaimMbiHash");
+
+/* Index to allow fast query by service date by BFD API. */
+create index "FissClaimsJson_stmtCovToDate_idx" on "pre_adj"."FissClaimsJson"("stmtCovToDate");
+create index "McsClaimsJson_idrHdrToDateOfSvc_idx" on "pre_adj"."McsClaimsJson"("idrHdrToDateOfSvc");
