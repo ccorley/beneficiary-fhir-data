@@ -14,5 +14,5 @@ ENV BFD_PREADJ_ENABLED true
 USER dev
 ENV MAVEN_HOME /opt/maven
 ENV PATH="${PATH}:${MAVEN_HOME}/bin"
-RUN mkdir -p $HOME/.m2
+RUN mkdir -p $HOME/.m2/repository
 RUN cp /config/toolchains.xml $HOME/.m2/toolchains.xml
