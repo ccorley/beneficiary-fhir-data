@@ -30,7 +30,7 @@ if [[ "${cygwin}" = true ]]; then
 fi
 
 # Constants.
-serverTimeoutSeconds=120
+serverTimeoutSeconds=${SERVER_START_TIMEOUT:-120}
 dbUsername=""
 dbPassword=""
 
@@ -53,6 +53,7 @@ visualVm=""
 targetDirectory=
 dbUrl="jdbc:bfd-test:hsqldb:mem"
 v2Enabled="true"
+preadjEnabled="true"
 while true; do
 	case "$1" in
 		-j )
@@ -173,6 +174,7 @@ BFD_PORT="${serverPortHttps}" \
 	"-Dbfd-server-${bfdServerId}" \
 	"-DbfdServer.db.url=${dbUrl}" \
 	"-DbfdServer.v2.enabled=${v2Enabled}" \
+    "-DbfdServer.preadj.enabled=${preadjEnabled}" \
 	"-DbfdServer.db.username=" \
 	"-DbfdServer.db.password=" \
 	"-DbfdServer.db.schema.apply=true" \
