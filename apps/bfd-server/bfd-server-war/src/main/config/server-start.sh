@@ -39,7 +39,7 @@ scriptDirectory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Use GNU getopt to parse the options passed to this script.
 TEMP=`getopt \
-	j:m:v:t:u:e: \
+	j:m:v:t:u:e:p: \
 	$*`
 if [ $? != 0 ] ; then echo "Terminating." >&2 ; exit 1 ; fi
 
@@ -68,6 +68,8 @@ while true; do
 			dbUrl="$2"; shift 2 ;;
 		-e )
 			v2Enabled="$2"; shift 2 ;;
+		-p )
+			preadjEnabled="$2"; shift 2 ;;
 		-- ) shift; break ;;
 		* ) break ;;
 	esac
@@ -180,7 +182,7 @@ BFD_PORT="${serverPortHttps}" \
 	"-Dbfd-server-${bfdServerId}" \
 	"-DbfdServer.db.url=${dbUrl}" \
 	"-DbfdServer.v2.enabled=${v2Enabled}" \
-    "-DbfdServer.preadj.enabled=${preadjEnabled}" \
+	"-DbfdServer.preadj.enabled=${preadjEnabled}" \
 	"-DbfdServer.db.username=" \
 	"-DbfdServer.db.password=" \
 	"-DbfdServer.db.schema.apply=true" \
