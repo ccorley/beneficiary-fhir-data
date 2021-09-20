@@ -15,6 +15,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 
+/**
+ * JPA entity class for the table that holds FISS claim data in a JSONB column. Other columns
+ * besides the JSON column are defined so that they can be indexed for query optimization.
+ */
 @Entity
 @Getter
 @Setter

@@ -8,7 +8,19 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import javax.annotation.Nullable;
 import javax.persistence.AttributeConverter;
 
+/**
+ * Base class for {@code AttributeConverter} instances that provide a common mechanism for
+ * converting our POJOs into JSON for inclusion in a JSONB postgresql column or varchar HSQLDB
+ * column. One concrete subclass would be defined for each root object class that needs to be
+ * converted to JSON.
+ *
+ * @param <T> type of one of our data POJOs
+ */
 public class AbstractJsonConverter<T> implements AttributeConverter<T, String> {
+  /**
+   * {@code ObjectMapper} instances are thread safe so this singleton instance ensures consistent
+   * formatting behavior for all instances.
+   */
   private static final ObjectMapper objectMapper =
       new ObjectMapper()
           .enable(SerializationFeature.INDENT_OUTPUT)

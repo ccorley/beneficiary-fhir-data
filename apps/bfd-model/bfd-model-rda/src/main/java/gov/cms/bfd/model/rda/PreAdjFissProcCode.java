@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 
-/** JPA class for the FissProcCodes table */
 @Data
 @Builder
 @AllArgsConstructor
@@ -16,14 +15,9 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 public class PreAdjFissProcCode {
   private String dcn;
-
   private short priority;
-
   private String procCode;
-
   private String procFlag;
-
   private LocalDate procDate;
-
   private Instant lastUpdated;
 }

@@ -9,38 +9,27 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 
-/** JPA class for the FissPayers table */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldNameConstants
 public class PreAdjFissPayer {
-  private String dcn;
-
-  private short priority;
-
   public enum PayerType {
     BeneZ,
     Insured
   }
 
+  private String dcn;
+  private short priority;
   private PayerType payerType;
-
   private String payersId;
-
   private String payersName;
-
   private String relInd;
-
   private String assignInd;
-
   private String providerNumber;
-
   private String adjDcnIcn;
-
   private BigDecimal priorPmt;
-
   private BigDecimal estAmtDue;
 
   // BeneZ only
@@ -79,9 +68,7 @@ public class PreAdjFissPayer {
   private String beneSex;
 
   private String treatAuthCd;
-
   private String insuredSex;
-
   private String insuredRelX12;
 
   // Insured only
