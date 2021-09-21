@@ -84,7 +84,7 @@
 		<sonar.jacoco.itReportPath>target/jacoco-it.exec</sonar.jacoco.itReportPath>
 
 		<metrics.version>4.1.2</metrics.version>
-		<hibernate.version>5.2.10.Final</hibernate.version>
+		<hibernate.version>5.5.7.Final</hibernate.version>
 		
 		<!-- The default DB that will be used in integration tests. -->
 		<!-- Note: See gov.cms.bfd.model.rif.schema.DatabaseTestHelper for details
@@ -161,7 +161,7 @@
 					uses the 4.3.29.RELEASE version of the Spring Framework. -->
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-framework-bom</artifactId>
-				<version>4.3.29.RELEASE</version>
+				<version>5.3.10</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -170,7 +170,7 @@
 					Framework that we're using, per http://docs.spring.io/spring-data/jpa/docs/1.11.4.RELEASE/reference/html/#dependencies.spring-framework. -->
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-jpa</artifactId>
-				<version>1.11.23.RELEASE</version>
+				<version>2.5.5</version>
 			</dependency>
 
 			<dependency>
@@ -188,7 +188,7 @@
 					Hibernate is used for that in our projects.) -->
 				<artifactId>hibernate-jpa-2.1-api</artifactId>
 				<groupId>org.hibernate.javax.persistence</groupId>
-				<version>1.0.0.Final</version>
+				<version>1.0.2.Final</version>
 			</dependency>
 			<dependency>
 				<!-- Hibernate's JPA implementation is used to manage most database usage 
