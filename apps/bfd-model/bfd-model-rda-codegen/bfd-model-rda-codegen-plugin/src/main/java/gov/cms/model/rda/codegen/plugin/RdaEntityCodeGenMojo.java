@@ -125,7 +125,9 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
     if (!column.isNullable()) {
       builder.addMember("nullable", "$L", false);
     }
-    builder.addMember("columnDefinition", "$S", column.getSqlType());
+    if (column.isColumnDefRequired()) {
+      builder.addMember("columnDefinition", "$S", column.getSqlType());
+    }
     int length = column.computeLength();
     if (length > 0) {
       builder.addMember("length", "$L", length);

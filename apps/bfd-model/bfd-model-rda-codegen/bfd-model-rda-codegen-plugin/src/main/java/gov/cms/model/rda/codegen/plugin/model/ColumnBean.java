@@ -39,6 +39,10 @@ public class ColumnBean {
     }
   }
 
+  public boolean isColumnDefRequired() {
+    return sqlType.contains("decimal");
+  }
+
   private TypeName mapSqlTypeToTypeName() {
     if (sqlType.contains("char")) {
       return ClassName.get(String.class);
