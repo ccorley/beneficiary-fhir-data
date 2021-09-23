@@ -49,12 +49,14 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
       throw new MojoFailureException("mappingFile not defined or does not exist");
     }
 
-    MappingBean rootMapping = ModelUtil.loadMappingFromYamlFile(mappingFile);
-    TypeSpec rootEntity = createEntityFromMapping(rootMapping);
-    JavaFile javaFile = JavaFile.builder(getPackageName(rootMapping), rootEntity).build();
     File outputDir = new File(outputDirectory);
     outputDir.mkdirs();
-    javaFile.writeTo(outputDir);
+    List<MappingBean> rootMappings = ModelUtil.loadMappingsFromYamlFile(mappingFile);
+    for (MappingBean mapping : rootMappings) {
+      TypeSpec rootEntity = createEntityFromMapping(mapping);
+      JavaFile javaFile = JavaFile.builder(getPackageName(mapping), rootEntity).build();
+      javaFile.writeTo(outputDir);
+    }
     project.addCompileSourceRoot(outputDirectory);
   }
 

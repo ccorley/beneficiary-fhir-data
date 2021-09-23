@@ -1,102 +1,102 @@
-mapping:
-  id: FissClaim
-  entity: gov.cms.bfd.model.rda.PreAdjFissClaim2
-  table:
-    name: FissClaims
-    schema: pre_adj
-    primaryKeyFields:
-      - dcn
-  fields:
-    - from: seq
-      to: sequenceNumber
-      column:
-        sqlType: bigint
-        nullable: false
-    - from: dcn
-      column:
-        sqlType: varchar(23)
-        nullable: false
-    - from: hicNo
-      column:
-        sqlType: varchar(12)
-        nullable: false
-    - from: currStatus
-      column:
-        sqlType: varchar(1)
-        javaType: char
-        nullable: false
-    - from: currLoc1
-      column:
-        sqlType: varchar(1)
-        javaType: char
-        nullable: false
-    - from: currLoc2
-      column:
-        sqlType: varchar(5)
-        nullable: false
-    - from: medaProvId
-      column:
-        sqlType: varchar(13)
-    - from: medaProv_6
-      column:
-        sqlType: varchar(6)
-    - from: totalChargeAmount
-      column:
-        sqlType: decimal(11,2)
-    - from: receivedDate
-      column:
-        sqlType: date
-    - from: currTranDate
-      column:
-        sqlType: date
-    - from: admitDiagCode
-      column:
-        sqlType: varchar(7)
-    - from: principleDiag
-      column:
-        sqlType: varchar(7)
-    - from: npiNumber
-      column:
-        sqlType: varchar(10)
-    - from: mbi
-      column:
-        sqlType: varchar(13)
-    - from: mbiHash
-      column:
-        sqlType: varchar(64)
-    - from: fedTaxNumber
-      column:
-        sqlType: varchar(10)
-    - from: lastUpdated
-      column:
-        sqlType: timestamp with time zone
-    - from: pracLocAddr1
-      column:
-        sqlType: varchar(max)
-    - from: pracLocAddr2
-      column:
-        sqlType: varchar(max)
-    - from: pracLocCity
-      column:
-        sqlType: varchar(max)
-    - from: pracLocState
-      column:
-        sqlType: varchar(2)
-    - from: pracLocZip
-      column:
-        sqlType: varchar(max)
-    - from: stmtCovFromDate
-      column:
-        sqlType: date
-    - from: lobCd
-      column:
-        sqlType: varchar(1)
-    - from: servTypeCd
-      column:
-        sqlType: varchar(1)
-    - from: freqCd
-      column:
-        sqlType: varchar(1)
-    - from: billTypCd
-      column:
-        sqlType: varchar(3)
+mappings:
+  - id: FissClaim
+    entity: gov.cms.bfd.model.rda.PreAdjFissClaim2
+    table:
+      name: FissClaims
+      schema: pre_adj
+      primaryKeyFields:
+        - dcn
+    fields:
+      - from: seq
+        to: sequenceNumber
+        column:
+          sqlType: bigint
+          nullable: false
+      - from: dcn
+        column:
+          sqlType: varchar(23)
+          nullable: false
+      - from: hicNo
+        column:
+          sqlType: varchar(12)
+          nullable: false
+      - from: currStatus
+        column:
+          sqlType: varchar(1)
+          javaType: char
+          nullable: false
+      - from: currLoc1
+        column:
+          sqlType: varchar(1)
+          javaType: char
+          nullable: false
+      - from: currLoc2
+        column:
+          sqlType: varchar(5)
+          nullable: false
+      - from: medaProvId
+        column:
+          sqlType: varchar(13)
+      - from: medaProv_6
+        column:
+          sqlType: varchar(6)
+      - from: totalChargeAmount
+        column:
+          sqlType: decimal(11,2)
+      - from: receivedDate
+        column:
+          sqlType: date
+      - from: currTranDate
+        column:
+          sqlType: date
+      - from: admitDiagCode
+        column:
+          sqlType: varchar(7)
+      - from: principleDiag
+        column:
+          sqlType: varchar(7)
+      - from: npiNumber
+        column:
+          sqlType: varchar(10)
+      - from: mbi
+        column:
+          sqlType: varchar(13)
+      - from: mbiHash
+        column:
+          sqlType: varchar(64)
+      - from: fedTaxNumber
+        column:
+          sqlType: varchar(10)
+      - from: lastUpdated
+        column:
+          sqlType: timestamp with time zone
+      - from: pracLocAddr1
+        column:
+          sqlType: varchar(max)
+      - from: pracLocAddr2
+        column:
+          sqlType: varchar(max)
+      - from: pracLocCity
+        column:
+          sqlType: varchar(max)
+      - from: pracLocState
+        column:
+          sqlType: varchar(2)
+      - from: pracLocZip
+        column:
+          sqlType: varchar(max)
+      - from: stmtCovFromDate
+        column:
+          sqlType: date
+      - from: lobCd
+        column:
+          sqlType: varchar(1)
+      - from: servTypeCd
+        column:
+          sqlType: varchar(1)
+      - from: freqCd
+        column:
+          sqlType: varchar(1)
+      - from: billTypCd
+        column:
+          sqlType: varchar(3)
