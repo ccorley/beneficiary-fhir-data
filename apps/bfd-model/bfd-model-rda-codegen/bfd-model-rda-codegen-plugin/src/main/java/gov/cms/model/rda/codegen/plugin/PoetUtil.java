@@ -57,7 +57,7 @@ public class PoetUtil {
     equalsMethod.addStatement("$T other = ($T) obj", typeName, typeName);
     for (FieldSpec field : fields) {
       equalsMethod
-          .beginControlFlow("if ($T.equals($N, other.$N))", Objects.class, field, field)
+          .beginControlFlow("if (!$T.equals($N, other.$N))", Objects.class, field, field)
           .addStatement("return false")
           .endControlFlow();
     }

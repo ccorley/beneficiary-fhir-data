@@ -47,6 +47,9 @@ public class ColumnBean {
     if (sqlType.contains("char")) {
       return ClassName.get(String.class);
     }
+    if (sqlType.contains("smallint")) {
+      return ClassName.get(Short.class);
+    }
     if (sqlType.contains("int")) {
       return ClassName.get(Long.class);
     }

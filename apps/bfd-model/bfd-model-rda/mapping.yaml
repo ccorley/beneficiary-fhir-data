@@ -67,7 +67,8 @@ mappings:
       - from: fedTaxNumber
         column:
           sqlType: varchar(10)
-      - from: lastUpdated
+      - from: NOW
+        to: lastUpdated
         column:
           sqlType: timestamp with time zone
       - from: pracLocAddr1
@@ -100,3 +101,41 @@ mappings:
       - from: billTypCd
         column:
           sqlType: varchar(3)
+    arrays:
+      - from: claim.fissProcCodes
+        to: procCodes
+        mapping: FissProcCode
+
+  - id: FissProcCode
+    entity: gov.cms.bfd.model.rda.PreAdjFissProcCode2
+    table:
+      name: FissProcCodes
+      schema: pre_adj
+      primaryKeyFields:
+        - dcn
+        - priority
+    fields:
+      - from: PARENT
+        to: dcn
+        column:
+          sqlType: varchar(23)
+          nullable: false
+      - from: INDEX
+        to: priority
+        column:
+          sqlType: smallint
+          nullable: false
+      - from: procCode
+        column:
+          sqlType: varchar(10)
+          nullable: false
+      - from: procFlag
+        column:
+          sqlType: varchar(4)
+      - from: procDate
+        column:
+          sqlType: date
+      - from: PARENT
+        to: lastUpdated
+        column:
+          sqlType: timestamp with time zone

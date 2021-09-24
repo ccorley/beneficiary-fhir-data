@@ -4,21 +4,32 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
+import gov.cms.model.rda.codegen.plugin.model.ArrayElement;
 import gov.cms.model.rda.codegen.plugin.model.ColumnBean;
 import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import gov.cms.model.rda.codegen.plugin.model.ModelUtil;
+import gov.cms.model.rda.codegen.plugin.model.RootBean;
 import gov.cms.model.rda.codegen.plugin.model.TableBean;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import javax.lang.model.element.Modifier;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.SneakyThrows;
 import org.apache.maven.plugin.AbstractMojo;
@@ -32,6 +43,8 @@ import org.apache.maven.project.MavenProject;
 /** A Maven Mojo that generates code for RDA API JPA entities. */
 @Mojo(name = "entities", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class RdaEntityCodeGenMojo extends AbstractMojo {
+  private static final String PRIMARY_KEY_CLASS_NAME = "PK";
+
   @Parameter(property = "mappingFile")
   private String mappingFile;
 
@@ -51,26 +64,52 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
 
     File outputDir = new File(outputDirectory);
     outputDir.mkdirs();
-    List<MappingBean> rootMappings = ModelUtil.loadMappingsFromYamlFile(mappingFile);
+    RootBean root = ModelUtil.loadMappingsFromYamlFile(mappingFile);
+    List<MappingBean> rootMappings = root.getMappings();
     for (MappingBean mapping : rootMappings) {
-      TypeSpec rootEntity = createEntityFromMapping(mapping);
-      JavaFile javaFile = JavaFile.builder(getPackageName(mapping), rootEntity).build();
+      TypeSpec rootEntity = createEntityFromMapping(mapping, root::findMappingWithId);
+      JavaFile javaFile = JavaFile.builder(mapping.computePackageName(), rootEntity).build();
       javaFile.writeTo(outputDir);
     }
     project.addCompileSourceRoot(outputDirectory);
   }
 
-  private TypeSpec createEntityFromMapping(MappingBean mapping) throws MojoFailureException {
+  private TypeSpec createEntityFromMapping(
+      MappingBean mapping, Function<String, Optional<MappingBean>> mappingFinder)
+      throws MojoFailureException {
     TypeSpec.Builder classBuilder =
-        TypeSpec.classBuilder(getClassName(mapping))
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+        TypeSpec.classBuilder(mapping.computeClassName())
+            .addModifiers(Modifier.PUBLIC)
             .addAnnotation(Entity.class)
             .addAnnotation(createTableAnnotation(mapping.getTable()));
     final Set<String> primaryKeys = mapping.getTable().computePrimaryKeys();
     if (primaryKeys.size() == 0) {
-      throw new MojoFailureException("at least one primary key field is required");
+      String message =
+          String.format("mapping has no primary key fields: mapping=%s", mapping.getId());
+      throw new MojoFailureException(message);
     }
     List<FieldSpec> primaryKeySpecs = new ArrayList<>();
+    addColumnFields(mapping, classBuilder, primaryKeys, primaryKeySpecs);
+    if (primaryKeySpecs.size() > 1) {
+      addIdClassAnnotation(classBuilder, mapping);
+      addPrimaryKeyClass(classBuilder, primaryKeySpecs, mapping);
+    }
+    if (mapping.getArrays().size() > 0) {
+      addArrayFields(mapping, mappingFinder, classBuilder, primaryKeySpecs);
+    }
+    PoetUtil.addHashCode(primaryKeySpecs, classBuilder);
+    PoetUtil.addEquals(
+        ClassName.get(mapping.computePackageName(), mapping.computeClassName()),
+        primaryKeySpecs,
+        classBuilder);
+    return classBuilder.build();
+  }
+
+  private void addColumnFields(
+      MappingBean mapping,
+      TypeSpec.Builder classBuilder,
+      Set<String> primaryKeys,
+      List<FieldSpec> primaryKeySpecs) {
     for (FieldBean field : mapping.getFields()) {
       FieldSpec.Builder builder =
           FieldSpec.builder(field.getColumn().computeJavaType(), field.getTo());
@@ -87,26 +126,101 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
         primaryKeySpecs.add(fieldSpec);
       }
     }
-    PoetUtil.addHashCode(primaryKeySpecs, classBuilder);
-    PoetUtil.addEquals(
-        ClassName.get(getPackageName(mapping), getClassName(mapping)),
-        primaryKeySpecs,
-        classBuilder);
-    return classBuilder.build();
+  }
+
+  private void addArrayFields(
+      MappingBean mapping,
+      Function<String, Optional<MappingBean>> mappingFinder,
+      TypeSpec.Builder classBuilder,
+      List<FieldSpec> primaryKeySpecs)
+      throws MojoFailureException {
+    if (primaryKeySpecs.size() != 1) {
+      String message =
+          String.format(
+              "classes with arrays must have a single primary key field but this one has %d: mapping=%s",
+              primaryKeySpecs.size(), mapping.getId());
+      throw new MojoFailureException(message);
+    }
+    for (ArrayElement arrayElement : mapping.getArrays()) {
+      Optional<MappingBean> arrayMapping = mappingFinder.apply(arrayElement.getMapping());
+      if (!arrayMapping.isPresent()) {
+        String message =
+            String.format(
+                "array references unknown mapping: mapping=%s array=%s missing=%s",
+                mapping.getId(), arrayElement.getTo(), arrayElement.getMapping());
+        throw new MojoFailureException(message);
+      }
+      addArrayField(
+          classBuilder,
+          arrayElement,
+          mapping.getTable().getPrimaryKeyFields().get(0),
+          arrayMapping.get());
+    }
+  }
+
+  private ClassName computePrimaryKeyClassName(MappingBean mapping) {
+    return ClassName.get(
+        mapping.computePackageName(), mapping.computeClassName(), PRIMARY_KEY_CLASS_NAME);
+  }
+
+  private void addIdClassAnnotation(TypeSpec.Builder classBuilder, MappingBean mapping) {
+    AnnotationSpec.Builder builder = AnnotationSpec.builder(IdClass.class);
+    builder.addMember("value", "$T.class", computePrimaryKeyClassName(mapping));
+    classBuilder.addAnnotation(builder.build());
+  }
+
+  private void addPrimaryKeyClass(
+      TypeSpec.Builder parentClassBuilder, List<FieldSpec> parentKeySpecs, MappingBean mapping) {
+    TypeSpec.Builder pkClassBuilder =
+        TypeSpec.classBuilder(PRIMARY_KEY_CLASS_NAME)
+            .addSuperinterface(Serializable.class)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC);
+    List<FieldSpec> keyFieldSpecs = new ArrayList<>();
+    for (FieldSpec fieldSpec : parentKeySpecs) {
+      FieldSpec.Builder keyFieldBuilder =
+          FieldSpec.builder(fieldSpec.type, fieldSpec.name).addModifiers(Modifier.PRIVATE);
+      FieldSpec keyFieldSpec = keyFieldBuilder.build();
+      keyFieldSpecs.add(keyFieldSpec);
+      pkClassBuilder.addField(keyFieldSpec);
+      PoetUtil.addGetter(keyFieldSpec, pkClassBuilder);
+      PoetUtil.addSetter(keyFieldSpec, pkClassBuilder);
+    }
+    PoetUtil.addHashCode(parentKeySpecs, pkClassBuilder);
+    PoetUtil.addEquals(computePrimaryKeyClassName(mapping), keyFieldSpecs, pkClassBuilder);
+    parentClassBuilder.addType(pkClassBuilder.build());
+  }
+
+  private void addArrayField(
+      TypeSpec.Builder classBuilder,
+      ArrayElement arrayElement,
+      String primaryKeyFieldName,
+      MappingBean elementMapping) {
+    ClassName entityClass =
+        ClassName.get(elementMapping.computePackageName(), elementMapping.computeClassName());
+    ParameterizedTypeName setType =
+        ParameterizedTypeName.get(ClassName.get(Set.class), entityClass);
+    FieldSpec.Builder fieldBuilder =
+        FieldSpec.builder(setType, arrayElement.getTo())
+            .addModifiers(Modifier.PRIVATE)
+            .initializer("new $T<>()", HashSet.class)
+            .addAnnotation(createOneToManyAnnotation(primaryKeyFieldName));
+    FieldSpec fieldSpec = fieldBuilder.build();
+    classBuilder.addField(fieldSpec);
+    PoetUtil.addGetter(fieldSpec, classBuilder);
+    PoetUtil.addSetter(fieldSpec, classBuilder);
+  }
+
+  private AnnotationSpec createOneToManyAnnotation(String mappedBy) {
+    AnnotationSpec.Builder builder = AnnotationSpec.builder(OneToMany.class);
+    builder.addMember("mappedBy", "$S", mappedBy);
+    builder.addMember("fetch", "$T.$L", FetchType.class, FetchType.EAGER);
+    builder.addMember("orphanRemoval", "$L", true);
+    builder.addMember("cascade", "$T.$L", CascadeType.class, CascadeType.ALL);
+    return builder.build();
   }
 
   private String quoteName(String name) {
     return "`" + name + "`";
-  }
-
-  private String getPackageName(MappingBean mapping) {
-    String className = mapping.getEntity();
-    return className.substring(0, className.lastIndexOf("."));
-  }
-
-  private String getClassName(MappingBean mapping) {
-    String className = mapping.getEntity();
-    return className.substring(1 + className.lastIndexOf("."));
   }
 
   private AnnotationSpec createTableAnnotation(TableBean table) {

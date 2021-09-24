@@ -12,4 +12,12 @@ public class MappingBean {
   private TableBean table;
   private List<FieldBean> fields = new ArrayList<>();
   private List<ArrayElement> arrays = new ArrayList<>();
+
+  public String computePackageName() {
+    return entity.substring(0, entity.lastIndexOf("."));
+  }
+
+  public String computeClassName() {
+    return entity.substring(1 + entity.lastIndexOf("."));
+  }
 }
