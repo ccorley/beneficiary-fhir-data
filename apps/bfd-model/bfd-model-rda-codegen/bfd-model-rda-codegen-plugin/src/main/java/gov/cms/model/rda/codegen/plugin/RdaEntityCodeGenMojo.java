@@ -5,6 +5,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import gov.cms.model.rda.codegen.plugin.model.ArrayElement;
 import gov.cms.model.rda.codegen.plugin.model.ColumnBean;
@@ -34,7 +35,15 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.experimental.FieldNameConstants;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -83,6 +92,13 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
         TypeSpec.classBuilder(mapping.computeClassName())
             .addModifiers(Modifier.PUBLIC)
             .addAnnotation(Entity.class)
+            .addAnnotation(Getter.class)
+            .addAnnotation(Setter.class)
+            .addAnnotation(Builder.class)
+            .addAnnotation(AllArgsConstructor.class)
+            .addAnnotation(NoArgsConstructor.class)
+            .addAnnotation(createEqualsAndHashCodeAnnotation())
+            .addAnnotation(FieldNameConstants.class)
             .addAnnotation(createTableAnnotation(mapping.getTable()));
     addEnums(mapping.getEnumTypes(), classBuilder);
     if (!mapping.getTable().hasPrimaryKey()) {
@@ -98,11 +114,6 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
     if (mapping.getArrays().size() > 0) {
       addArrayFields(mapping, mappingFinder, classBuilder, primaryKeySpecs);
     }
-    PoetUtil.addHashCode(primaryKeySpecs, classBuilder);
-    PoetUtil.addEquals(
-        ClassName.get(mapping.computePackageName(), mapping.computeClassName()),
-        primaryKeySpecs,
-        classBuilder);
     return classBuilder.build();
   }
 
@@ -124,21 +135,29 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
   private void addColumnFields(
       MappingBean mapping, TypeSpec.Builder classBuilder, List<FieldSpec> primaryKeySpecs)
       throws MojoExecutionException {
+    TypeName fieldType;
     for (FieldBean field : mapping.getFields()) {
+      if (field.getColumn().isEnum()) {
+        fieldType =
+            ClassName.get(
+                mapping.computePackageName(),
+                mapping.computeClassName(),
+                field.getColumn().getEnumType());
+      } else {
+        fieldType = field.getColumn().computeJavaType();
+      }
       FieldSpec.Builder builder =
-          FieldSpec.builder(field.getColumn().computeJavaType(), field.getTo())
+          FieldSpec.builder(fieldType, field.getTo())
               .addModifiers(Modifier.PRIVATE)
               .addAnnotation(createColumnAnnotation(field));
       if (mapping.getTable().isPrimaryKey(field.getTo())) {
-        builder.addAnnotation(Id.class);
+        builder.addAnnotation(Id.class).addAnnotation(EqualsAndHashCode.Include.class);
       }
       if (field.getColumn().isEnum()) {
         builder.addAnnotation(createEnumeratedAnnotation(mapping, field));
       }
       FieldSpec fieldSpec = builder.build();
       classBuilder.addField(fieldSpec);
-      PoetUtil.addGetter(fieldSpec, classBuilder);
-      PoetUtil.addSetter(fieldSpec, classBuilder);
       if (mapping.getTable().isPrimaryKey(field.getTo())) {
         primaryKeySpecs.add(fieldSpec);
       }
@@ -198,19 +217,16 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
     TypeSpec.Builder pkClassBuilder =
         TypeSpec.classBuilder(PRIMARY_KEY_CLASS_NAME)
             .addSuperinterface(Serializable.class)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC);
-    List<FieldSpec> keyFieldSpecs = new ArrayList<>();
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
+            .addAnnotation(Data.class)
+            .addAnnotation(NoArgsConstructor.class)
+            .addAnnotation(AllArgsConstructor.class);
     for (FieldSpec fieldSpec : parentKeySpecs) {
       FieldSpec.Builder keyFieldBuilder =
           FieldSpec.builder(fieldSpec.type, fieldSpec.name).addModifiers(Modifier.PRIVATE);
       FieldSpec keyFieldSpec = keyFieldBuilder.build();
-      keyFieldSpecs.add(keyFieldSpec);
       pkClassBuilder.addField(keyFieldSpec);
-      PoetUtil.addGetter(keyFieldSpec, pkClassBuilder);
-      PoetUtil.addSetter(keyFieldSpec, pkClassBuilder);
     }
-    PoetUtil.addHashCode(parentKeySpecs, pkClassBuilder);
-    PoetUtil.addEquals(computePrimaryKeyClassName(mapping), keyFieldSpecs, pkClassBuilder);
     return pkClassBuilder.build();
   }
 
@@ -227,11 +243,10 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
         FieldSpec.builder(setType, arrayElement.getTo())
             .addModifiers(Modifier.PRIVATE)
             .initializer("new $T<>()", HashSet.class)
-            .addAnnotation(createOneToManyAnnotation(primaryKeyFieldName));
+            .addAnnotation(createOneToManyAnnotation(primaryKeyFieldName))
+            .addAnnotation(Builder.Default.class);
     FieldSpec fieldSpec = fieldBuilder.build();
     classBuilder.addField(fieldSpec);
-    PoetUtil.addGetter(fieldSpec, classBuilder);
-    PoetUtil.addSetter(fieldSpec, classBuilder);
   }
 
   private AnnotationSpec createOneToManyAnnotation(String mappedBy) {
@@ -240,6 +255,12 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
         .addMember("fetch", "$T.$L", FetchType.class, FetchType.EAGER)
         .addMember("orphanRemoval", "$L", true)
         .addMember("cascade", "$T.$L", CascadeType.class, CascadeType.ALL)
+        .build();
+  }
+
+  private AnnotationSpec createEqualsAndHashCodeAnnotation() {
+    return AnnotationSpec.builder(EqualsAndHashCode.class)
+        .addMember("onlyExplicitlyIncluded", "$L", true)
         .build();
   }
 

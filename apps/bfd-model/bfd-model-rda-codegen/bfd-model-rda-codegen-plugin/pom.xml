@@ -65,11 +65,11 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <!-- Compile Time -->
         <dependency>
+            <!-- Unlike other modules the plugin needs lombok at runtime but they won't be included in other modules. -->
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <!-- Testing -->
         <dependency>

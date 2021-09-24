@@ -1,20 +1,27 @@
 mappings:
   - id: FissClaim
-    entity: gov.cms.bfd.model.rda.PreAdjFissClaim2
+    entity: gov.cms.bfd.model.rda.PreAdjFissClaim
     table:
       name: FissClaims
       schema: pre_adj
       primaryKeyFields:
         - dcn
+    enumTypes:
+      - name: ServTypeCdMapping
+        values:
+          - Normal
+          - Clinic
+          - SpecialFacility
+          - Unrecognized
     fields:
+      - from: dcn
+        column:
+          sqlType: varchar(23)
+          nullable: false
       - from: seq
         to: sequenceNumber
         column:
           sqlType: bigint
-          nullable: false
-      - from: dcn
-        column:
-          sqlType: varchar(23)
           nullable: false
       - from: hicNo
         column:
@@ -89,6 +96,14 @@ mappings:
       - from: stmtCovFromDate
         column:
           sqlType: date
+      - from: stmtCovToDate
+        column:
+          sqlType: date
+      - from: NONE
+        to: servTypeCdMapping
+        column:
+          enumType: ServTypeCdMapping
+          sqlType: varchar(20)
       - from: lobCd
         column:
           sqlType: varchar(1)
@@ -113,7 +128,7 @@ mappings:
         mapping: FissPayer
 
   - id: FissProcCode
-    entity: gov.cms.bfd.model.rda.PreAdjFissProcCode2
+    entity: gov.cms.bfd.model.rda.PreAdjFissProcCode
     table:
       name: FissProcCodes
       schema: pre_adj
@@ -148,7 +163,7 @@ mappings:
           sqlType: timestamp with time zone
 
   - id: FissDiagnosisCode
-    entity: gov.cms.bfd.model.rda.PreAdjFissDiagnosisCode2
+    entity: gov.cms.bfd.model.rda.PreAdjFissDiagnosisCode
     table:
       name: FissDiagnosisCodes
       schema: pre_adj
@@ -184,7 +199,7 @@ mappings:
           sqlType: timestamp with time zone
 
   - id: FissPayer
-    entity: gov.cms.bfd.model.rda.PreAdjFissPayer2
+    entity: gov.cms.bfd.model.rda.PreAdjFissPayer
     table:
       name: FissPayers
       schema: pre_adj
