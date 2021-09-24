@@ -72,6 +72,8 @@ public class ColumnBean {
         return TypeName.CHAR;
       case "int":
         return TypeName.INT;
+      case "short":
+        return TypeName.SHORT;
       case "long":
         return TypeName.LONG;
       default:

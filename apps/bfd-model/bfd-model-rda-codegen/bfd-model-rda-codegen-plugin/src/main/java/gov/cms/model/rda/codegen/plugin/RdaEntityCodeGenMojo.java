@@ -34,7 +34,6 @@ import javax.persistence.Table;
 import lombok.SneakyThrows;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -57,9 +56,9 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
   private MavenProject project;
 
   @SneakyThrows(IOException.class)
-  public void execute() throws MojoExecutionException, MojoFailureException {
+  public void execute() throws MojoExecutionException {
     if (mappingFile == null || !new File(mappingFile).isFile()) {
-      throw new MojoFailureException("mappingFile not defined or does not exist");
+      fail("mappingFile not defined or does not exist");
     }
 
     File outputDir = new File(outputDirectory);
@@ -76,7 +75,7 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
 
   private TypeSpec createEntityFromMapping(
       MappingBean mapping, Function<String, Optional<MappingBean>> mappingFinder)
-      throws MojoFailureException {
+      throws MojoExecutionException {
     TypeSpec.Builder classBuilder =
         TypeSpec.classBuilder(mapping.computeClassName())
             .addModifiers(Modifier.PUBLIC)
@@ -84,15 +83,14 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
             .addAnnotation(createTableAnnotation(mapping.getTable()));
     final Set<String> primaryKeys = mapping.getTable().computePrimaryKeys();
     if (primaryKeys.size() == 0) {
-      String message =
-          String.format("mapping has no primary key fields: mapping=%s", mapping.getId());
-      throw new MojoFailureException(message);
+      fail("mapping has no primary key fields: mapping=%s", mapping.getId());
     }
     List<FieldSpec> primaryKeySpecs = new ArrayList<>();
     addColumnFields(mapping, classBuilder, primaryKeys, primaryKeySpecs);
     if (primaryKeySpecs.size() > 1) {
-      addIdClassAnnotation(classBuilder, mapping);
-      addPrimaryKeyClass(classBuilder, primaryKeySpecs, mapping);
+      classBuilder
+          .addAnnotation(createIdClassAnnotation(mapping))
+          .addType(createPrimaryKeyClass(mapping, primaryKeySpecs));
     }
     if (mapping.getArrays().size() > 0) {
       addArrayFields(mapping, mappingFinder, classBuilder, primaryKeySpecs);
@@ -112,9 +110,9 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
       List<FieldSpec> primaryKeySpecs) {
     for (FieldBean field : mapping.getFields()) {
       FieldSpec.Builder builder =
-          FieldSpec.builder(field.getColumn().computeJavaType(), field.getTo());
-      builder.addModifiers(Modifier.PRIVATE);
-      builder.addAnnotation(createColumnAnnotation(field));
+          FieldSpec.builder(field.getColumn().computeJavaType(), field.getTo())
+              .addModifiers(Modifier.PRIVATE)
+              .addAnnotation(createColumnAnnotation(field));
       if (primaryKeys.contains(field.getTo())) {
         builder.addAnnotation(Id.class);
       }
@@ -133,27 +131,23 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
       Function<String, Optional<MappingBean>> mappingFinder,
       TypeSpec.Builder classBuilder,
       List<FieldSpec> primaryKeySpecs)
-      throws MojoFailureException {
+      throws MojoExecutionException {
     if (primaryKeySpecs.size() != 1) {
-      String message =
-          String.format(
-              "classes with arrays must have a single primary key field but this one has %d: mapping=%s",
-              primaryKeySpecs.size(), mapping.getId());
-      throw new MojoFailureException(message);
+      fail(
+          "classes with arrays must have a single primary key field but this one has %d: mapping=%s",
+          primaryKeySpecs.size(), mapping.getId());
     }
     for (ArrayElement arrayElement : mapping.getArrays()) {
       Optional<MappingBean> arrayMapping = mappingFinder.apply(arrayElement.getMapping());
       if (!arrayMapping.isPresent()) {
-        String message =
-            String.format(
-                "array references unknown mapping: mapping=%s array=%s missing=%s",
-                mapping.getId(), arrayElement.getTo(), arrayElement.getMapping());
-        throw new MojoFailureException(message);
+        fail(
+            "array references unknown mapping: mapping=%s array=%s missing=%s",
+            mapping.getId(), arrayElement.getTo(), arrayElement.getMapping());
       }
       addArrayField(
           classBuilder,
-          arrayElement,
           mapping.getTable().getPrimaryKeyFields().get(0),
+          arrayElement,
           arrayMapping.get());
     }
   }
@@ -163,14 +157,13 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
         mapping.computePackageName(), mapping.computeClassName(), PRIMARY_KEY_CLASS_NAME);
   }
 
-  private void addIdClassAnnotation(TypeSpec.Builder classBuilder, MappingBean mapping) {
-    AnnotationSpec.Builder builder = AnnotationSpec.builder(IdClass.class);
-    builder.addMember("value", "$T.class", computePrimaryKeyClassName(mapping));
-    classBuilder.addAnnotation(builder.build());
+  private AnnotationSpec createIdClassAnnotation(MappingBean mapping) {
+    return AnnotationSpec.builder(IdClass.class)
+        .addMember("value", "$T.class", computePrimaryKeyClassName(mapping))
+        .build();
   }
 
-  private void addPrimaryKeyClass(
-      TypeSpec.Builder parentClassBuilder, List<FieldSpec> parentKeySpecs, MappingBean mapping) {
+  private TypeSpec createPrimaryKeyClass(MappingBean mapping, List<FieldSpec> parentKeySpecs) {
     TypeSpec.Builder pkClassBuilder =
         TypeSpec.classBuilder(PRIMARY_KEY_CLASS_NAME)
             .addSuperinterface(Serializable.class)
@@ -187,13 +180,13 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
     }
     PoetUtil.addHashCode(parentKeySpecs, pkClassBuilder);
     PoetUtil.addEquals(computePrimaryKeyClassName(mapping), keyFieldSpecs, pkClassBuilder);
-    parentClassBuilder.addType(pkClassBuilder.build());
+    return pkClassBuilder.build();
   }
 
   private void addArrayField(
       TypeSpec.Builder classBuilder,
-      ArrayElement arrayElement,
       String primaryKeyFieldName,
+      ArrayElement arrayElement,
       MappingBean elementMapping) {
     ClassName entityClass =
         ClassName.get(elementMapping.computePackageName(), elementMapping.computeClassName());
@@ -211,12 +204,12 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
   }
 
   private AnnotationSpec createOneToManyAnnotation(String mappedBy) {
-    AnnotationSpec.Builder builder = AnnotationSpec.builder(OneToMany.class);
-    builder.addMember("mappedBy", "$S", mappedBy);
-    builder.addMember("fetch", "$T.$L", FetchType.class, FetchType.EAGER);
-    builder.addMember("orphanRemoval", "$L", true);
-    builder.addMember("cascade", "$T.$L", CascadeType.class, CascadeType.ALL);
-    return builder.build();
+    return AnnotationSpec.builder(OneToMany.class)
+        .addMember("mappedBy", "$S", mappedBy)
+        .addMember("fetch", "$T.$L", FetchType.class, FetchType.EAGER)
+        .addMember("orphanRemoval", "$L", true)
+        .addMember("cascade", "$T.$L", CascadeType.class, CascadeType.ALL)
+        .build();
   }
 
   private String quoteName(String name) {
@@ -224,8 +217,8 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
   }
 
   private AnnotationSpec createTableAnnotation(TableBean table) {
-    AnnotationSpec.Builder builder = AnnotationSpec.builder(Table.class);
-    builder.addMember("name", "$S", quoteName(table.getName()));
+    AnnotationSpec.Builder builder =
+        AnnotationSpec.builder(Table.class).addMember("name", "$S", quoteName(table.getName()));
     if (table.hasSchema()) {
       builder.addMember("schema", "$S", quoteName(table.getSchema()));
     }
@@ -234,8 +227,9 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
 
   private AnnotationSpec createColumnAnnotation(FieldBean field) {
     ColumnBean column = field.getColumn();
-    AnnotationSpec.Builder builder = AnnotationSpec.builder(Column.class);
-    builder.addMember("name", "$S", quoteName(column.getColumnName(field.getTo())));
+    AnnotationSpec.Builder builder =
+        AnnotationSpec.builder(Column.class)
+            .addMember("name", "$S", quoteName(column.getColumnName(field.getTo())));
     if (!column.isNullable()) {
       builder.addMember("nullable", "$L", false);
     }
@@ -247,5 +241,10 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
       builder.addMember("length", "$L", length);
     }
     return builder.build();
+  }
+
+  private void fail(String formatString, Object... args) throws MojoExecutionException {
+    String message = String.format(formatString, args);
+    throw new MojoExecutionException(message);
   }
 }
