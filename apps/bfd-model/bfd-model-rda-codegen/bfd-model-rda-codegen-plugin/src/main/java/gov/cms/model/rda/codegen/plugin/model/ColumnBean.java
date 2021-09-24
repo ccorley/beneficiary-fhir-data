@@ -16,6 +16,7 @@ public class ColumnBean {
   private String name;
   private String sqlType;
   private String javaType;
+  private String enumType;
   private boolean nullable = true;
 
   public String getColumnName(String fieldName) {
@@ -34,6 +35,8 @@ public class ColumnBean {
   public TypeName computeJavaType() {
     if (Strings.isNullOrEmpty(javaType)) {
       return mapSqlTypeToTypeName();
+    } else if (isEnum()) {
+      return ClassName.get(String.class);
     } else {
       return mapJavaTypeToTypeName();
     }
@@ -41,6 +44,18 @@ public class ColumnBean {
 
   public boolean isColumnDefRequired() {
     return sqlType.contains("decimal");
+  }
+
+  public boolean isEnum() {
+    return !Strings.isNullOrEmpty(enumType);
+  }
+
+  public boolean isString() {
+    return isStringType(computeJavaType()) && isStringType(mapSqlTypeToTypeName());
+  }
+
+  private boolean isStringType(TypeName type) {
+    return (type instanceof ClassName) && ((ClassName) type).simpleName().equals("String");
   }
 
   private TypeName mapSqlTypeToTypeName() {

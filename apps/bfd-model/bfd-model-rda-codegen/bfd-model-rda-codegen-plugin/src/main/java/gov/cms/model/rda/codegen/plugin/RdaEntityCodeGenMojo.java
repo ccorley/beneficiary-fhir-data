@@ -8,6 +8,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import gov.cms.model.rda.codegen.plugin.model.ArrayElement;
 import gov.cms.model.rda.codegen.plugin.model.ColumnBean;
+import gov.cms.model.rda.codegen.plugin.model.EnumTypeBean;
 import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import gov.cms.model.rda.codegen.plugin.model.ModelUtil;
@@ -26,6 +27,8 @@ import javax.lang.model.element.Modifier;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -81,12 +84,12 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
             .addModifiers(Modifier.PUBLIC)
             .addAnnotation(Entity.class)
             .addAnnotation(createTableAnnotation(mapping.getTable()));
-    final Set<String> primaryKeys = mapping.getTable().computePrimaryKeys();
-    if (primaryKeys.size() == 0) {
+    addEnums(mapping.getEnumTypes(), classBuilder);
+    if (!mapping.getTable().hasPrimaryKey()) {
       fail("mapping has no primary key fields: mapping=%s", mapping.getId());
     }
     List<FieldSpec> primaryKeySpecs = new ArrayList<>();
-    addColumnFields(mapping, classBuilder, primaryKeys, primaryKeySpecs);
+    addColumnFields(mapping, classBuilder, primaryKeySpecs);
     if (primaryKeySpecs.size() > 1) {
       classBuilder
           .addAnnotation(createIdClassAnnotation(mapping))
@@ -103,27 +106,55 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
     return classBuilder.build();
   }
 
+  private void addEnums(List<EnumTypeBean> enumMappings, TypeSpec.Builder classBuilder) {
+    for (EnumTypeBean enumMapping : enumMappings) {
+      classBuilder.addType(createEnum(enumMapping));
+    }
+  }
+
+  private TypeSpec createEnum(EnumTypeBean mapping) {
+    TypeSpec.Builder builder =
+        TypeSpec.enumBuilder(mapping.getName()).addModifiers(Modifier.PUBLIC);
+    for (String value : mapping.getValues()) {
+      builder.addEnumConstant(value);
+    }
+    return builder.build();
+  }
+
   private void addColumnFields(
-      MappingBean mapping,
-      TypeSpec.Builder classBuilder,
-      Set<String> primaryKeys,
-      List<FieldSpec> primaryKeySpecs) {
+      MappingBean mapping, TypeSpec.Builder classBuilder, List<FieldSpec> primaryKeySpecs)
+      throws MojoExecutionException {
     for (FieldBean field : mapping.getFields()) {
       FieldSpec.Builder builder =
           FieldSpec.builder(field.getColumn().computeJavaType(), field.getTo())
               .addModifiers(Modifier.PRIVATE)
               .addAnnotation(createColumnAnnotation(field));
-      if (primaryKeys.contains(field.getTo())) {
+      if (mapping.getTable().isPrimaryKey(field.getTo())) {
         builder.addAnnotation(Id.class);
+      }
+      if (field.getColumn().isEnum()) {
+        builder.addAnnotation(createEnumeratedAnnotation(mapping, field));
       }
       FieldSpec fieldSpec = builder.build();
       classBuilder.addField(fieldSpec);
       PoetUtil.addGetter(fieldSpec, classBuilder);
       PoetUtil.addSetter(fieldSpec, classBuilder);
-      if (primaryKeys.contains(field.getTo())) {
+      if (mapping.getTable().isPrimaryKey(field.getTo())) {
         primaryKeySpecs.add(fieldSpec);
       }
     }
+  }
+
+  private AnnotationSpec createEnumeratedAnnotation(MappingBean mapping, FieldBean fieldMapping)
+      throws MojoExecutionException {
+    if (!fieldMapping.getColumn().isString()) {
+      fail(
+          "enum columns must have String type but this one does not: mapping=%s field=%s",
+          mapping.getId(), fieldMapping.getTo());
+    }
+    return AnnotationSpec.builder(Enumerated.class)
+        .addMember("value", "$T.$L", EnumType.class, EnumType.STRING)
+        .build();
   }
 
   private void addArrayFields(

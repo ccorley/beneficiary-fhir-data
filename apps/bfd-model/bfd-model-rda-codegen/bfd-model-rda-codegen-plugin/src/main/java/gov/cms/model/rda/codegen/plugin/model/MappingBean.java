@@ -10,6 +10,7 @@ public class MappingBean {
   private String message;
   private String entity;
   private TableBean table;
+  private List<EnumTypeBean> enumTypes = new ArrayList<>();
   private List<FieldBean> fields = new ArrayList<>();
   private List<ArrayElement> arrays = new ArrayList<>();
 

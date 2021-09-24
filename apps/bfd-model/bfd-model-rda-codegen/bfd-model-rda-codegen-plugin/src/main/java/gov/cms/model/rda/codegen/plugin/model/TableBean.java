@@ -1,10 +1,8 @@
 package gov.cms.model.rda.codegen.plugin.model;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import lombok.Data;
 
 @Data
@@ -17,7 +15,11 @@ public class TableBean {
     return !Strings.isNullOrEmpty(schema);
   }
 
-  public Set<String> computePrimaryKeys() {
-    return ImmutableSet.copyOf(primaryKeyFields);
+  public boolean hasPrimaryKey() {
+    return primaryKeyFields.size() > 0;
+  }
+
+  public boolean isPrimaryKey(String name) {
+    return primaryKeyFields.stream().anyMatch(fieldName -> fieldName.equals(name));
   }
 }
