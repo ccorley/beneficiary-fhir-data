@@ -17,6 +17,7 @@
 
 	<modules>
 		<module>bfd-model-rda-codegen-plugin</module>
+		<module>bfd-model-rda-codegen-library</module>
 	</modules>
 
 	<dependencyManagement>

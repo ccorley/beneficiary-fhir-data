@@ -24,6 +24,12 @@
     </properties>
 
     <dependencies>
+        <!-- Pulls in library of classes that are used for actual data copying so that plugin can reference them when generating code that calls them. -->
+        <dependency>
+            <groupId>gov.cms.bfd</groupId>
+            <artifactId>bfd-model-rda-codegen-library</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
         <!-- Hibernate / JPA -->
         <dependency>
             <!-- The JPA 2.1 API. (Does not provide a JPA implementation by itself;
