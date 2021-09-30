@@ -8,10 +8,16 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ColumnBean {
   private String name;
   private String sqlType;

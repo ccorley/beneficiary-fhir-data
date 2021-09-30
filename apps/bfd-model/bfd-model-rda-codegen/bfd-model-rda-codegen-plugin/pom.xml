@@ -24,25 +24,6 @@
     </properties>
 
     <dependencies>
-        <!-- Pulls in library of classes that are used for actual data copying so that plugin can reference them when generating code that calls them. -->
-        <dependency>
-            <groupId>gov.cms.bfd</groupId>
-            <artifactId>bfd-model-rda-codegen-library</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <!-- Hibernate / JPA -->
-        <dependency>
-            <!-- The JPA 2.1 API. (Does not provide a JPA implementation by itself;
-                Hibernate is used for that in the BFD projects.) -->
-            <artifactId>hibernate-jpa-2.1-api</artifactId>
-            <groupId>org.hibernate.javax.persistence</groupId>
-        </dependency>
-        <dependency>
-            <!-- Makes programmatically generating Java sources much simpler. -->
-            <groupId>com.squareup</groupId>
-            <artifactId>javapoet</artifactId>
-            <version>${javapoet.version}</version>
-        </dependency>
         <dependency>
             <!-- plugin interfaces and base classes -->
             <groupId>org.apache.maven</groupId>
@@ -65,7 +46,28 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Pulls in library of classes that are used for actual data copying so that plugin can reference them when generating code that calls them. -->
         <dependency>
+            <groupId>gov.cms.bfd</groupId>
+            <artifactId>bfd-model-rda-codegen-library</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <!-- Hibernate / JPA -->
+            <!-- The JPA 2.1 API. (Does not provide a JPA implementation by itself;
+                Hibernate is used for that in the BFD projects.) -->
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <groupId>org.hibernate.javax.persistence</groupId>
+        </dependency>
+        <dependency>
+            <!-- Makes programmatically generating Java sources much simpler. -->
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+            <version>${javapoet.version}</version>
+        </dependency>
+
+        <dependency>
+            <!-- Add YAML support to jackson -->
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
             <version>${jackson.version}</version>
@@ -77,6 +79,7 @@
             <artifactId>lombok</artifactId>
             <scope>compile</scope>
         </dependency>
+
         <!-- Testing -->
         <dependency>
             <!-- Used to run our unit and integration tests. -->
@@ -101,11 +104,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
                     <version>3.6.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>3.8.2</version>
                 </plugin>
             </plugins>
         </pluginManagement>

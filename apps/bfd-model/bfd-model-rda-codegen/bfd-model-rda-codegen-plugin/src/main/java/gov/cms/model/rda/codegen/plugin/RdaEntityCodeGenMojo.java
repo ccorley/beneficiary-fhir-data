@@ -54,6 +54,7 @@ import org.apache.maven.project.MavenProject;
 /** A Maven Mojo that generates code for RDA API JPA entities. */
 @Mojo(name = "entities", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class RdaEntityCodeGenMojo extends AbstractMojo {
+  // region Fields
   private static final String PRIMARY_KEY_CLASS_NAME = "PK";
 
   @Parameter(property = "mappingFile")
@@ -66,6 +67,7 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
 
   @Parameter(property = "project", readonly = true)
   private MavenProject project;
+  // endregion
 
   @SneakyThrows(IOException.class)
   public void execute() throws MojoExecutionException {
@@ -85,6 +87,7 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
     project.addCompileSourceRoot(outputDirectory);
   }
 
+  // region Implementation Details
   private TypeSpec createEntityFromMapping(
       MappingBean mapping, Function<String, Optional<MappingBean>> mappingFinder)
       throws MojoExecutionException {
@@ -294,6 +297,7 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
     }
     return builder.build();
   }
+  // endregion
 
   private void fail(String formatString, Object... args) throws MojoExecutionException {
     String message = String.format(formatString, args);
