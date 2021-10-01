@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class FieldBean {
   private String from;
   private String to;
+  @Builder.Default private boolean optional = true;
   private ColumnBean column;
 
   public String getTo() {

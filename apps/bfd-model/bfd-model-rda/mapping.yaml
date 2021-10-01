@@ -15,29 +15,35 @@ mappings:
           - Unrecognized
     fields:
       - from: dcn
+        optional: false
         column:
           sqlType: varchar(23)
           nullable: false
       - from: seq
         to: sequenceNumber
+        optional: false
         column:
           sqlType: bigint
           nullable: false
       - from: hicNo
+        optional: false
         column:
           sqlType: varchar(12)
           nullable: false
       - from: currStatus
+        optional: false
         column:
           sqlType: varchar(1)
           javaType: char
           nullable: false
       - from: currLoc1
+        optional: false
         column:
           sqlType: varchar(1)
           javaType: char
           nullable: false
       - from: currLoc2
+        optional: false
         column:
           sqlType: varchar(5)
           nullable: false
@@ -148,6 +154,7 @@ mappings:
           javaType: short
           nullable: false
       - from: procCode
+        optional: false
         column:
           sqlType: varchar(10)
           nullable: false
@@ -183,10 +190,12 @@ mappings:
           javaType: short
           nullable: false
       - from: diagCd2
+        optional: false
         column:
           sqlType: varchar(7)
           nullable: false
       - from: diagPoaInd
+        optional: false
         column:
           sqlType: varchar(1)
           nullable: false
@@ -229,6 +238,7 @@ mappings:
           enumType: PayerType
           sqlType: varchar(20)
       - from: payersId
+        optional: false
         column:
           sqlType: varchar(1)
       - from: payersName

@@ -8,7 +8,7 @@ import gov.cms.model.rda.codegen.plugin.model.RootBean;
 public class StringFieldGenerator extends AbstractFieldTransform {
   @Override
   public CodeBlock generateCodeBlock(RootBean model, MappingBean mapping, FieldBean field) {
-    return field.getColumn().isNullable()
+    return field.isOptional()
         ? generateBlockForOptional(mapping, field)
         : generateBlockForRequired(mapping, field);
   }
@@ -16,9 +16,10 @@ public class StringFieldGenerator extends AbstractFieldTransform {
   private CodeBlock generateBlockForRequired(MappingBean mapping, FieldBean field) {
     return CodeBlock.builder()
         .addStatement(
-            "$N.copyString($N, false, 1, $L, $L, $L)",
+            "$N.copyString($N, $L, 1, $L, $L, $L)",
             TRANSFORMER_VAR,
             fieldNameReference(mapping, field),
+            field.getColumn().isNullable(),
             field.getColumn().computeLength(),
             sourceValue(field),
             destSetRef(field))
