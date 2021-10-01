@@ -49,9 +49,11 @@ public class RdaTransformerCodeGenMojo {
     RootBean root = ModelUtil.loadMappingsFromYamlFile(mappingFile);
     List<MappingBean> rootMappings = root.getMappings();
     for (MappingBean mapping : rootMappings) {
-      TypeSpec rootEntity = createTransformerFromMapping(mapping, root::findMappingWithId);
-      JavaFile javaFile = JavaFile.builder(mapping.computePackageName(), rootEntity).build();
-      javaFile.writeTo(outputDir);
+      if (mapping.hasTransformer()) {
+        TypeSpec rootEntity = createTransformerFromMapping(mapping, root::findMappingWithId);
+        JavaFile javaFile = JavaFile.builder(mapping.entityPackageName(), rootEntity).build();
+        javaFile.writeTo(outputDir);
+      }
     }
     project.addCompileSourceRoot(outputDirectory);
   }

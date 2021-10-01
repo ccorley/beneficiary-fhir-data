@@ -81,7 +81,7 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
     List<MappingBean> rootMappings = root.getMappings();
     for (MappingBean mapping : rootMappings) {
       TypeSpec rootEntity = createEntityFromMapping(mapping, root::findMappingWithId);
-      JavaFile javaFile = JavaFile.builder(mapping.computePackageName(), rootEntity).build();
+      JavaFile javaFile = JavaFile.builder(mapping.entityPackageName(), rootEntity).build();
       javaFile.writeTo(outputDir);
     }
     project.addCompileSourceRoot(outputDirectory);
@@ -92,7 +92,7 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
       MappingBean mapping, Function<String, Optional<MappingBean>> mappingFinder)
       throws MojoExecutionException {
     TypeSpec.Builder classBuilder =
-        TypeSpec.classBuilder(mapping.computeClassName())
+        TypeSpec.classBuilder(mapping.entityClassName())
             .addModifiers(Modifier.PUBLIC)
             .addAnnotation(Entity.class)
             .addAnnotation(Getter.class)
@@ -143,8 +143,8 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
       if (field.getColumn().isEnum()) {
         fieldType =
             ClassName.get(
-                mapping.computePackageName(),
-                mapping.computeClassName(),
+                mapping.entityPackageName(),
+                mapping.entityClassName(),
                 field.getColumn().getEnumType());
       } else {
         fieldType = field.getColumn().computeJavaType();
@@ -207,7 +207,7 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
 
   private ClassName computePrimaryKeyClassName(MappingBean mapping) {
     return ClassName.get(
-        mapping.computePackageName(), mapping.computeClassName(), PRIMARY_KEY_CLASS_NAME);
+        mapping.entityPackageName(), mapping.entityClassName(), PRIMARY_KEY_CLASS_NAME);
   }
 
   private AnnotationSpec createIdClassAnnotation(MappingBean mapping) {
@@ -239,7 +239,7 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
       ArrayElement arrayElement,
       MappingBean elementMapping) {
     ClassName entityClass =
-        ClassName.get(elementMapping.computePackageName(), elementMapping.computeClassName());
+        ClassName.get(elementMapping.entityPackageName(), elementMapping.entityClassName());
     ParameterizedTypeName setType =
         ParameterizedTypeName.get(ClassName.get(Set.class), entityClass);
     FieldSpec.Builder fieldBuilder =

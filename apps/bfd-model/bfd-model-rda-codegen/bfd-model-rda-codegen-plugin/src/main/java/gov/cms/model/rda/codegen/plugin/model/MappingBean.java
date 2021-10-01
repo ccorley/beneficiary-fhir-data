@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 @NoArgsConstructor
@@ -16,16 +17,29 @@ public class MappingBean {
   private String id;
   private String message;
   private String entity;
+  private String transformer;
   private TableBean table;
   @Singular private List<EnumTypeBean> enumTypes = new ArrayList<>();
   @Singular private List<FieldBean> fields = new ArrayList<>();
   @Singular private List<ArrayElement> arrays = new ArrayList<>();
 
-  public String computePackageName() {
-    return entity.substring(0, entity.lastIndexOf("."));
+  public boolean hasTransformer() {
+    return StringUtils.isNotEmpty(transformer);
   }
 
-  public String computeClassName() {
-    return entity.substring(1 + entity.lastIndexOf("."));
+  public String entityPackageName() {
+    return ModelUtil.packageName(entity);
+  }
+
+  public String entityClassName() {
+    return ModelUtil.className(entity);
+  }
+
+  public String transformerPackageName() {
+    return ModelUtil.packageName(transformer);
+  }
+
+  public String transformerClassName() {
+    return ModelUtil.className(transformer);
   }
 }

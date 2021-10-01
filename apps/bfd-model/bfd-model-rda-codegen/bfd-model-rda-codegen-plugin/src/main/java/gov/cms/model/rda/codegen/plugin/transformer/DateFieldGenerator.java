@@ -5,7 +5,7 @@ import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import gov.cms.model.rda.codegen.plugin.model.RootBean;
 
-public class DateFieldGenerator extends AbstractFieldTransform {
+public class DateFieldGenerator extends AbstractFieldGenerator {
   @Override
   public CodeBlock generateCodeBlock(RootBean model, MappingBean mapping, FieldBean field) {
     return field.isOptional()

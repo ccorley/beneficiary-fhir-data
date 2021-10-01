@@ -11,4 +11,12 @@ public class ModelUtil {
   public static RootBean loadMappingsFromYamlFile(String filename) throws IOException {
     return objectMapper.readValue(new File(filename), RootBean.class);
   }
+
+  public static String packageName(String fullClassName) {
+    return fullClassName.substring(0, fullClassName.lastIndexOf("."));
+  }
+
+  public static String className(String fullClassName) {
+    return fullClassName.substring(1 + fullClassName.lastIndexOf("."));
+  }
 }
