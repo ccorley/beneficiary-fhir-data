@@ -1,6 +1,8 @@
 mappings:
   - id: FissClaim
+    message: gov.cms.mpsm.rda.v1.fiss.FissClaim
     entity: gov.cms.bfd.model.rda.PreAdjFissClaim
+    transformer: gov.cms.bfd.pipeline.rda.grpc.source.FissClaimTransformer2
     table:
       name: FissClaims
       schema: pre_adj
@@ -74,7 +76,8 @@ mappings:
       - from: mbi
         column:
           sqlType: varchar(13)
-      - from: mbiHash
+      - from: mbi
+        to: mbiHash
         column:
           sqlType: varchar(64)
       - from: fedTaxNumber
@@ -134,6 +137,7 @@ mappings:
         mapping: FissPayer
 
   - id: FissProcCode
+    message: gov.cms.mpsm.rda.v1.fiss.FissProcedureCode
     entity: gov.cms.bfd.model.rda.PreAdjFissProcCode
     table:
       name: FissProcCodes
@@ -170,6 +174,7 @@ mappings:
           sqlType: timestamp with time zone
 
   - id: FissDiagnosisCode
+    message: gov.cms.mpsm.rda.v1.fiss.FissDiagnosisCode
     entity: gov.cms.bfd.model.rda.PreAdjFissDiagnosisCode
     table:
       name: FissDiagnosisCodes
@@ -208,6 +213,7 @@ mappings:
           sqlType: timestamp with time zone
 
   - id: FissPayer
+    message: gov.cms.mpsm.rda.v1.fiss.FissPayer
     entity: gov.cms.bfd.model.rda.PreAdjFissPayer
     table:
       name: FissPayers

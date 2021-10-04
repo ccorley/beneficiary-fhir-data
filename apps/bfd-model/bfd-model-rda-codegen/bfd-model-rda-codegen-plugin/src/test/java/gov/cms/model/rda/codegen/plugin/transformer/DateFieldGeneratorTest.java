@@ -19,7 +19,7 @@ public class DateFieldGeneratorTest {
     RootBean model = RootBean.builder().mapping(mapping).build();
 
     DateFieldGenerator generator = new DateFieldGenerator();
-    CodeBlock block = generator.generateCodeBlock(model, mapping, field);
+    CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals(
         "transformer.copyDate(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.beneDob, true, from.getBeneDob(), to::setBeneDob);\n",
         block.toString());
@@ -34,7 +34,7 @@ public class DateFieldGeneratorTest {
     RootBean model = RootBean.builder().mapping(mapping).build();
 
     DateFieldGenerator generator = new DateFieldGenerator();
-    CodeBlock block = generator.generateCodeBlock(model, mapping, field);
+    CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals(
         "transformer.copyOptionalDate(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.beneDob, from::hasBeneDob, from::getBeneDob, to::setBeneDob);\n",
         block.toString());

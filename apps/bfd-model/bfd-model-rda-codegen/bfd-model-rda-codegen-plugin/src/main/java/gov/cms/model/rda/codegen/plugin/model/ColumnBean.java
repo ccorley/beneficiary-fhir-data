@@ -60,6 +60,22 @@ public class ColumnBean {
     return isStringType(computeJavaType()) && isStringType(mapSqlTypeToTypeName());
   }
 
+  public boolean isChar() {
+    return "char".equals(javaType);
+  }
+
+  public boolean isInt() {
+    return "int".equals(javaType);
+  }
+
+  public boolean isDecimal() {
+    return sqlType.contains("decimal");
+  }
+
+  public boolean isDate() {
+    return sqlType.contains("date");
+  }
+
   private boolean isStringType(TypeName type) {
     return (type instanceof ClassName) && ((ClassName) type).simpleName().equals("String");
   }

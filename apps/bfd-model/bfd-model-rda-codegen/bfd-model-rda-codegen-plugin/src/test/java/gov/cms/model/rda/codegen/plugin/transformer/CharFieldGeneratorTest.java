@@ -21,7 +21,7 @@ public class CharFieldGeneratorTest {
     RootBean model = RootBean.builder().mapping(mapping).build();
 
     CharFieldGenerator generator = new CharFieldGenerator();
-    CodeBlock block = generator.generateCodeBlock(model, mapping, field);
+    CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals(
         "transformer.copyCharacter(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.curr1Status, from.getCurr1Status(), to::setCurr1Status);\n",
         block.toString());
@@ -37,6 +37,6 @@ public class CharFieldGeneratorTest {
     RootBean model = RootBean.builder().mapping(mapping).build();
 
     CharFieldGenerator generator = new CharFieldGenerator();
-    generator.generateCodeBlock(model, mapping, field);
+    generator.generateCodeBlock(mapping, field);
   }
 }

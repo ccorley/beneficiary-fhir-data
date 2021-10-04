@@ -1,11 +1,10 @@
 package gov.cms.model.rda.codegen.plugin.transformer;
 
-import static org.apache.commons.lang3.StringUtils.capitalize;
+import static gov.cms.model.rda.codegen.plugin.transformer.TransformerUtil.capitalize;
 
 import com.squareup.javapoet.CodeBlock;
 import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
-import gov.cms.model.rda.codegen.plugin.model.RootBean;
 
 /**
  * A FieldTransformGenerator is an object that generates java code for a specific type of field
@@ -18,9 +17,12 @@ import gov.cms.model.rda.codegen.plugin.model.RootBean;
  * generator to use for each field in the model.
  */
 public abstract class AbstractFieldGenerator {
-  static final String SOURCE_VAR = "from";
-  static final String DEST_VAR = "to";
-  static final String TRANSFORMER_VAR = "transformer";
+  public static final String SOURCE_VAR = "from";
+  public static final String DEST_VAR = "to";
+  public static final String TRANSFORMER_VAR = "transformer";
+  public static final String NOW_VAR = "clock.instant()";
+  public static final String HASHER_VAR = "idHasher";
+  public static final String CLOCK_VAR = "clock";
 
   /**
    * Generate a code block that would copy the field from the source object to the dest object using
@@ -30,12 +32,11 @@ public abstract class AbstractFieldGenerator {
    * DEST_VAR} to reference the destination entity object, and {@code * TRANSFORMER_VAR} to
    * reference the {@link gov.cms.model.rda.codegen.library.DataTransformer}.
    *
-   * @param model The root of the DSL model file.
    * @param mapping The mapping that contains the field.
    * @param field The specific field to be copied.
    * @return CodeBlock for the generated block of code
    */
-  public abstract CodeBlock generateCodeBlock(RootBean model, MappingBean mapping, FieldBean field);
+  public abstract CodeBlock generateCodeBlock(MappingBean mapping, FieldBean field);
 
   protected String fieldNameReference(MappingBean mapping, FieldBean field) {
     return String.format("%s.Fields.%s", mapping.getEntity(), field.getTo());
@@ -51,6 +52,10 @@ public abstract class AbstractFieldGenerator {
 
   protected String sourceValue(FieldBean field) {
     return String.format("%s.get%s()", SOURCE_VAR, capitalize(field.getFrom()));
+  }
+
+  protected String destSetter(FieldBean field) {
+    return String.format("%s.set%s", DEST_VAR, capitalize(field.getTo()));
   }
 
   protected String destSetRef(FieldBean field) {

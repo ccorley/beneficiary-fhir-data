@@ -20,7 +20,7 @@ public class IntFieldGeneratorTest {
     RootBean model = RootBean.builder().mapping(mapping).build();
 
     IntFieldGenerator generator = new IntFieldGenerator();
-    generator.generateCodeBlock(model, mapping, field);
+    generator.generateCodeBlock(mapping, field);
   }
 
   @Test
@@ -33,7 +33,7 @@ public class IntFieldGeneratorTest {
     RootBean model = RootBean.builder().mapping(mapping).build();
 
     IntFieldGenerator generator = new IntFieldGenerator();
-    CodeBlock block = generator.generateCodeBlock(model, mapping, field);
+    CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals(
         "transformer.copyOptionalInt(from::hasIdrDtlCnt, from::getIdrDtlCnt, to::setIdrDtlCnt);\n",
         block.toString());

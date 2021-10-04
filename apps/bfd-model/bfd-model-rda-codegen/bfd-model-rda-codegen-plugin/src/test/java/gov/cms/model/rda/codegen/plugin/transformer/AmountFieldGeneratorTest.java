@@ -20,7 +20,7 @@ public class AmountFieldGeneratorTest {
     RootBean model = RootBean.builder().mapping(mapping).build();
 
     AmountFieldGenerator generator = new AmountFieldGenerator();
-    CodeBlock block = generator.generateCodeBlock(model, mapping, field);
+    CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals(
         "transformer.copyAmount(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.estAmtDue, true, from.getEstAmtDue(), to::setEstAmtDue);\n",
         block.toString());
@@ -36,7 +36,7 @@ public class AmountFieldGeneratorTest {
     RootBean model = RootBean.builder().mapping(mapping).build();
 
     AmountFieldGenerator generator = new AmountFieldGenerator();
-    CodeBlock block = generator.generateCodeBlock(model, mapping, field);
+    CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals(
         "transformer.copyOptionalAmount(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.estAmtDue, from::hasEstAmtDue, from::getEstAmtDue, to::setEstAmtDue);\n",
         block.toString());

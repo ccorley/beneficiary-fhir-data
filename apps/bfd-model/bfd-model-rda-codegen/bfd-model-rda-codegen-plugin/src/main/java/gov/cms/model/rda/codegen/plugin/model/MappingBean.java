@@ -1,13 +1,14 @@
 package gov.cms.model.rda.codegen.plugin.model;
 
+import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
-import org.apache.commons.lang3.StringUtils;
 
 @Data
 @NoArgsConstructor
@@ -24,7 +25,7 @@ public class MappingBean {
   @Singular private List<ArrayElement> arrays = new ArrayList<>();
 
   public boolean hasTransformer() {
-    return StringUtils.isNotEmpty(transformer);
+    return !Strings.isNullOrEmpty(transformer);
   }
 
   public String entityPackageName() {
@@ -41,5 +42,9 @@ public class MappingBean {
 
   public String transformerClassName() {
     return ModelUtil.className(transformer);
+  }
+
+  public Optional<FieldBean> firstPrimaryKeyField() {
+    return fields.stream().findFirst();
   }
 }

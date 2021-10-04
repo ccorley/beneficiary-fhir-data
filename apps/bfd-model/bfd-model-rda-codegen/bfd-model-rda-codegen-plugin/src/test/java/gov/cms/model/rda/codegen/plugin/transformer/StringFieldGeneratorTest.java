@@ -20,7 +20,7 @@ public class StringFieldGeneratorTest {
     RootBean model = RootBean.builder().mapping(mapping).build();
 
     StringFieldGenerator generator = new StringFieldGenerator();
-    CodeBlock block = generator.generateCodeBlock(model, mapping, field);
+    CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals(
         "transformer.copyString(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.hicNo, true, 1, 12, from.getHicNo(), to::setHicNo);\n",
         block.toString());
@@ -36,7 +36,7 @@ public class StringFieldGeneratorTest {
     RootBean model = RootBean.builder().mapping(mapping).build();
 
     StringFieldGenerator generator = new StringFieldGenerator();
-    CodeBlock block = generator.generateCodeBlock(model, mapping, field);
+    CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals(
         "transformer.copyOptionalString(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.hicNo, 1, 12, from::hasHicNo, from::getHicNo, to::setHicNo);\n",
         block.toString());
