@@ -41,6 +41,7 @@ mappings:
         transformer: MessageEnum
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissClaimStatus
+          extractorOptions: RejectUnrecognized
       - from: currLoc1
         optional: false
         column:
@@ -143,6 +144,7 @@ mappings:
         transformer: MessageEnum
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissBillClassification
+          hasUnrecognized: false
       - from: freqCd
         column:
           sqlType: varchar(1)
