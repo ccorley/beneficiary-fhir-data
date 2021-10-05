@@ -15,7 +15,7 @@ public class AmountFieldTransformer extends AbstractFieldTransformer {
   private CodeBlock generateBlockForRequired(MappingBean mapping, FieldBean field) {
     return CodeBlock.builder()
         .addStatement(
-            "$N.copyAmount($N, $L, $L, $L)",
+            "$L.copyAmount($L, $L, $L, $L)",
             TRANSFORMER_VAR,
             fieldNameReference(mapping, field),
             field.getColumn().isNullable(),
@@ -27,7 +27,7 @@ public class AmountFieldTransformer extends AbstractFieldTransformer {
   private CodeBlock generateBlockForOptional(MappingBean mapping, FieldBean field) {
     return CodeBlock.builder()
         .addStatement(
-            "$N.copyOptionalAmount($N, $L, $L, $L)",
+            "$L.copyOptionalAmount($L, $L, $L, $L)",
             TRANSFORMER_VAR,
             fieldNameReference(mapping, field),
             sourceHasRef(field),

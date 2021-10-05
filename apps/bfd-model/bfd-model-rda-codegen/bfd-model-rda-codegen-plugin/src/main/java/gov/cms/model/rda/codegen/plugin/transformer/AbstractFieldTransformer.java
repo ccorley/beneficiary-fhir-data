@@ -5,6 +5,7 @@ import static gov.cms.model.rda.codegen.plugin.transformer.TransformerUtil.capit
 import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
+import gov.cms.model.rda.codegen.plugin.PoetUtil;
 import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import java.util.List;
@@ -50,8 +51,8 @@ public abstract class AbstractFieldTransformer {
     return ImmutableList.of();
   }
 
-  protected String fieldNameReference(MappingBean mapping, FieldBean field) {
-    return String.format("%s.Fields.%s", mapping.getEntity(), field.getTo());
+  protected CodeBlock fieldNameReference(MappingBean mapping, FieldBean field) {
+    return CodeBlock.of("$T.Fields.$L", PoetUtil.toClassName(mapping.getEntity()), field.getTo());
   }
 
   protected String sourceHasRef(FieldBean field) {

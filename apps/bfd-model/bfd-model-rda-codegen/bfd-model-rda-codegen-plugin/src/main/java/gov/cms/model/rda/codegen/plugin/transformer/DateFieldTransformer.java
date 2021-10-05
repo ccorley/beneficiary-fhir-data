@@ -15,7 +15,7 @@ public class DateFieldTransformer extends AbstractFieldTransformer {
   private CodeBlock generateBlockForRequired(MappingBean mapping, FieldBean field) {
     return CodeBlock.builder()
         .addStatement(
-            "$N.copyDate($N, $L, $L, $L)",
+            "$L.copyDate($L, $L, $L, $L)",
             TRANSFORMER_VAR,
             fieldNameReference(mapping, field),
             field.getColumn().isNullable(),
@@ -27,7 +27,7 @@ public class DateFieldTransformer extends AbstractFieldTransformer {
   private CodeBlock generateBlockForOptional(MappingBean mapping, FieldBean field) {
     return CodeBlock.builder()
         .addStatement(
-            "$N.copyOptionalDate($N, $L, $L, $L)",
+            "$L.copyOptionalDate($L, $L, $L, $L)",
             TRANSFORMER_VAR,
             fieldNameReference(mapping, field),
             sourceHasRef(field),

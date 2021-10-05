@@ -16,7 +16,7 @@ public class IdHashFieldTransformer extends AbstractFieldTransformer {
     final String value = String.format("%s.apply(%s)", HASHER_VAR, sourceValue(field));
     return CodeBlock.builder()
         .addStatement(
-            "$N.copyString($N, $L, 1, $L, $L, $L)",
+            "$L.copyString($L, $L, 1, $L, $L, $L)",
             TRANSFORMER_VAR,
             fieldNameReference(mapping, field),
             field.getColumn().isNullable(),
@@ -30,7 +30,7 @@ public class IdHashFieldTransformer extends AbstractFieldTransformer {
     final String valueFunc = String.format("()-> %s.apply(%s)", HASHER_VAR, sourceValue(field));
     return CodeBlock.builder()
         .addStatement(
-            "$N.copyOptionalString($N, 1, $L, $L, $L, $L)",
+            "$L.copyOptionalString($L, 1, $L, $L, $L, $L)",
             TRANSFORMER_VAR,
             fieldNameReference(mapping, field),
             field.getColumn().computeLength(),

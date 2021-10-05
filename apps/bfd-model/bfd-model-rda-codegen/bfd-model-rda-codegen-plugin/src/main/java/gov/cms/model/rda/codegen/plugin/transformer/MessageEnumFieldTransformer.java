@@ -30,7 +30,7 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
           "$L.copyEnumAsCharacter($L, $L.getEnumString($L), $L)",
           TRANSFORMER_VAR,
           fieldNameReference(mapping, field),
-          extractorName(field),
+          extractorName(mapping, field),
           SOURCE_VAR,
           destSetRef(field));
     } else {
@@ -40,7 +40,7 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
           fieldNameReference(mapping, field),
           field.getColumn().isNullable(),
           field.getColumn().computeLength(),
-          extractorName(field),
+          extractorName(mapping, field),
           SOURCE_VAR,
           destSetRef(field));
     }
@@ -55,7 +55,7 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
         FieldSpec.builder(
             ParameterizedTypeName.get(
                 ClassName.get(EnumStringExtractor.class), messageClass, enumClass),
-            extractorName(field),
+            extractorName(mapping, field),
             Modifier.PRIVATE,
             Modifier.FINAL);
     return ImmutableList.of(builder.build());
@@ -71,7 +71,7 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
         CodeBlock.builder()
             .addStatement(
                 "$L = $L.createEnumStringExtractor($L,$L,$L,$L,$T.UNRECOGNIZED,$L,$L)",
-                extractorName(field),
+                extractorName(mapping, field),
                 ENUM_FACTORY_VAR,
                 sourceEnumHashValueMethod(messageClass, field),
                 sourceEnumGetValueMethod(messageClass, field),
@@ -133,7 +133,7 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
     return builder.build();
   }
 
-  private static String extractorName(FieldBean field) {
-    return String.format("%sExtractor", field.getTo());
+  private static String extractorName(MappingBean mapping, FieldBean field) {
+    return String.format("%s_%s_Extractor", mapping.entityClassName(), field.getTo());
   }
 }

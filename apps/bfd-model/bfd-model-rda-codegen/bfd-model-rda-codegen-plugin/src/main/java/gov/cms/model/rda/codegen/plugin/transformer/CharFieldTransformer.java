@@ -15,7 +15,7 @@ public class CharFieldTransformer extends AbstractFieldTransformer {
   private CodeBlock generateBlockForRequired(MappingBean mapping, FieldBean field) {
     return CodeBlock.builder()
         .addStatement(
-            "$N.copyCharacter($N, $L, $L)",
+            "$L.copyCharacter($L, $L, $L)",
             TRANSFORMER_VAR,
             fieldNameReference(mapping, field),
             sourceValue(field),
