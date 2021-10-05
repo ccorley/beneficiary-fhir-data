@@ -38,33 +38,46 @@ mappings:
           sqlType: varchar(1)
           javaType: char
           nullable: false
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissClaimStatus
       - from: currLoc1
         optional: false
         column:
           sqlType: varchar(1)
           javaType: char
           nullable: false
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissProcessingType
       - from: currLoc2
         optional: false
         column:
           sqlType: varchar(5)
           nullable: false
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissCurrentLocation2
       - from: medaProvId
         column:
           sqlType: varchar(13)
-      - from: medaProv_6
+      - from: medaProv6
+        to: medaProv_6
         column:
           sqlType: varchar(6)
       - from: totalChargeAmount
         column:
           sqlType: decimal(11,2)
-      - from: receivedDate
+      - from: recdDtCymd
+        to: receivedDate
         column:
           sqlType: date
-      - from: currTranDate
+      - from: currTranDtCymd
+        to: currTranDate
         column:
           sqlType: date
-      - from: admitDiagCode
+      - from: admDiagCode
+        to: admitDiagCode
         column:
           sqlType: varchar(7)
       - from: principleDiag
@@ -81,7 +94,8 @@ mappings:
         transformer: IdHash
         column:
           sqlType: varchar(64)
-      - from: fedTaxNumber
+      - from: fedTaxNb
+        to: fedTaxNumber
         column:
           sqlType: varchar(10)
       - from: NONE
@@ -104,10 +118,12 @@ mappings:
       - from: pracLocZip
         column:
           sqlType: varchar(max)
-      - from: stmtCovFromDate
+      - from: stmtCovFromCymd
+        to: stmtCovFromDate
         column:
           sqlType: date
-      - from: stmtCovToDate
+      - from: stmtCovToCymd
+        to: stmtCovToDate
         column:
           sqlType: date
       - from: NONE
@@ -118,12 +134,21 @@ mappings:
       - from: lobCd
         column:
           sqlType: varchar(1)
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissBillFacilityType
       - from: servTypeCd
         column:
           sqlType: varchar(1)
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissBillClassification
       - from: freqCd
         column:
           sqlType: varchar(1)
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissBillFrequency
       - from: billTypCd
         column:
           sqlType: varchar(3)

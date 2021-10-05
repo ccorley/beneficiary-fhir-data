@@ -92,7 +92,7 @@ public interface EnumStringExtractor<TRecord, TEnum extends ProtocolMessageEnum>
     RejectUnrecognized
   }
 
-  interface Factory<TRecord, TEnum extends ProtocolMessageEnum> {
+  interface Factory {
     /*
      * Constructs a value using the provided functions and value.
      *
@@ -104,13 +104,14 @@ public interface EnumStringExtractor<TRecord, TEnum extends ProtocolMessageEnum>
      * @param invalidValue enum value (usually TEnum.UNRECOGNIZED) for protobuf's bad enum value
      * @param unsupportedEnumValues set of enum values that should generate an UnsupportedValue Result
      * @param options the (usually empty) set of options to be used while processing
-     */ EnumStringExtractor createEnumStringExtractor(
-        Predicate<TRecord> hasEnumValue,
-        Function<TRecord, ProtocolMessageEnum> getEnumValue,
-        Predicate<TRecord> hasUnrecognizedValue,
-        Function<TRecord, String> getUnrecognizedValue,
-        TEnum invalidValue,
-        Set<ProtocolMessageEnum> unsupportedEnumValues,
-        Set<Options> options);
+     */ <TRecord, TEnum extends ProtocolMessageEnum>
+        EnumStringExtractor<TRecord, TEnum> createEnumStringExtractor(
+            Predicate<TRecord> hasEnumValue,
+            Function<TRecord, ProtocolMessageEnum> getEnumValue,
+            Predicate<TRecord> hasUnrecognizedValue,
+            Function<TRecord, String> getUnrecognizedValue,
+            TEnum invalidValue,
+            Set<ProtocolMessageEnum> unsupportedEnumValues,
+            Set<Options> options);
   }
 }

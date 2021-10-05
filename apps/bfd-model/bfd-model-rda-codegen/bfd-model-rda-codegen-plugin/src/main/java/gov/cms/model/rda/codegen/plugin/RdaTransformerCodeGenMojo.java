@@ -1,11 +1,14 @@
 package gov.cms.model.rda.codegen.plugin;
 
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import gov.cms.model.rda.codegen.library.DataTransformer;
+import gov.cms.model.rda.codegen.library.EnumStringExtractor;
 import gov.cms.model.rda.codegen.plugin.model.ArrayElement;
 import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
@@ -16,9 +19,11 @@ import gov.cms.model.rda.codegen.plugin.transformer.TransformerUtil;
 import java.io.File;
 import java.io.IOException;
 import java.time.Clock;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.lang.model.element.Modifier;
 import lombok.SneakyThrows;
 import org.apache.maven.plugin.AbstractMojo;
@@ -81,12 +86,14 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                 AbstractFieldTransformer.HASHER_VAR,
                 Modifier.PRIVATE,
                 Modifier.FINAL);
-    MethodSpec constructor =
+    MethodSpec.Builder constructor =
         MethodSpec.constructorBuilder()
             .addParameter(Clock.class, AbstractFieldTransformer.CLOCK_VAR)
             .addParameter(
                 ParameterizedTypeName.get(Function.class, String.class, String.class),
                 AbstractFieldTransformer.HASHER_VAR)
+            .addParameter(
+                EnumStringExtractor.Factory.class, AbstractFieldTransformer.ENUM_FACTORY_VAR)
             .addStatement(
                 "this.$L = $L",
                 AbstractFieldTransformer.CLOCK_VAR,
@@ -94,13 +101,34 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
             .addStatement(
                 "this.$L = $L",
                 AbstractFieldTransformer.HASHER_VAR,
-                AbstractFieldTransformer.HASHER_VAR)
-            .build();
+                AbstractFieldTransformer.HASHER_VAR);
+    createFieldInitializers(mapping).forEach(constructor::addCode);
     classBuilder
-        .addMethod(constructor)
+        .addFields(createFieldSpecs(mapping))
+        .addMethod(constructor.build())
         .addMethod(createOuterTransformClaimMethod(mapping, mappingFinder))
         .addMethod(createInnerTransformClaimMethod(mapping, mappingFinder));
     return classBuilder.build();
+  }
+
+  private List<FieldSpec> createFieldSpecs(MappingBean mapping) {
+    return mapping.getFields().stream()
+        .flatMap(
+            field ->
+                TransformerUtil.selectTransformerForField(field)
+                    .map(transformer -> transformer.generateFieldSpecs(mapping, field))
+                    .orElse(Collections.emptyList()).stream())
+        .collect(Collectors.toList());
+  }
+
+  private List<CodeBlock> createFieldInitializers(MappingBean mapping) {
+    return mapping.getFields().stream()
+        .flatMap(
+            field ->
+                TransformerUtil.selectTransformerForField(field)
+                    .map(transformer -> transformer.generateFieldInitializers(mapping, field))
+                    .orElse(Collections.emptyList()).stream())
+        .collect(Collectors.toList());
   }
 
   private MethodSpec createOuterTransformClaimMethod(

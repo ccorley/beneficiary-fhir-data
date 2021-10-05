@@ -2,9 +2,12 @@ package gov.cms.model.rda.codegen.plugin.transformer;
 
 import static gov.cms.model.rda.codegen.plugin.transformer.TransformerUtil.capitalize;
 
+import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
+import java.util.List;
 
 /**
  * A FieldTransformGenerator is an object that generates java code for a specific type of field
@@ -23,6 +26,7 @@ public abstract class AbstractFieldTransformer {
   public static final String NOW_VAR = "clock.instant()";
   public static final String HASHER_VAR = "idHasher";
   public static final String CLOCK_VAR = "clock";
+  public static final String ENUM_FACTORY_VAR = "enumExtractorFactory";
 
   /**
    * Generate a code block that would copy the field from the source object to the dest object using
@@ -37,6 +41,14 @@ public abstract class AbstractFieldTransformer {
    * @return CodeBlock for the generated block of code
    */
   public abstract CodeBlock generateCodeBlock(MappingBean mapping, FieldBean field);
+
+  public List<FieldSpec> generateFieldSpecs(MappingBean mapping, FieldBean field) {
+    return ImmutableList.of();
+  }
+
+  public List<CodeBlock> generateFieldInitializers(MappingBean mapping, FieldBean field) {
+    return ImmutableList.of();
+  }
 
   protected String fieldNameReference(MappingBean mapping, FieldBean field) {
     return String.format("%s.Fields.%s", mapping.getEntity(), field.getTo());

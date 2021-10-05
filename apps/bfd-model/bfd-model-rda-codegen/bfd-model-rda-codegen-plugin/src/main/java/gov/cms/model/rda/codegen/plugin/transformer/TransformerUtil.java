@@ -15,12 +15,15 @@ public class TransformerUtil {
   private static final AmountFieldTransformer AmountInstance = new AmountFieldTransformer();
   private static final StringFieldTransformer StringInstance = new StringFieldTransformer();
   private static final IdHashFieldTransformer IdHashInstance = new IdHashFieldTransformer();
+  private static final MessageEnumFieldTransformer MessageEnumInstance =
+      new MessageEnumFieldTransformer();
   private static final TimestampFieldTransformer TimestampInstance =
       new TimestampFieldTransformer();
   private static final Map<String, AbstractFieldTransformer> namedTransformers =
       ImmutableMap.of(
           "IdHash", IdHashInstance,
-          "Now", TimestampInstance);
+          "Now", TimestampInstance,
+          "MessageEnum", MessageEnumInstance);
 
   public static String capitalize(String name) {
     return name.substring(0, 1).toUpperCase() + name.substring(1);
