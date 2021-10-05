@@ -4,7 +4,7 @@ import com.squareup.javapoet.CodeBlock;
 import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 
-public class AmountFieldGenerator extends AbstractFieldGenerator {
+public class CharFieldTransformer extends AbstractFieldTransformer {
   @Override
   public CodeBlock generateCodeBlock(MappingBean mapping, FieldBean field) {
     return field.isOptional()
@@ -15,24 +15,15 @@ public class AmountFieldGenerator extends AbstractFieldGenerator {
   private CodeBlock generateBlockForRequired(MappingBean mapping, FieldBean field) {
     return CodeBlock.builder()
         .addStatement(
-            "$N.copyAmount($N, $L, $L, $L)",
+            "$N.copyCharacter($N, $L, $L)",
             TRANSFORMER_VAR,
             fieldNameReference(mapping, field),
-            field.getColumn().isNullable(),
             sourceValue(field),
             destSetRef(field))
         .build();
   }
 
   private CodeBlock generateBlockForOptional(MappingBean mapping, FieldBean field) {
-    return CodeBlock.builder()
-        .addStatement(
-            "$N.copyOptionalAmount($N, $L, $L, $L)",
-            TRANSFORMER_VAR,
-            fieldNameReference(mapping, field),
-            sourceHasRef(field),
-            sourceGetRef(field),
-            destSetRef(field))
-        .build();
+    throw new IllegalArgumentException("optional chars are not currently supported");
   }
 }

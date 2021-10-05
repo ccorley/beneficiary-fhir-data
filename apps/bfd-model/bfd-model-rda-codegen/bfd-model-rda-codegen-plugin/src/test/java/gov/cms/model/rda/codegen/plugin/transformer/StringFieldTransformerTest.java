@@ -9,34 +9,36 @@ import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import gov.cms.model.rda.codegen.plugin.model.RootBean;
 import org.junit.Test;
 
-public class DateFieldGeneratorTest {
+public class StringFieldTransformerTest {
   @Test
   public void requiredField() {
-    ColumnBean column = ColumnBean.builder().name("beneDob").nullable(true).sqlType("date").build();
-    FieldBean field = FieldBean.builder().optional(false).column(column).from("beneDob").build();
+    ColumnBean column =
+        ColumnBean.builder().name("hicNo").nullable(true).sqlType("varchar(12)").build();
+    FieldBean field = FieldBean.builder().optional(false).column(column).from("hicNo").build();
     MappingBean mapping =
         MappingBean.builder().entity("gov.cms.bfd.model.rda.PreAdjFissClaim").field(field).build();
     RootBean model = RootBean.builder().mapping(mapping).build();
 
-    DateFieldGenerator generator = new DateFieldGenerator();
+    StringFieldTransformer generator = new StringFieldTransformer();
     CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals(
-        "transformer.copyDate(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.beneDob, true, from.getBeneDob(), to::setBeneDob);\n",
+        "transformer.copyString(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.hicNo, true, 1, 12, from.getHicNo(), to::setHicNo);\n",
         block.toString());
   }
 
   @Test
   public void optionalField() {
-    ColumnBean column = ColumnBean.builder().name("beneDob").nullable(true).sqlType("date").build();
-    FieldBean field = FieldBean.builder().column(column).from("beneDob").build();
+    ColumnBean column =
+        ColumnBean.builder().name("hicNo").nullable(true).sqlType("varchar(12)").build();
+    FieldBean field = FieldBean.builder().column(column).from("hicNo").build();
     MappingBean mapping =
         MappingBean.builder().entity("gov.cms.bfd.model.rda.PreAdjFissClaim").field(field).build();
     RootBean model = RootBean.builder().mapping(mapping).build();
 
-    DateFieldGenerator generator = new DateFieldGenerator();
+    StringFieldTransformer generator = new StringFieldTransformer();
     CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals(
-        "transformer.copyOptionalDate(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.beneDob, from::hasBeneDob, from::getBeneDob, to::setBeneDob);\n",
+        "transformer.copyOptionalString(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.hicNo, 1, 12, from::hasHicNo, from::getHicNo, to::setHicNo);\n",
         block.toString());
   }
 }

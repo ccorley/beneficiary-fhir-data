@@ -8,7 +8,7 @@ import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import gov.cms.model.rda.codegen.plugin.model.RootBean;
 import org.junit.Test;
 
-public class TimestampFieldGeneratorTest {
+public class TimestampFieldTransformerTest {
   @Test
   public void test() {
     FieldBean field = FieldBean.builder().to("lastUpdated").build();
@@ -16,7 +16,7 @@ public class TimestampFieldGeneratorTest {
         MappingBean.builder().entity("gov.cms.bfd.model.rda.PreAdjFissClaim").field(field).build();
     RootBean model = RootBean.builder().mapping(mapping).build();
 
-    TimestampFieldGenerator generator = new TimestampFieldGenerator();
+    TimestampFieldTransformer generator = new TimestampFieldTransformer();
     CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals("to.setLastUpdated(clock.instant());\n", block.toString());
   }

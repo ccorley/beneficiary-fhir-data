@@ -4,7 +4,7 @@ import com.squareup.javapoet.CodeBlock;
 import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 
-public class IntFieldGenerator extends AbstractFieldGenerator {
+public class IdHashFieldTransformer extends AbstractFieldTransformer {
   @Override
   public CodeBlock generateCodeBlock(MappingBean mapping, FieldBean field) {
     return field.isOptional()
@@ -13,16 +13,29 @@ public class IntFieldGenerator extends AbstractFieldGenerator {
   }
 
   private CodeBlock generateBlockForRequired(MappingBean mapping, FieldBean field) {
-    throw new IllegalArgumentException("non-optional ints are not currently supported");
+    final String value = String.format("%s.apply(%s)", HASHER_VAR, sourceValue(field));
+    return CodeBlock.builder()
+        .addStatement(
+            "$N.copyString($N, $L, 1, $L, $L, $L)",
+            TRANSFORMER_VAR,
+            fieldNameReference(mapping, field),
+            field.getColumn().isNullable(),
+            field.getColumn().computeLength(),
+            value,
+            destSetRef(field))
+        .build();
   }
 
   private CodeBlock generateBlockForOptional(MappingBean mapping, FieldBean field) {
+    final String valueFunc = String.format("()-> %s.apply(%s)", HASHER_VAR, sourceValue(field));
     return CodeBlock.builder()
         .addStatement(
-            "$N.copyOptionalInt($L, $L, $L)",
+            "$N.copyOptionalString($N, 1, $L, $L, $L, $L)",
             TRANSFORMER_VAR,
+            fieldNameReference(mapping, field),
+            field.getColumn().computeLength(),
             sourceHasRef(field),
-            sourceGetRef(field),
+            valueFunc,
             destSetRef(field))
         .build();
   }

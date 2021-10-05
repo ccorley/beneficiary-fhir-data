@@ -1,24 +1,36 @@
 package gov.cms.model.rda.codegen.plugin.transformer;
 
+import com.google.common.collect.ImmutableMap;
 import gov.cms.model.rda.codegen.plugin.model.ColumnBean;
 import gov.cms.model.rda.codegen.plugin.model.FieldBean;
+import java.util.Map;
 import java.util.Optional;
 
 public class TransformerUtil {
   private static final String TimestampFromName = "NOW";
   private static final String NoMappingFromName = "NONE";
-  private static final CharFieldGenerator CharInstance = new CharFieldGenerator();
-  private static final IntFieldGenerator IntInstance = new IntFieldGenerator();
-  private static final DateFieldGenerator DateInstance = new DateFieldGenerator();
-  private static final AmountFieldGenerator AmountInstance = new AmountFieldGenerator();
-  private static final StringFieldGenerator StringInstance = new StringFieldGenerator();
-  private static final TimestampFieldGenerator TimestampInstance = new TimestampFieldGenerator();
+  private static final CharFieldTransformer CharInstance = new CharFieldTransformer();
+  private static final IntFieldTransformer IntInstance = new IntFieldTransformer();
+  private static final DateFieldTransformer DateInstance = new DateFieldTransformer();
+  private static final AmountFieldTransformer AmountInstance = new AmountFieldTransformer();
+  private static final StringFieldTransformer StringInstance = new StringFieldTransformer();
+  private static final IdHashFieldTransformer IdHashInstance = new IdHashFieldTransformer();
+  private static final TimestampFieldTransformer TimestampInstance =
+      new TimestampFieldTransformer();
+  private static final Map<String, AbstractFieldTransformer> namedTransformers =
+      ImmutableMap.of(
+          "IdHash", IdHashInstance,
+          "Now", TimestampInstance);
 
   public static String capitalize(String name) {
     return name.substring(0, 1).toUpperCase() + name.substring(1);
   }
 
-  public static Optional<AbstractFieldGenerator> selectTransformerForField(FieldBean field) {
+  public static Optional<AbstractFieldTransformer> selectTransformerForField(FieldBean field) {
+    if (field.hasTransformer()) {
+      return Optional.ofNullable(namedTransformers.get(field.getTransformer()));
+    }
+
     final ColumnBean column = field.getColumn();
     if (column.isEnum()) {
       // TODO add support for message enums

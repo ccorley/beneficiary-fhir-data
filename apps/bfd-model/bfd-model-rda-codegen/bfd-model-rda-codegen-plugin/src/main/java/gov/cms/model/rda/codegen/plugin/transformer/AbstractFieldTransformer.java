@@ -16,7 +16,7 @@ import gov.cms.model.rda.codegen.plugin.model.MappingBean;
  * <p>The plugin will use a mapping of names to instances of this interface to select the proper
  * generator to use for each field in the model.
  */
-public abstract class AbstractFieldGenerator {
+public abstract class AbstractFieldTransformer {
   public static final String SOURCE_VAR = "from";
   public static final String DEST_VAR = "to";
   public static final String TRANSFORMER_VAR = "transformer";

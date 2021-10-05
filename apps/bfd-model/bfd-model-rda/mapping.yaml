@@ -78,13 +78,15 @@ mappings:
           sqlType: varchar(13)
       - from: mbi
         to: mbiHash
+        transformer: IdHash
         column:
           sqlType: varchar(64)
       - from: fedTaxNumber
         column:
           sqlType: varchar(10)
-      - from: NOW
+      - from: NONE
         to: lastUpdated
+        transformer: Now
         column:
           sqlType: timestamp with time zone
       - from: pracLocAddr1

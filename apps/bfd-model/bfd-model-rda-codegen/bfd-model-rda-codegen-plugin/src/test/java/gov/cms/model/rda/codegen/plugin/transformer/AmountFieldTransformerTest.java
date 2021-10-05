@@ -9,34 +9,36 @@ import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import gov.cms.model.rda.codegen.plugin.model.RootBean;
 import org.junit.Test;
 
-public class CharFieldGeneratorTest {
+public class AmountFieldTransformerTest {
   @Test
   public void requiredField() {
     ColumnBean column =
-        ColumnBean.builder().name("curr1Status").nullable(false).sqlType("char(1)").build();
-    FieldBean field =
-        FieldBean.builder().optional(false).column(column).from("curr1Status").build();
+        ColumnBean.builder().name("estAmtDue").nullable(true).sqlType("decimal(11,2)").build();
+    FieldBean field = FieldBean.builder().optional(false).column(column).from("estAmtDue").build();
     MappingBean mapping =
         MappingBean.builder().entity("gov.cms.bfd.model.rda.PreAdjFissClaim").field(field).build();
     RootBean model = RootBean.builder().mapping(mapping).build();
 
-    CharFieldGenerator generator = new CharFieldGenerator();
+    AmountFieldTransformer generator = new AmountFieldTransformer();
     CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals(
-        "transformer.copyCharacter(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.curr1Status, from.getCurr1Status(), to::setCurr1Status);\n",
+        "transformer.copyAmount(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.estAmtDue, true, from.getEstAmtDue(), to::setEstAmtDue);\n",
         block.toString());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void optionalField() {
     ColumnBean column =
-        ColumnBean.builder().name("idrDtlCnt").nullable(true).sqlType("char(1)").build();
-    FieldBean field = FieldBean.builder().column(column).from("idrDtlCnt").build();
+        ColumnBean.builder().name("estAmtDue").nullable(true).sqlType("decimal(11,2)").build();
+    FieldBean field = FieldBean.builder().column(column).from("estAmtDue").build();
     MappingBean mapping =
         MappingBean.builder().entity("gov.cms.bfd.model.rda.PreAdjFissClaim").field(field).build();
     RootBean model = RootBean.builder().mapping(mapping).build();
 
-    CharFieldGenerator generator = new CharFieldGenerator();
-    generator.generateCodeBlock(mapping, field);
+    AmountFieldTransformer generator = new AmountFieldTransformer();
+    CodeBlock block = generator.generateCodeBlock(mapping, field);
+    assertEquals(
+        "transformer.copyOptionalAmount(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.estAmtDue, from::hasEstAmtDue, from::getEstAmtDue, to::setEstAmtDue);\n",
+        block.toString());
   }
 }

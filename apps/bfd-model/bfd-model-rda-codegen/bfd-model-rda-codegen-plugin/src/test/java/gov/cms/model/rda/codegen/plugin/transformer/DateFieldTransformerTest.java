@@ -9,33 +9,34 @@ import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import gov.cms.model.rda.codegen.plugin.model.RootBean;
 import org.junit.Test;
 
-public class IntFieldGeneratorTest {
-  @Test(expected = IllegalArgumentException.class)
+public class DateFieldTransformerTest {
+  @Test
   public void requiredField() {
-    ColumnBean column =
-        ColumnBean.builder().name("idrDtlCnt").nullable(true).sqlType("int").build();
-    FieldBean field = FieldBean.builder().optional(false).column(column).from("idrDtlCnt").build();
+    ColumnBean column = ColumnBean.builder().name("beneDob").nullable(true).sqlType("date").build();
+    FieldBean field = FieldBean.builder().optional(false).column(column).from("beneDob").build();
     MappingBean mapping =
         MappingBean.builder().entity("gov.cms.bfd.model.rda.PreAdjFissClaim").field(field).build();
     RootBean model = RootBean.builder().mapping(mapping).build();
 
-    IntFieldGenerator generator = new IntFieldGenerator();
-    generator.generateCodeBlock(mapping, field);
+    DateFieldTransformer generator = new DateFieldTransformer();
+    CodeBlock block = generator.generateCodeBlock(mapping, field);
+    assertEquals(
+        "transformer.copyDate(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.beneDob, true, from.getBeneDob(), to::setBeneDob);\n",
+        block.toString());
   }
 
   @Test
   public void optionalField() {
-    ColumnBean column =
-        ColumnBean.builder().name("idrDtlCnt").nullable(true).sqlType("int").build();
-    FieldBean field = FieldBean.builder().column(column).from("idrDtlCnt").build();
+    ColumnBean column = ColumnBean.builder().name("beneDob").nullable(true).sqlType("date").build();
+    FieldBean field = FieldBean.builder().column(column).from("beneDob").build();
     MappingBean mapping =
         MappingBean.builder().entity("gov.cms.bfd.model.rda.PreAdjFissClaim").field(field).build();
     RootBean model = RootBean.builder().mapping(mapping).build();
 
-    IntFieldGenerator generator = new IntFieldGenerator();
+    DateFieldTransformer generator = new DateFieldTransformer();
     CodeBlock block = generator.generateCodeBlock(mapping, field);
     assertEquals(
-        "transformer.copyOptionalInt(from::hasIdrDtlCnt, from::getIdrDtlCnt, to::setIdrDtlCnt);\n",
+        "transformer.copyOptionalDate(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.beneDob, from::hasBeneDob, from::getBeneDob, to::setBeneDob);\n",
         block.toString());
   }
 }

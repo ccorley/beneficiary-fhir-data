@@ -11,7 +11,7 @@ import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import gov.cms.model.rda.codegen.plugin.model.ModelUtil;
 import gov.cms.model.rda.codegen.plugin.model.RootBean;
-import gov.cms.model.rda.codegen.plugin.transformer.AbstractFieldGenerator;
+import gov.cms.model.rda.codegen.plugin.transformer.AbstractFieldTransformer;
 import gov.cms.model.rda.codegen.plugin.transformer.TransformerUtil;
 import java.io.File;
 import java.io.IOException;
@@ -75,24 +75,26 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
         TypeSpec.classBuilder(mapping.transformerClassName())
             .addModifiers(Modifier.PUBLIC)
             .addField(
-                Clock.class, AbstractFieldGenerator.CLOCK_VAR, Modifier.PRIVATE, Modifier.FINAL)
+                Clock.class, AbstractFieldTransformer.CLOCK_VAR, Modifier.PRIVATE, Modifier.FINAL)
             .addField(
                 ParameterizedTypeName.get(Function.class, String.class, String.class),
-                AbstractFieldGenerator.HASHER_VAR,
+                AbstractFieldTransformer.HASHER_VAR,
                 Modifier.PRIVATE,
                 Modifier.FINAL);
     MethodSpec constructor =
         MethodSpec.constructorBuilder()
-            .addParameter(Clock.class, AbstractFieldGenerator.CLOCK_VAR)
+            .addParameter(Clock.class, AbstractFieldTransformer.CLOCK_VAR)
             .addParameter(
                 ParameterizedTypeName.get(Function.class, String.class, String.class),
-                AbstractFieldGenerator.HASHER_VAR)
-            .addStatement(
-                "this.$L = $L", AbstractFieldGenerator.CLOCK_VAR, AbstractFieldGenerator.CLOCK_VAR)
+                AbstractFieldTransformer.HASHER_VAR)
             .addStatement(
                 "this.$L = $L",
-                AbstractFieldGenerator.HASHER_VAR,
-                AbstractFieldGenerator.HASHER_VAR)
+                AbstractFieldTransformer.CLOCK_VAR,
+                AbstractFieldTransformer.CLOCK_VAR)
+            .addStatement(
+                "this.$L = $L",
+                AbstractFieldTransformer.HASHER_VAR,
+                AbstractFieldTransformer.HASHER_VAR)
             .build();
     classBuilder
         .addMethod(constructor)
@@ -110,23 +112,23 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
         MethodSpec.methodBuilder(TRANSFORM_METHOD_NAME)
             .returns(entityClassType)
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(messageClassType, AbstractFieldGenerator.SOURCE_VAR)
+            .addParameter(messageClassType, AbstractFieldTransformer.SOURCE_VAR)
             .addStatement(
                 "final $T $L = new $T()",
                 DataTransformer.class,
-                AbstractFieldGenerator.TRANSFORMER_VAR,
+                AbstractFieldTransformer.TRANSFORMER_VAR,
                 DataTransformer.class)
             .addStatement(
                 "final $T $L = $L($L,$L)",
                 entityClassType,
-                AbstractFieldGenerator.DEST_VAR,
+                AbstractFieldTransformer.DEST_VAR,
                 TRANSFORM_METHOD_NAME,
-                AbstractFieldGenerator.SOURCE_VAR,
-                AbstractFieldGenerator.TRANSFORMER_VAR);
+                AbstractFieldTransformer.SOURCE_VAR,
+                AbstractFieldTransformer.TRANSFORMER_VAR);
     builder.addStatement(
         "final $T errors = $L.getErrors();",
         ParameterizedTypeName.get(List.class, DataTransformer.ErrorMessage.class),
-        AbstractFieldGenerator.TRANSFORMER_VAR);
+        AbstractFieldTransformer.TRANSFORMER_VAR);
     builder
         .beginControlFlow("if (errors.size() > 0)")
         .addStatement(
@@ -135,7 +137,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
             TransformerUtil.capitalize(mapping.firstPrimaryKeyField().get().getTo()))
         .addStatement("throw new DataTransformer.TransformationException(message, errors)")
         .endControlFlow();
-    builder.addStatement("return $L", AbstractFieldGenerator.DEST_VAR);
+    builder.addStatement("return $L", AbstractFieldTransformer.DEST_VAR);
     return builder.build();
   }
 
@@ -148,12 +150,12 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
         MethodSpec.methodBuilder(TRANSFORM_METHOD_NAME)
             .returns(entityClassType)
             .addModifiers(Modifier.PRIVATE)
-            .addParameter(messageClassType, AbstractFieldGenerator.SOURCE_VAR)
-            .addParameter(DataTransformer.class, AbstractFieldGenerator.TRANSFORMER_VAR)
+            .addParameter(messageClassType, AbstractFieldTransformer.SOURCE_VAR)
+            .addParameter(DataTransformer.class, AbstractFieldTransformer.TRANSFORMER_VAR)
             .addStatement(
                 "final $T $L = new $T()",
                 entityClassType,
-                AbstractFieldGenerator.DEST_VAR,
+                AbstractFieldTransformer.DEST_VAR,
                 entityClassType);
     for (FieldBean field : mapping.getFields()) {
       TransformerUtil.selectTransformerForField(field)
@@ -171,7 +173,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                           mapping.getId(), arrayElement.getMapping()));
       builder.addComment("TODO add code to do transformation of $L array", elementMapping.getId());
     }
-    builder.addStatement("return $L", AbstractFieldGenerator.DEST_VAR);
+    builder.addStatement("return $L", AbstractFieldTransformer.DEST_VAR);
     return builder.build();
   }
 
