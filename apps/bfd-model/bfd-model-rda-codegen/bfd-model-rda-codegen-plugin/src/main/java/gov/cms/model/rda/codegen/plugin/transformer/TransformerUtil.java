@@ -8,11 +8,11 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class TransformerUtil {
-  private static final String TimestampFromName = "NOW";
+  public static final String TimestampFromName = "NOW";
   private static final String NoMappingFromName = "NONE";
   public static final String ParentFromName = "PARENT";
   public static final String IndexFromName = "INDEX";
-  private static final Pattern NoMappingFromNamesRegex = Pattern.compile("NOW|NONE|PARENT|INDEX");
+  private static final Pattern NoMappingFromNamesRegex = Pattern.compile("NONE|PARENT|INDEX");
   private static final CharFieldTransformer CharInstance = new CharFieldTransformer();
   private static final IntFieldTransformer IntInstance = new IntFieldTransformer();
   private static final DateFieldTransformer DateInstance = new DateFieldTransformer();
@@ -40,13 +40,9 @@ public class TransformerUtil {
       return Optional.ofNullable(transformersByName.get(field.getTransformer()));
     }
 
-    if (NoMappingFromNamesRegex.matcher(field.getFrom()).matches()) {
-      return Optional.empty();
-    }
-
     Optional<AbstractFieldTransformer> answer =
         Optional.ofNullable(transformersByFrom.get(field.getFrom()));
-    if (!answer.isPresent()) {
+    if (!(answer.isPresent() || NoMappingFromNamesRegex.matcher(field.getFrom()).matches())) {
       final ColumnBean column = field.getColumn();
       if (column.isEnum()) {
         // TODO add support for message enums

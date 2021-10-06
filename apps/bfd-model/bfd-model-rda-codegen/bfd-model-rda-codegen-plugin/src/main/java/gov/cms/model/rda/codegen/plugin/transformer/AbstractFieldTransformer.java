@@ -24,7 +24,7 @@ public abstract class AbstractFieldTransformer {
   public static final String SOURCE_VAR = "from";
   public static final String DEST_VAR = "to";
   public static final String TRANSFORMER_VAR = "transformer";
-  public static final String NOW_VAR = "clock.instant()";
+  public static final String NOW_VAR = "now";
   public static final String HASHER_VAR = "idHasher";
   public static final String CLOCK_VAR = "clock";
   public static final String ENUM_FACTORY_VAR = "enumExtractorFactory";

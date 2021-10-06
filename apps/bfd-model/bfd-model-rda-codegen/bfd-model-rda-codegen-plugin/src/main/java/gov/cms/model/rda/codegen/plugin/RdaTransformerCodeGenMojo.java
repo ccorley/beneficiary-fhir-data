@@ -20,6 +20,7 @@ import gov.cms.model.rda.codegen.plugin.transformer.TransformerUtil;
 import java.io.File;
 import java.io.IOException;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -191,12 +192,17 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                 AbstractFieldTransformer.TRANSFORMER_VAR,
                 DataTransformer.class)
             .addStatement(
-                "final $T $L = $L($L,$L)",
+                "final Instant $L = $L.instant()",
+                AbstractFieldTransformer.NOW_VAR,
+                AbstractFieldTransformer.CLOCK_VAR)
+            .addStatement(
+                "final $T $L = $L($L,$L,$L)",
                 entityClassType,
                 AbstractFieldTransformer.DEST_VAR,
                 TRANSFORM_METHOD_NAME,
                 AbstractFieldTransformer.SOURCE_VAR,
-                AbstractFieldTransformer.TRANSFORMER_VAR);
+                AbstractFieldTransformer.TRANSFORMER_VAR,
+                AbstractFieldTransformer.NOW_VAR);
     builder.addStatement(
         "final $T errors = $L.getErrors();",
         ParameterizedTypeName.get(List.class, DataTransformer.ErrorMessage.class),
@@ -224,6 +230,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
             .addModifiers(Modifier.PRIVATE)
             .addParameter(messageClassType, AbstractFieldTransformer.SOURCE_VAR)
             .addParameter(DataTransformer.class, AbstractFieldTransformer.TRANSFORMER_VAR)
+            .addParameter(Instant.class, AbstractFieldTransformer.NOW_VAR)
             .addStatement(
                 "final $T $L = new $T()",
                 entityClassType,
@@ -255,10 +262,11 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
               AbstractFieldTransformer.SOURCE_VAR,
               TransformerUtil.capitalize(arrayElement.getFrom()))
           .addStatement(
-              "final $T itemTo = $L(itemFrom,$L)",
+              "final $T itemTo = $L(itemFrom,$L,$L)",
               PoetUtil.toClassName(elementMapping.getEntity()),
               TRANSFORM_METHOD_NAME,
-              AbstractFieldTransformer.TRANSFORMER_VAR);
+              AbstractFieldTransformer.TRANSFORMER_VAR,
+              AbstractFieldTransformer.NOW_VAR);
       for (FieldBean elementField : elementMapping.getFields()) {
         final String elementFrom = elementField.getFrom();
         if (elementFrom.equals(TransformerUtil.IndexFromName)) {
