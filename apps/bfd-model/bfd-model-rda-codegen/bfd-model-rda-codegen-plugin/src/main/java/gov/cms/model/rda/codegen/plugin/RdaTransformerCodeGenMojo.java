@@ -19,9 +19,12 @@ import gov.cms.model.rda.codegen.plugin.transformer.TransformerUtil;
 import java.io.File;
 import java.io.IOException;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.lang.model.element.Modifier;
@@ -106,9 +109,32 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
     classBuilder
         .addFields(createFieldSpecs(mapping))
         .addMethod(constructor.build())
-        .addMethod(createOuterTransformClaimMethod(mapping, mappingFinder))
-        .addMethod(createInnerTransformClaimMethod(mapping, mappingFinder));
+        .addMethod(createOuterTransformClaimMethod(mapping))
+        .addMethods(
+            createInnerTransformClaimMethods(
+                mapping, mappingFinder, new HashSet<>(), new ArrayList<>()));
     return classBuilder.build();
+  }
+
+  private List<MethodSpec> createInnerTransformClaimMethods(
+      MappingBean base,
+      Function<String, Optional<MappingBean>> mappingFinder,
+      Set<String> visitedMappingIds,
+      List<MethodSpec> createdMethods)
+      throws MojoExecutionException {
+    MethodSpec method = createInnerTransformClaimMethod(base, mappingFinder);
+    visitedMappingIds.add(base.getId());
+    createdMethods.add(method);
+    for (ArrayElement array : base.getArrays()) {
+      if (!visitedMappingIds.contains(array.getMapping())) {
+        Optional<MappingBean> elementMapping = mappingFinder.apply(array.getMapping());
+        if (elementMapping.isPresent()) {
+          createInnerTransformClaimMethods(
+              elementMapping.get(), mappingFinder, visitedMappingIds, createdMethods);
+        }
+      }
+    }
+    return createdMethods;
   }
 
   private List<FieldSpec> createFieldSpecs(MappingBean mapping) {
@@ -131,8 +157,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
         .collect(Collectors.toList());
   }
 
-  private MethodSpec createOuterTransformClaimMethod(
-      MappingBean mapping, Function<String, Optional<MappingBean>> mappingFinder)
+  private MethodSpec createOuterTransformClaimMethod(MappingBean mapping)
       throws MojoExecutionException {
     final TypeName messageClassType = ModelUtil.classType(mapping.getMessage());
     final TypeName entityClassType = ModelUtil.classType(mapping.getEntity());
@@ -199,7 +224,31 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                       failure(
                           "array element of %s references undefined mapping %s",
                           mapping.getId(), arrayElement.getMapping()));
-      builder.addComment("TODO add code to do transformation of $L array", elementMapping.getId());
+      CodeBlock loop =
+          CodeBlock.builder()
+              .beginControlFlow(
+                  "for (int index = 0; index < $L.get$LCount(); ++index)",
+                  AbstractFieldTransformer.SOURCE_VAR,
+                  TransformerUtil.capitalize(arrayElement.getFrom()))
+              .addStatement(
+                  "final $T itemFrom = $L.get$L(index)",
+                  PoetUtil.toClassName(elementMapping.getMessage()),
+                  AbstractFieldTransformer.SOURCE_VAR,
+                  TransformerUtil.capitalize(arrayElement.getFrom()))
+              .addStatement(
+                  "final $T $L = $L($L,$L)",
+                  PoetUtil.toClassName(elementMapping.getEntity()),
+                  "itemTo",
+                  TRANSFORM_METHOD_NAME,
+                  "itemFrom",
+                  AbstractFieldTransformer.TRANSFORMER_VAR)
+              .addStatement(
+                  "$L.get$L().add(itemTo)",
+                  AbstractFieldTransformer.DEST_VAR,
+                  TransformerUtil.capitalize(arrayElement.getTo()))
+              .endControlFlow()
+              .build();
+      builder.addCode(loop);
     }
     builder.addStatement("return $L", AbstractFieldTransformer.DEST_VAR);
     return builder.build();

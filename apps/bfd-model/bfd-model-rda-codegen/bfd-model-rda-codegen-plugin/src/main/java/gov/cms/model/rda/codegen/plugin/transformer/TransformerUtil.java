@@ -34,6 +34,14 @@ public class TransformerUtil {
       return Optional.ofNullable(namedTransformers.get(field.getTransformer()));
     }
 
+    if (NoMappingFromName.equals(field.getFrom())) {
+      return Optional.empty();
+    }
+
+    if (TimestampFromName.equals(field.getFrom())) {
+      return Optional.of(TimestampInstance);
+    }
+
     final ColumnBean column = field.getColumn();
     if (column.isEnum()) {
       // TODO add support for message enums
@@ -58,16 +66,6 @@ public class TransformerUtil {
 
     if (column.isDate()) {
       return Optional.of(DateInstance);
-    }
-
-    if (TimestampFromName.equals(field.getFrom())) {
-      return Optional.of(TimestampInstance);
-    }
-
-    if (NoMappingFromName.equals(field.getFrom())) {
-      // Sequence numbers are set by the hand written caller from the value in the RdaChange object.
-      // As a consequence we want to do nothing when the NoMappingFromName is used in the DSL.
-      return Optional.empty();
     }
 
     return Optional.empty();

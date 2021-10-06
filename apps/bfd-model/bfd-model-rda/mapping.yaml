@@ -155,13 +155,13 @@ mappings:
         column:
           sqlType: varchar(3)
     arrays:
-      - from: claim.fissProcCodes
+      - from: fissProcCodes
         to: procCodes
         mapping: FissProcCode
-      - from: claim.fissProcCodes
+      - from: fissDiagCodes
         to: diagCodes
         mapping: FissDiagnosisCode
-      - from: claim.fissPayers
+      - from: fissPayers
         to: payers
         mapping: FissPayer
 
@@ -175,18 +175,19 @@ mappings:
         - dcn
         - priority
     fields:
-      - from: PARENT
+      - from: NONE
         to: dcn
         column:
           sqlType: varchar(23)
           nullable: false
-      - from: INDEX
+      - from: NONE
         to: priority
         column:
           sqlType: smallint
           javaType: short
           nullable: false
-      - from: procCode
+      - from: procCd
+        to: procCode
         optional: false
         column:
           sqlType: varchar(10)
@@ -194,10 +195,11 @@ mappings:
       - from: procFlag
         column:
           sqlType: varchar(4)
-      - from: procDate
+      - from: procDt
+        to: procDate
         column:
           sqlType: date
-      - from: PARENT
+      - from: NOW
         to: lastUpdated
         column:
           sqlType: timestamp with time zone
@@ -212,17 +214,19 @@ mappings:
         - dcn
         - priority
     fields:
-      - from: PARENT
+      - from: NONE
         to: dcn
         column:
           sqlType: varchar(23)
           nullable: false
-      - from: INDEX
+        transformer: NONE
+      - from: NONE
         to: priority
         column:
           sqlType: smallint
           javaType: short
           nullable: false
+        transformer: NONE
       - from: diagCd2
         optional: false
         column:
@@ -233,6 +237,9 @@ mappings:
         column:
           sqlType: varchar(1)
           nullable: false
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissDiagnosisPresentOnAdmissionIndicator
       - from: bitFlags
         column:
           sqlType: varchar(4)
@@ -256,18 +263,20 @@ mappings:
           - BeneZ
           - Insured
     fields:
-      - from: PARENT
+      - from: NONE
         to: dcn
         column:
           sqlType: varchar(23)
           nullable: false
-      - from: INDEX
+        transformer: NONE
+      - from: NONE
         to: priority
         column:
           sqlType: smallint
           javaType: short
           nullable: false
-      - from: OBJECT
+        transformer: NONE
+      - from: NONE
         to: payerType
         column:
           enumType: PayerType
