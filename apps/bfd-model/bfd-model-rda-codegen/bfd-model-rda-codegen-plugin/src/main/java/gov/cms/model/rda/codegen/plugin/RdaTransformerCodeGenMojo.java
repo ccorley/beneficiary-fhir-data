@@ -224,31 +224,43 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                       failure(
                           "array element of %s references undefined mapping %s",
                           mapping.getId(), arrayElement.getMapping()));
-      CodeBlock loop =
+      CodeBlock.Builder loop =
           CodeBlock.builder()
               .beginControlFlow(
-                  "for (int index = 0; index < $L.get$LCount(); ++index)",
+                  "for (short index = 0; index < $L.get$LCount(); ++index)",
                   AbstractFieldTransformer.SOURCE_VAR,
-                  TransformerUtil.capitalize(arrayElement.getFrom()))
-              .addStatement(
-                  "final $T itemFrom = $L.get$L(index)",
-                  PoetUtil.toClassName(elementMapping.getMessage()),
-                  AbstractFieldTransformer.SOURCE_VAR,
-                  TransformerUtil.capitalize(arrayElement.getFrom()))
-              .addStatement(
-                  "final $T $L = $L($L,$L)",
-                  PoetUtil.toClassName(elementMapping.getEntity()),
-                  "itemTo",
-                  TRANSFORM_METHOD_NAME,
-                  "itemFrom",
-                  AbstractFieldTransformer.TRANSFORMER_VAR)
-              .addStatement(
-                  "$L.get$L().add(itemTo)",
-                  AbstractFieldTransformer.DEST_VAR,
-                  TransformerUtil.capitalize(arrayElement.getTo()))
-              .endControlFlow()
-              .build();
-      builder.addCode(loop);
+                  TransformerUtil.capitalize(arrayElement.getFrom()));
+      loop.addStatement(
+              "final $T itemFrom = $L.get$L(index)",
+              PoetUtil.toClassName(elementMapping.getMessage()),
+              AbstractFieldTransformer.SOURCE_VAR,
+              TransformerUtil.capitalize(arrayElement.getFrom()))
+          .addStatement(
+              "final $T itemTo = $L(itemFrom,$L)",
+              PoetUtil.toClassName(elementMapping.getEntity()),
+              TRANSFORM_METHOD_NAME,
+              AbstractFieldTransformer.TRANSFORMER_VAR);
+      for (FieldBean elementField : elementMapping.getFields()) {
+        final String elementFrom = elementField.getFrom();
+        if (elementFrom.equals(TransformerUtil.IndexFromName)) {
+          // set the field to the current array element's index within the array
+          loop.addStatement(
+              "itemTo.set$L(index)", TransformerUtil.capitalize(elementField.getTo()));
+        } else if (elementFrom.equals(TransformerUtil.ParentFromName)) {
+          // copy the same field from parent into the array element field
+          loop.addStatement(
+              "itemTo.set$L($L.get$L())",
+              TransformerUtil.capitalize(elementField.getTo()),
+              AbstractFieldTransformer.SOURCE_VAR,
+              TransformerUtil.capitalize(elementField.getTo()));
+        }
+      }
+      loop.addStatement(
+              "$L.get$L().add(itemTo)",
+              AbstractFieldTransformer.DEST_VAR,
+              TransformerUtil.capitalize(arrayElement.getTo()))
+          .endControlFlow();
+      builder.addCode(loop.build());
     }
     builder.addStatement("return $L", AbstractFieldTransformer.DEST_VAR);
     return builder.build();

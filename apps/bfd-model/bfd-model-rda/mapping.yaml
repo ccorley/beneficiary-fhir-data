@@ -99,9 +99,8 @@ mappings:
         to: fedTaxNumber
         column:
           sqlType: varchar(10)
-      - from: NONE
+      - from: NOW
         to: lastUpdated
-        transformer: Now
         column:
           sqlType: timestamp with time zone
       - from: pracLocAddr1
@@ -175,12 +174,12 @@ mappings:
         - dcn
         - priority
     fields:
-      - from: NONE
+      - from: PARENT
         to: dcn
         column:
           sqlType: varchar(23)
           nullable: false
-      - from: NONE
+      - from: INDEX
         to: priority
         column:
           sqlType: smallint
@@ -214,13 +213,13 @@ mappings:
         - dcn
         - priority
     fields:
-      - from: NONE
+      - from: PARENT
         to: dcn
         column:
           sqlType: varchar(23)
           nullable: false
         transformer: NONE
-      - from: NONE
+      - from: INDEX
         to: priority
         column:
           sqlType: smallint
@@ -243,7 +242,7 @@ mappings:
       - from: bitFlags
         column:
           sqlType: varchar(4)
-      - from: PARENT
+      - from: NOW
         to: lastUpdated
         column:
           sqlType: timestamp with time zone
@@ -263,13 +262,13 @@ mappings:
           - BeneZ
           - Insured
     fields:
-      - from: NONE
+      - from: PARENT
         to: dcn
         column:
           sqlType: varchar(23)
           nullable: false
         transformer: NONE
-      - from: NONE
+      - from: INDEX
         to: priority
         column:
           sqlType: smallint
@@ -357,7 +356,7 @@ mappings:
       - from: insuredDobText
         column:
           sqlType: varchar(9)
-      - from: PARENT
+      - from: NOW
         to: lastUpdated
         column:
           sqlType: timestamp with time zone
