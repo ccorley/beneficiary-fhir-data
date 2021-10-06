@@ -1,5 +1,6 @@
 package gov.cms.model.rda.codegen.plugin;
 
+import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
@@ -26,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.lang.model.element.Modifier;
 import lombok.SneakyThrows;
 import org.apache.maven.plugin.AbstractMojo;
@@ -79,6 +79,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
   private TypeSpec createTransformerClassForMapping(
       MappingBean mapping, Function<String, Optional<MappingBean>> mappingFinder)
       throws MojoExecutionException {
+    final List<MappingBean> allMappings = findAllMappingsForRootMapping(mapping, mappingFinder);
     TypeSpec.Builder classBuilder =
         TypeSpec.classBuilder(mapping.transformerClassName())
             .addModifiers(Modifier.PUBLIC)
@@ -89,6 +90,11 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                 AbstractFieldTransformer.HASHER_VAR,
                 Modifier.PRIVATE,
                 Modifier.FINAL);
+    for (MappingBean aMapping : allMappings) {
+      for (FieldSpec field : createFieldsForMapping(aMapping)) {
+        classBuilder.addField(field);
+      }
+    }
     MethodSpec.Builder constructor =
         MethodSpec.constructorBuilder()
             .addParameter(Clock.class, AbstractFieldTransformer.CLOCK_VAR)
@@ -105,36 +111,49 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                 "this.$L = $L",
                 AbstractFieldTransformer.HASHER_VAR,
                 AbstractFieldTransformer.HASHER_VAR);
-    createFieldInitializersForMapping(mapping).forEach(constructor::addCode);
+    for (MappingBean aMapping : allMappings) {
+      for (CodeBlock initializer : createFieldInitializersForMapping(aMapping)) {
+        constructor.addCode(initializer);
+      }
+    }
     classBuilder
-        .addFields(createFieldsForMapping(mapping))
         .addMethod(constructor.build())
-        .addMethod(createPublicTransformMessageMethodForParentMapping(mapping))
-        .addMethods(
-            createInnerTransformClaimMethodsForMappingAndArrays(
-                mapping, mappingFinder, new HashSet<>(), new ArrayList<>()));
+        .addMethod(createPublicTransformMessageMethodForParentMapping(mapping));
+    for (MappingBean aMapping : allMappings) {
+      classBuilder.addMethod(
+          createPrivateTransformMessageMethodForMapping(aMapping, mappingFinder));
+    }
     return classBuilder.build();
   }
 
-  private List<MethodSpec> createInnerTransformClaimMethodsForMappingAndArrays(
-      MappingBean mapping,
-      Function<String, Optional<MappingBean>> mappingFinder,
-      Set<String> visitedMappingIds,
-      List<MethodSpec> createdMethods)
-      throws MojoExecutionException {
-    MethodSpec method = createPrivateTransformMessageMethodForMapping(mapping, mappingFinder);
-    visitedMappingIds.add(mapping.getId());
-    createdMethods.add(method);
-    for (ArrayElement array : mapping.getArrays()) {
-      if (!visitedMappingIds.contains(array.getMapping())) {
-        Optional<MappingBean> elementMapping = mappingFinder.apply(array.getMapping());
-        if (elementMapping.isPresent()) {
-          createInnerTransformClaimMethodsForMappingAndArrays(
-              elementMapping.get(), mappingFinder, visitedMappingIds, createdMethods);
+  /**
+   * Finds all MappingBeans reachable from the specified root mapping by recursively following all
+   * of its array mappings. The result is all of the mappings that this transformer class will need
+   * to generate code for.
+   *
+   * @param root Base mapping that we are creating transformer for.
+   * @param mappingFinder Lookup method to find mappings by their id.
+   * @return List of all mappings reachable from root (including root).
+   */
+  private List<MappingBean> findAllMappingsForRootMapping(
+      MappingBean root, Function<String, Optional<MappingBean>> mappingFinder) {
+    final ImmutableList.Builder<MappingBean> answer = ImmutableList.builder();
+    final Set<String> visited = new HashSet<>();
+    final List<MappingBean> queue = new ArrayList<>();
+
+    queue.add(root);
+    while (queue.size() > 0) {
+      MappingBean mapping = queue.remove(0);
+      visited.add(mapping.getId());
+      answer.add(mapping);
+      for (ArrayElement element : mapping.getArrays()) {
+        Optional<MappingBean> elementMapping = mappingFinder.apply(element.getMapping());
+        if (elementMapping.isPresent() && !visited.contains(element.getMapping())) {
+          queue.add(elementMapping.get());
         }
       }
     }
-    return createdMethods;
+    return answer.build();
   }
 
   private List<FieldSpec> createFieldsForMapping(MappingBean mapping) {
@@ -144,7 +163,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                 TransformerUtil.selectTransformerForField(field)
                     .map(transformer -> transformer.generateFieldSpecs(mapping, field))
                     .orElse(Collections.emptyList()).stream())
-        .collect(Collectors.toList());
+        .collect(ImmutableList.toImmutableList());
   }
 
   private List<CodeBlock> createFieldInitializersForMapping(MappingBean mapping) {
@@ -154,7 +173,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                 TransformerUtil.selectTransformerForField(field)
                     .map(transformer -> transformer.generateFieldInitializers(mapping, field))
                     .orElse(Collections.emptyList()).stream())
-        .collect(Collectors.toList());
+        .collect(ImmutableList.toImmutableList());
   }
 
   private MethodSpec createPublicTransformMessageMethodForParentMapping(MappingBean mapping)
