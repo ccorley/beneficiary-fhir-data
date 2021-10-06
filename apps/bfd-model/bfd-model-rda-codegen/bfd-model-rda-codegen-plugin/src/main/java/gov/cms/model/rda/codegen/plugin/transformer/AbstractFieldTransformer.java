@@ -55,23 +55,23 @@ public abstract class AbstractFieldTransformer {
     return CodeBlock.of("$T.Fields.$L", PoetUtil.toClassName(mapping.getEntity()), field.getTo());
   }
 
-  protected String sourceHasRef(FieldBean field) {
-    return String.format("%s::has%s", SOURCE_VAR, capitalize(field.getFrom()));
+  protected CodeBlock sourceHasRef(FieldBean field) {
+    return CodeBlock.of("$L::has$L", SOURCE_VAR, capitalize(field.getFrom()));
   }
 
-  protected String sourceGetRef(FieldBean field) {
-    return String.format("%s::get%s", SOURCE_VAR, capitalize(field.getFrom()));
+  protected CodeBlock sourceGetRef(FieldBean field) {
+    return CodeBlock.of("$L::get$L", SOURCE_VAR, capitalize(field.getFrom()));
   }
 
-  protected String sourceValue(FieldBean field) {
-    return String.format("%s.get%s()", SOURCE_VAR, capitalize(field.getFrom()));
+  protected CodeBlock sourceValue(FieldBean field) {
+    return CodeBlock.of("$L.get$L()", SOURCE_VAR, capitalize(field.getFrom()));
   }
 
-  protected String destSetter(FieldBean field) {
-    return String.format("%s.set%s", DEST_VAR, capitalize(field.getTo()));
+  protected CodeBlock destSetter(FieldBean field) {
+    return CodeBlock.of("$L.set$L", DEST_VAR, capitalize(field.getTo()));
   }
 
-  protected String destSetRef(FieldBean field) {
-    return String.format("%s::set%s", DEST_VAR, capitalize(field.getTo()));
+  protected CodeBlock destSetRef(FieldBean field) {
+    return CodeBlock.of("$L::set$L", DEST_VAR, capitalize(field.getTo()));
   }
 }

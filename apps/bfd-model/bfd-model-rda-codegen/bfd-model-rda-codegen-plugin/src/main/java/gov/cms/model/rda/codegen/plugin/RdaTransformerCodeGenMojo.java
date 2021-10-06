@@ -42,7 +42,7 @@ import org.apache.maven.project.MavenProject;
  */
 @Mojo(name = "transformers", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class RdaTransformerCodeGenMojo extends AbstractMojo {
-  private static final String TRANSFORM_METHOD_NAME = "transformClaim";
+  private static final String TRANSFORM_METHOD_NAME = "transformMessage";
 
   @Parameter(property = "mappingFile")
   private String mappingFile;
@@ -68,7 +68,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
     List<MappingBean> rootMappings = root.getMappings();
     for (MappingBean mapping : rootMappings) {
       if (mapping.hasTransformer()) {
-        TypeSpec rootEntity = createTransformerFromMapping(mapping, root::findMappingWithId);
+        TypeSpec rootEntity = createTransformerClassForMapping(mapping, root::findMappingWithId);
         JavaFile javaFile = JavaFile.builder(mapping.transformerPackageName(), rootEntity).build();
         javaFile.writeTo(outputDir);
       }
@@ -76,7 +76,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
     project.addCompileSourceRoot(outputDirectory);
   }
 
-  private TypeSpec createTransformerFromMapping(
+  private TypeSpec createTransformerClassForMapping(
       MappingBean mapping, Function<String, Optional<MappingBean>> mappingFinder)
       throws MojoExecutionException {
     TypeSpec.Builder classBuilder =
@@ -105,31 +105,31 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                 "this.$L = $L",
                 AbstractFieldTransformer.HASHER_VAR,
                 AbstractFieldTransformer.HASHER_VAR);
-    createFieldInitializers(mapping).forEach(constructor::addCode);
+    createFieldInitializersForMapping(mapping).forEach(constructor::addCode);
     classBuilder
-        .addFields(createFieldSpecs(mapping))
+        .addFields(createFieldsForMapping(mapping))
         .addMethod(constructor.build())
-        .addMethod(createOuterTransformClaimMethod(mapping))
+        .addMethod(createPublicTransformMessageMethodForParentMapping(mapping))
         .addMethods(
-            createInnerTransformClaimMethods(
+            createInnerTransformClaimMethodsForMappingAndArrays(
                 mapping, mappingFinder, new HashSet<>(), new ArrayList<>()));
     return classBuilder.build();
   }
 
-  private List<MethodSpec> createInnerTransformClaimMethods(
-      MappingBean base,
+  private List<MethodSpec> createInnerTransformClaimMethodsForMappingAndArrays(
+      MappingBean mapping,
       Function<String, Optional<MappingBean>> mappingFinder,
       Set<String> visitedMappingIds,
       List<MethodSpec> createdMethods)
       throws MojoExecutionException {
-    MethodSpec method = createInnerTransformClaimMethod(base, mappingFinder);
-    visitedMappingIds.add(base.getId());
+    MethodSpec method = createPrivateTransformMessageMethodForMapping(mapping, mappingFinder);
+    visitedMappingIds.add(mapping.getId());
     createdMethods.add(method);
-    for (ArrayElement array : base.getArrays()) {
+    for (ArrayElement array : mapping.getArrays()) {
       if (!visitedMappingIds.contains(array.getMapping())) {
         Optional<MappingBean> elementMapping = mappingFinder.apply(array.getMapping());
         if (elementMapping.isPresent()) {
-          createInnerTransformClaimMethods(
+          createInnerTransformClaimMethodsForMappingAndArrays(
               elementMapping.get(), mappingFinder, visitedMappingIds, createdMethods);
         }
       }
@@ -137,7 +137,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
     return createdMethods;
   }
 
-  private List<FieldSpec> createFieldSpecs(MappingBean mapping) {
+  private List<FieldSpec> createFieldsForMapping(MappingBean mapping) {
     return mapping.getFields().stream()
         .flatMap(
             field ->
@@ -147,7 +147,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
         .collect(Collectors.toList());
   }
 
-  private List<CodeBlock> createFieldInitializers(MappingBean mapping) {
+  private List<CodeBlock> createFieldInitializersForMapping(MappingBean mapping) {
     return mapping.getFields().stream()
         .flatMap(
             field ->
@@ -157,7 +157,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
         .collect(Collectors.toList());
   }
 
-  private MethodSpec createOuterTransformClaimMethod(MappingBean mapping)
+  private MethodSpec createPublicTransformMessageMethodForParentMapping(MappingBean mapping)
       throws MojoExecutionException {
     final TypeName messageClassType = ModelUtil.classType(mapping.getMessage());
     final TypeName entityClassType = ModelUtil.classType(mapping.getEntity());
@@ -194,7 +194,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
     return builder.build();
   }
 
-  private MethodSpec createInnerTransformClaimMethod(
+  private MethodSpec createPrivateTransformMessageMethodForMapping(
       MappingBean mapping, Function<String, Optional<MappingBean>> mappingFinder)
       throws MojoExecutionException {
     final TypeName messageClassType = ModelUtil.classType(mapping.getMessage());

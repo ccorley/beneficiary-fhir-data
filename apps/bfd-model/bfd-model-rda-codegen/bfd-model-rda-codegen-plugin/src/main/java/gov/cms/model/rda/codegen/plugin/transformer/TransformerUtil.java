@@ -5,10 +5,12 @@ import gov.cms.model.rda.codegen.plugin.model.ColumnBean;
 import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class TransformerUtil {
   private static final String TimestampFromName = "NOW";
   private static final String NoMappingFromName = "NONE";
+  private static final Pattern NoMappingFromNamesRegex = Pattern.compile("NOW|NONE|PARENT|INDEX");
   private static final CharFieldTransformer CharInstance = new CharFieldTransformer();
   private static final IntFieldTransformer IntInstance = new IntFieldTransformer();
   private static final DateFieldTransformer DateInstance = new DateFieldTransformer();
@@ -34,7 +36,7 @@ public class TransformerUtil {
       return Optional.ofNullable(namedTransformers.get(field.getTransformer()));
     }
 
-    if (NoMappingFromName.equals(field.getFrom())) {
+    if (NoMappingFromNamesRegex.matcher(field.getFrom()).matches()) {
       return Optional.empty();
     }
 

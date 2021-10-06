@@ -19,7 +19,7 @@ public class IntFieldTransformer extends AbstractFieldTransformer {
   private CodeBlock generateBlockForOptional(MappingBean mapping, FieldBean field) {
     return CodeBlock.builder()
         .addStatement(
-            "$N.copyOptionalInt($L, $L, $L)",
+            "$L.copyOptionalInt($L, $L, $L)",
             TRANSFORMER_VAR,
             sourceHasRef(field),
             sourceGetRef(field),
