@@ -7,6 +7,6 @@ import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 public class TimestampFieldTransformer extends AbstractFieldTransformer {
   @Override
   public CodeBlock generateCodeBlock(MappingBean mapping, FieldBean field) {
-    return CodeBlock.builder().addStatement("$L($L)", destSetter(field), NOW_VAR).build();
+    return destSetter(field, NOW_VALUE);
   }
 }

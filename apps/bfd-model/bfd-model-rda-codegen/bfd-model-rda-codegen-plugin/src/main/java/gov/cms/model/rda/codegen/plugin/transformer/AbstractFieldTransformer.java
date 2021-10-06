@@ -27,6 +27,7 @@ public abstract class AbstractFieldTransformer {
   public static final String NOW_VAR = "now";
   public static final String HASHER_VAR = "idHasher";
   public static final String CLOCK_VAR = "clock";
+  public static final CodeBlock NOW_VALUE = CodeBlock.of("$L", NOW_VAR);
   public static final String ENUM_FACTORY_VAR = "enumExtractorFactory";
 
   /**
@@ -67,8 +68,8 @@ public abstract class AbstractFieldTransformer {
     return CodeBlock.of("$L.get$L()", SOURCE_VAR, capitalize(field.getFrom()));
   }
 
-  protected CodeBlock destSetter(FieldBean field) {
-    return CodeBlock.of("$L.set$L", DEST_VAR, capitalize(field.getTo()));
+  protected CodeBlock destSetter(FieldBean field, CodeBlock value) {
+    return CodeBlock.of("$L.set$L($L);", DEST_VAR, capitalize(field.getTo()), value);
   }
 
   protected CodeBlock destSetRef(FieldBean field) {

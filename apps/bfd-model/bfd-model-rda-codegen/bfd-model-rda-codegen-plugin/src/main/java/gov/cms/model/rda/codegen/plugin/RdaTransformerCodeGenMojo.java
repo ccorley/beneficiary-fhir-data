@@ -44,6 +44,7 @@ import org.apache.maven.project.MavenProject;
 @Mojo(name = "transformers", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class RdaTransformerCodeGenMojo extends AbstractMojo {
   private static final String TRANSFORM_METHOD_NAME = "transformMessage";
+  private static final String TRANSFORM_ARRAYS_METHOD_NAME = "transformMessageArrays";
 
   @Parameter(property = "mappingFile")
   private String mappingFile;
@@ -121,8 +122,9 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
         .addMethod(constructor.build())
         .addMethod(createPublicTransformMessageMethodForParentMapping(mapping));
     for (MappingBean aMapping : allMappings) {
+      classBuilder.addMethod(createPrivateTransformMessageMethodForMapping(aMapping));
       classBuilder.addMethod(
-          createPrivateTransformMessageMethodForMapping(aMapping, mappingFinder));
+          createPrivateTransformMessageArraysMethodForMapping(aMapping, mappingFinder));
     }
     return classBuilder.build();
   }
@@ -202,6 +204,13 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                 TRANSFORM_METHOD_NAME,
                 AbstractFieldTransformer.SOURCE_VAR,
                 AbstractFieldTransformer.TRANSFORMER_VAR,
+                AbstractFieldTransformer.NOW_VAR)
+            .addStatement(
+                "$L($L,$L,$L,$L)",
+                TRANSFORM_ARRAYS_METHOD_NAME,
+                AbstractFieldTransformer.SOURCE_VAR,
+                AbstractFieldTransformer.DEST_VAR,
+                AbstractFieldTransformer.TRANSFORMER_VAR,
                 AbstractFieldTransformer.NOW_VAR);
     builder.addStatement(
         "final $T errors = $L.getErrors();",
@@ -219,8 +228,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
     return builder.build();
   }
 
-  private MethodSpec createPrivateTransformMessageMethodForMapping(
-      MappingBean mapping, Function<String, Optional<MappingBean>> mappingFinder)
+  private MethodSpec createPrivateTransformMessageMethodForMapping(MappingBean mapping)
       throws MojoExecutionException {
     final TypeName messageClassType = ModelUtil.classType(mapping.getMessage());
     final TypeName entityClassType = ModelUtil.classType(mapping.getEntity());
@@ -241,6 +249,22 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
           .map(generator -> generator.generateCodeBlock(mapping, field))
           .ifPresent(builder::addCode);
     }
+    builder.addStatement("return $L", AbstractFieldTransformer.DEST_VAR);
+    return builder.build();
+  }
+
+  private MethodSpec createPrivateTransformMessageArraysMethodForMapping(
+      MappingBean mapping, Function<String, Optional<MappingBean>> mappingFinder)
+      throws MojoExecutionException {
+    final TypeName messageClassType = ModelUtil.classType(mapping.getMessage());
+    final TypeName entityClassType = ModelUtil.classType(mapping.getEntity());
+    final MethodSpec.Builder builder =
+        MethodSpec.methodBuilder(TRANSFORM_ARRAYS_METHOD_NAME)
+            .addModifiers(Modifier.PRIVATE)
+            .addParameter(messageClassType, AbstractFieldTransformer.SOURCE_VAR)
+            .addParameter(entityClassType, AbstractFieldTransformer.DEST_VAR)
+            .addParameter(DataTransformer.class, AbstractFieldTransformer.TRANSFORMER_VAR)
+            .addParameter(Instant.class, AbstractFieldTransformer.NOW_VAR);
     for (ArrayElement arrayElement : mapping.getArrays()) {
       final MappingBean elementMapping =
           mappingFinder
@@ -283,13 +307,17 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
         }
       }
       loop.addStatement(
+          "$L(itemFrom,itemTo,$L,$L)",
+          TRANSFORM_ARRAYS_METHOD_NAME,
+          AbstractFieldTransformer.TRANSFORMER_VAR,
+          AbstractFieldTransformer.NOW_VAR);
+      loop.addStatement(
               "$L.get$L().add(itemTo)",
               AbstractFieldTransformer.DEST_VAR,
               TransformerUtil.capitalize(arrayElement.getTo()))
           .endControlFlow();
       builder.addCode(loop.build());
     }
-    builder.addStatement("return $L", AbstractFieldTransformer.DEST_VAR);
     return builder.build();
   }
 
