@@ -69,7 +69,9 @@ public abstract class AbstractFieldTransformer {
   }
 
   protected CodeBlock destSetter(FieldBean field, CodeBlock value) {
-    return CodeBlock.of("$L.set$L($L);", DEST_VAR, capitalize(field.getTo()), value);
+    return CodeBlock.builder()
+        .addStatement("$L.set$L($L)", DEST_VAR, capitalize(field.getTo()), value)
+        .build();
   }
 
   protected CodeBlock destSetRef(FieldBean field) {
