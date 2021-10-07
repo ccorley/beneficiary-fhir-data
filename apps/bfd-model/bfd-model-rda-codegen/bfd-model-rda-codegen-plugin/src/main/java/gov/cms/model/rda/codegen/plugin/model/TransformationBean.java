@@ -31,6 +31,16 @@ public class TransformationBean {
     return !Strings.isNullOrEmpty(transformer);
   }
 
+  public String findTransformerOption(String optionName) {
+    return transformerOption(optionName)
+        .orElseThrow(
+            () ->
+                new IllegalArgumentException(
+                    String.format(
+                        "reference to undefined option %s in transformation %s from %s",
+                        optionName, transformer, from)));
+  }
+
   public Optional<String> transformerOption(String optionName) {
     if (transformerOptions == null || transformerOptions.isEmpty()) {
       return Optional.empty();

@@ -15,4 +15,13 @@ import lombok.Singular;
 public class EnumTypeBean {
   private String name;
   @Singular private List<String> values = new ArrayList<>();
+
+  public String findValue(String value) {
+    if (!values.contains(value)) {
+      throw new IllegalArgumentException(
+          String.format("reference to unknown enum value %s in enum %s", value, name));
+    } else {
+      return value;
+    }
+  }
 }

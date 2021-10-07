@@ -138,12 +138,37 @@ mappings:
         to: stmtCovFromDate
       - from: stmtCovToCymd
         to: stmtCovToDate
-      - from: NONE
-        to: servTypeCdMapping
       - from: lobCd
         transformer: MessageEnum
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissBillFacilityType
+      # The servTypeCdMapping is set to one of 4 enum values depending on which of the 4
+      # oneof fields has a value in the FissClaim message.
+      - from: servTypeCdEnum
+        to: servTypeCdMapping
+        transformer: EnumValueIfPresent
+        transformerOptions:
+          enumName: ServTypeCdMapping
+          enumValue: Normal
+      - from: servTypeCdForClinicsEnum
+        to: servTypeCdMapping
+        transformer: EnumValueIfPresent
+        transformerOptions:
+          enumName: ServTypeCdMapping
+          enumValue: Clinic
+      - from: servTypeCdForSpecialFacilitiesEnum
+        to: servTypeCdMapping
+        transformer: EnumValueIfPresent
+        transformerOptions:
+          enumName: ServTypeCdMapping
+          enumValue: SpecialFacility
+      - from: servTypCdUnrecognized
+        to: servTypeCdMapping
+        transformer: EnumValueIfPresent
+        transformerOptions:
+          enumName: ServTypeCdMapping
+          enumValue: Unrecognized
+      # The servTypeCd value is set from one of 4 possible values in a oneof within the FissClaim.
       - from: servTypeCd
         transformer: MessageEnum
         transformerOptions:

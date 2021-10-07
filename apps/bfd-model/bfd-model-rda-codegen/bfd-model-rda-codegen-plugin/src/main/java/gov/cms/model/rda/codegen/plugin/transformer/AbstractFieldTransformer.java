@@ -65,6 +65,10 @@ public abstract class AbstractFieldTransformer {
     return CodeBlock.of("$L::has$L", SOURCE_VAR, capitalize(transformation.getFrom()));
   }
 
+  protected CodeBlock sourceHasValue(TransformationBean transformation) {
+    return CodeBlock.of("$L.has$L()", SOURCE_VAR, capitalize(transformation.getFrom()));
+  }
+
   protected CodeBlock sourceGetRef(TransformationBean transformation) {
     return CodeBlock.of("$L::get$L", SOURCE_VAR, capitalize(transformation.getFrom()));
   }

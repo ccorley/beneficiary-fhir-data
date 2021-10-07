@@ -24,6 +24,17 @@ public class MappingBean {
   @Singular private List<TransformationBean> transformations = new ArrayList<>();
   @Singular private List<ArrayElement> arrays = new ArrayList<>();
 
+  public EnumTypeBean findEnum(String enumName) {
+    return enumTypes.stream()
+        .filter(e -> enumName.equals(e.getName()))
+        .findAny()
+        .orElseThrow(
+            () ->
+                new IllegalArgumentException(
+                    String.format(
+                        "reference to non-existent enum %s in mapping %s", enumName, id)));
+  }
+
   public boolean hasTransformer() {
     return !Strings.isNullOrEmpty(transformerClassName);
   }

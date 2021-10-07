@@ -27,7 +27,8 @@ public class TransformerUtil {
       ImmutableMap.of(
           "IdHash", IdHashInstance,
           "Now", TimestampInstance,
-          "MessageEnum", MessageEnumInstance);
+          "MessageEnum", MessageEnumInstance,
+          "EnumValueIfPresent", new EnumValueIfPresentTransformer());
   private static final Map<String, AbstractFieldTransformer> transformersByFrom =
       ImmutableMap.of(TimestampFromName, TimestampInstance);
 
