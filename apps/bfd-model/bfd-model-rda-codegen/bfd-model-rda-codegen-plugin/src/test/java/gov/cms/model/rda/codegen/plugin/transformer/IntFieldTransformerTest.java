@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import com.squareup.javapoet.CodeBlock;
 import gov.cms.model.rda.codegen.plugin.model.ColumnBean;
-import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import gov.cms.model.rda.codegen.plugin.model.RootBean;
+import gov.cms.model.rda.codegen.plugin.model.TransformationBean;
 import org.junit.Test;
 
 public class IntFieldTransformerTest {
@@ -14,26 +14,33 @@ public class IntFieldTransformerTest {
   public void requiredField() {
     ColumnBean column =
         ColumnBean.builder().name("idrDtlCnt").nullable(true).sqlType("int").build();
-    FieldBean field = FieldBean.builder().optional(false).column(column).from("idrDtlCnt").build();
+    TransformationBean transformation =
+        TransformationBean.builder().optional(false).from("idrDtlCnt").build();
     MappingBean mapping =
-        MappingBean.builder().entity("gov.cms.bfd.model.rda.PreAdjFissClaim").field(field).build();
+        MappingBean.builder()
+            .entityClassName("gov.cms.bfd.model.rda.PreAdjFissClaim")
+            .transformation(transformation)
+            .build();
     RootBean model = RootBean.builder().mapping(mapping).build();
 
     IntFieldTransformer generator = new IntFieldTransformer();
-    generator.generateCodeBlock(mapping, field);
+    generator.generateCodeBlock(mapping, column, transformation);
   }
 
   @Test
   public void optionalField() {
     ColumnBean column =
         ColumnBean.builder().name("idrDtlCnt").nullable(true).sqlType("int").build();
-    FieldBean field = FieldBean.builder().column(column).from("idrDtlCnt").build();
+    TransformationBean transformation = TransformationBean.builder().from("idrDtlCnt").build();
     MappingBean mapping =
-        MappingBean.builder().entity("gov.cms.bfd.model.rda.PreAdjFissClaim").field(field).build();
+        MappingBean.builder()
+            .entityClassName("gov.cms.bfd.model.rda.PreAdjFissClaim")
+            .transformation(transformation)
+            .build();
     RootBean model = RootBean.builder().mapping(mapping).build();
 
     IntFieldTransformer generator = new IntFieldTransformer();
-    CodeBlock block = generator.generateCodeBlock(mapping, field);
+    CodeBlock block = generator.generateCodeBlock(mapping, column, transformation);
     assertEquals(
         "transformer.copyOptionalInt(from::hasIdrDtlCnt, from::getIdrDtlCnt, to::setIdrDtlCnt);\n",
         block.toString());

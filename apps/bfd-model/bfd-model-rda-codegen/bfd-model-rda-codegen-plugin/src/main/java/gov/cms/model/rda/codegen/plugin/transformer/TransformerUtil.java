@@ -2,7 +2,7 @@ package gov.cms.model.rda.codegen.plugin.transformer;
 
 import com.google.common.collect.ImmutableMap;
 import gov.cms.model.rda.codegen.plugin.model.ColumnBean;
-import gov.cms.model.rda.codegen.plugin.model.FieldBean;
+import gov.cms.model.rda.codegen.plugin.model.TransformationBean;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -35,15 +35,16 @@ public class TransformerUtil {
     return name.substring(0, 1).toUpperCase() + name.substring(1);
   }
 
-  public static Optional<AbstractFieldTransformer> selectTransformerForField(FieldBean field) {
-    if (field.hasTransformer()) {
-      return Optional.ofNullable(transformersByName.get(field.getTransformer()));
+  public static Optional<AbstractFieldTransformer> selectTransformerForField(
+      ColumnBean column, TransformationBean transformation) {
+    if (transformation.hasTransformer()) {
+      return Optional.ofNullable(transformersByName.get(transformation.getTransformer()));
     }
 
     Optional<AbstractFieldTransformer> answer =
-        Optional.ofNullable(transformersByFrom.get(field.getFrom()));
-    if (!(answer.isPresent() || NoMappingFromNamesRegex.matcher(field.getFrom()).matches())) {
-      final ColumnBean column = field.getColumn();
+        Optional.ofNullable(transformersByFrom.get(transformation.getFrom()));
+    if (!(answer.isPresent()
+        || NoMappingFromNamesRegex.matcher(transformation.getFrom()).matches())) {
       if (column.isEnum()) {
         // TODO add support for message enums
         answer = Optional.empty();

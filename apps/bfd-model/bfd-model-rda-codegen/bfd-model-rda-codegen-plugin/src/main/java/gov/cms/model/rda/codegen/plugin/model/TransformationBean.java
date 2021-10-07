@@ -16,11 +16,10 @@ import lombok.Singular;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FieldBean {
+public class TransformationBean {
   private String from;
   private String to;
   @Builder.Default private boolean optional = true;
-  private ColumnBean column;
   private String transformer;
   @Singular Map<String, String> transformerOptions = new HashMap<>();
 

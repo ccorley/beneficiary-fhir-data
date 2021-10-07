@@ -6,8 +6,9 @@ import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import gov.cms.model.rda.codegen.plugin.PoetUtil;
-import gov.cms.model.rda.codegen.plugin.model.FieldBean;
+import gov.cms.model.rda.codegen.plugin.model.ColumnBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
+import gov.cms.model.rda.codegen.plugin.model.TransformationBean;
 import java.util.List;
 
 /**
@@ -39,42 +40,46 @@ public abstract class AbstractFieldTransformer {
    * reference the {@link gov.cms.model.rda.codegen.library.DataTransformer}.
    *
    * @param mapping The mapping that contains the field.
-   * @param field The specific field to be copied.
+   * @param transformation The specific field to be copied.
    * @return CodeBlock for the generated block of code
    */
-  public abstract CodeBlock generateCodeBlock(MappingBean mapping, FieldBean field);
+  public abstract CodeBlock generateCodeBlock(
+      MappingBean mapping, ColumnBean column, TransformationBean transformation);
 
-  public List<FieldSpec> generateFieldSpecs(MappingBean mapping, FieldBean field) {
+  public List<FieldSpec> generateFieldSpecs(
+      MappingBean mapping, ColumnBean column, TransformationBean transformation) {
     return ImmutableList.of();
   }
 
-  public List<CodeBlock> generateFieldInitializers(MappingBean mapping, FieldBean field) {
+  public List<CodeBlock> generateFieldInitializers(
+      MappingBean mapping, ColumnBean column, TransformationBean transformation) {
     return ImmutableList.of();
   }
 
-  protected CodeBlock fieldNameReference(MappingBean mapping, FieldBean field) {
-    return CodeBlock.of("$T.Fields.$L", PoetUtil.toClassName(mapping.getEntity()), field.getTo());
+  protected CodeBlock fieldNameReference(MappingBean mapping, ColumnBean column) {
+    return CodeBlock.of(
+        "$T.Fields.$L", PoetUtil.toClassName(mapping.getEntityClassName()), column.getName());
   }
 
-  protected CodeBlock sourceHasRef(FieldBean field) {
-    return CodeBlock.of("$L::has$L", SOURCE_VAR, capitalize(field.getFrom()));
+  protected CodeBlock sourceHasRef(TransformationBean transformation) {
+    return CodeBlock.of("$L::has$L", SOURCE_VAR, capitalize(transformation.getFrom()));
   }
 
-  protected CodeBlock sourceGetRef(FieldBean field) {
-    return CodeBlock.of("$L::get$L", SOURCE_VAR, capitalize(field.getFrom()));
+  protected CodeBlock sourceGetRef(TransformationBean transformation) {
+    return CodeBlock.of("$L::get$L", SOURCE_VAR, capitalize(transformation.getFrom()));
   }
 
-  protected CodeBlock sourceValue(FieldBean field) {
-    return CodeBlock.of("$L.get$L()", SOURCE_VAR, capitalize(field.getFrom()));
+  protected CodeBlock sourceValue(TransformationBean transformation) {
+    return CodeBlock.of("$L.get$L()", SOURCE_VAR, capitalize(transformation.getFrom()));
   }
 
-  protected CodeBlock destSetter(FieldBean field, CodeBlock value) {
+  protected CodeBlock destSetter(ColumnBean column, CodeBlock value) {
     return CodeBlock.builder()
-        .addStatement("$L.set$L($L)", DEST_VAR, capitalize(field.getTo()), value)
+        .addStatement("$L.set$L($L)", DEST_VAR, capitalize(column.getName()), value)
         .build();
   }
 
-  protected CodeBlock destSetRef(FieldBean field) {
-    return CodeBlock.of("$L::set$L", DEST_VAR, capitalize(field.getTo()));
+  protected CodeBlock destSetRef(ColumnBean column) {
+    return CodeBlock.of("$L::set$L", DEST_VAR, capitalize(column.getName()));
   }
 }

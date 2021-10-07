@@ -11,10 +11,11 @@ import com.squareup.javapoet.TypeSpec;
 import gov.cms.model.rda.codegen.library.DataTransformer;
 import gov.cms.model.rda.codegen.library.EnumStringExtractor;
 import gov.cms.model.rda.codegen.plugin.model.ArrayElement;
-import gov.cms.model.rda.codegen.plugin.model.FieldBean;
+import gov.cms.model.rda.codegen.plugin.model.ColumnBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import gov.cms.model.rda.codegen.plugin.model.ModelUtil;
 import gov.cms.model.rda.codegen.plugin.model.RootBean;
+import gov.cms.model.rda.codegen.plugin.model.TransformationBean;
 import gov.cms.model.rda.codegen.plugin.transformer.AbstractFieldTransformer;
 import gov.cms.model.rda.codegen.plugin.transformer.TransformerUtil;
 import java.io.File;
@@ -71,7 +72,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
     for (MappingBean mapping : rootMappings) {
       if (mapping.hasTransformer()) {
         TypeSpec rootEntity = createTransformerClassForMapping(mapping, root::findMappingWithId);
-        JavaFile javaFile = JavaFile.builder(mapping.transformerPackageName(), rootEntity).build();
+        JavaFile javaFile = JavaFile.builder(mapping.transformerPackage(), rootEntity).build();
         javaFile.writeTo(outputDir);
       }
     }
@@ -83,7 +84,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
       throws MojoExecutionException {
     final List<MappingBean> allMappings = findAllMappingsForRootMapping(mapping, mappingFinder);
     TypeSpec.Builder classBuilder =
-        TypeSpec.classBuilder(mapping.transformerClassName())
+        TypeSpec.classBuilder(mapping.transformerSimpleName())
             .addModifiers(Modifier.PUBLIC)
             .addField(
                 Clock.class, AbstractFieldTransformer.CLOCK_VAR, Modifier.PRIVATE, Modifier.FINAL)
@@ -160,29 +161,37 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
   }
 
   private List<FieldSpec> createFieldsForMapping(MappingBean mapping) {
-    return mapping.getFields().stream()
+    return mapping.getTransformations().stream()
         .flatMap(
-            field ->
-                TransformerUtil.selectTransformerForField(field)
-                    .map(transformer -> transformer.generateFieldSpecs(mapping, field))
-                    .orElse(Collections.emptyList()).stream())
+            transformation -> {
+              final ColumnBean column = mapping.getTable().findColumn(transformation.getTo());
+              return TransformerUtil.selectTransformerForField(column, transformation)
+                  .map(
+                      transformer ->
+                          transformer.generateFieldSpecs(mapping, column, transformation))
+                  .orElse(Collections.emptyList()).stream();
+            })
         .collect(ImmutableList.toImmutableList());
   }
 
   private List<CodeBlock> createFieldInitializersForMapping(MappingBean mapping) {
-    return mapping.getFields().stream()
+    return mapping.getTransformations().stream()
         .flatMap(
-            field ->
-                TransformerUtil.selectTransformerForField(field)
-                    .map(transformer -> transformer.generateFieldInitializers(mapping, field))
-                    .orElse(Collections.emptyList()).stream())
+            transformation -> {
+              final ColumnBean column = mapping.getTable().findColumn(transformation.getTo());
+              return TransformerUtil.selectTransformerForField(column, transformation)
+                  .map(
+                      transformer ->
+                          transformer.generateFieldInitializers(mapping, column, transformation))
+                  .orElse(Collections.emptyList()).stream();
+            })
         .collect(ImmutableList.toImmutableList());
   }
 
   private MethodSpec createPublicTransformMessageMethodForParentMapping(MappingBean mapping)
       throws MojoExecutionException {
-    final TypeName messageClassType = ModelUtil.classType(mapping.getMessage());
-    final TypeName entityClassType = ModelUtil.classType(mapping.getEntity());
+    final TypeName messageClassType = ModelUtil.classType(mapping.getMessageClassName());
+    final TypeName entityClassType = ModelUtil.classType(mapping.getEntityClassName());
     final MethodSpec.Builder builder =
         MethodSpec.methodBuilder(TRANSFORM_METHOD_NAME)
             .returns(entityClassType)
@@ -230,8 +239,8 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
 
   private MethodSpec createPrivateTransformMessageMethodForMapping(MappingBean mapping)
       throws MojoExecutionException {
-    final TypeName messageClassType = ModelUtil.classType(mapping.getMessage());
-    final TypeName entityClassType = ModelUtil.classType(mapping.getEntity());
+    final TypeName messageClassType = ModelUtil.classType(mapping.getMessageClassName());
+    final TypeName entityClassType = ModelUtil.classType(mapping.getEntityClassName());
     final MethodSpec.Builder builder =
         MethodSpec.methodBuilder(TRANSFORM_METHOD_NAME)
             .returns(entityClassType)
@@ -244,9 +253,10 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                 entityClassType,
                 AbstractFieldTransformer.DEST_VAR,
                 entityClassType);
-    for (FieldBean field : mapping.getFields()) {
-      TransformerUtil.selectTransformerForField(field)
-          .map(generator -> generator.generateCodeBlock(mapping, field))
+    for (TransformationBean transformation : mapping.getTransformations()) {
+      final ColumnBean column = mapping.getTable().findColumn(transformation.getTo());
+      TransformerUtil.selectTransformerForField(column, transformation)
+          .map(generator -> generator.generateCodeBlock(mapping, column, transformation))
           .ifPresent(builder::addCode);
     }
     builder.addStatement("return $L", AbstractFieldTransformer.DEST_VAR);
@@ -256,8 +266,8 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
   private MethodSpec createPrivateTransformMessageArraysMethodForMapping(
       MappingBean mapping, Function<String, Optional<MappingBean>> mappingFinder)
       throws MojoExecutionException {
-    final TypeName messageClassType = ModelUtil.classType(mapping.getMessage());
-    final TypeName entityClassType = ModelUtil.classType(mapping.getEntity());
+    final TypeName messageClassType = ModelUtil.classType(mapping.getMessageClassName());
+    final TypeName entityClassType = ModelUtil.classType(mapping.getEntityClassName());
     final MethodSpec.Builder builder =
         MethodSpec.methodBuilder(TRANSFORM_ARRAYS_METHOD_NAME)
             .addModifiers(Modifier.PRIVATE)
@@ -282,23 +292,23 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                   TransformerUtil.capitalize(arrayElement.getFrom()));
       loop.addStatement(
               "final $T itemFrom = $L.get$L(index)",
-              PoetUtil.toClassName(elementMapping.getMessage()),
+              PoetUtil.toClassName(elementMapping.getMessageClassName()),
               AbstractFieldTransformer.SOURCE_VAR,
               TransformerUtil.capitalize(arrayElement.getFrom()))
           .addStatement(
               "final $T itemTo = $L(itemFrom,$L,$L)",
-              PoetUtil.toClassName(elementMapping.getEntity()),
+              PoetUtil.toClassName(elementMapping.getEntityClassName()),
               TRANSFORM_METHOD_NAME,
               AbstractFieldTransformer.TRANSFORMER_VAR,
               AbstractFieldTransformer.NOW_VAR);
-      for (FieldBean elementField : elementMapping.getFields()) {
+      for (TransformationBean elementField : elementMapping.getTransformations()) {
         final String elementFrom = elementField.getFrom();
         if (elementFrom.equals(TransformerUtil.IndexFromName)) {
-          // set the field to the current array element's index within the array
+          // set the column to the current array element's index within the array
           loop.addStatement(
               "itemTo.set$L(index)", TransformerUtil.capitalize(elementField.getTo()));
         } else if (elementFrom.equals(TransformerUtil.ParentFromName)) {
-          // copy the same field from parent into the array element field
+          // copy the same column from parent into the array element field
           loop.addStatement(
               "itemTo.set$L($L.get$L())",
               TransformerUtil.capitalize(elementField.getTo()),

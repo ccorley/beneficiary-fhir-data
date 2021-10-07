@@ -1,13 +1,83 @@
 mappings:
   - id: FissClaim
-    message: gov.cms.mpsm.rda.v1.fiss.FissClaim
-    entity: gov.cms.bfd.model.rda.PreAdjFissClaim
-    transformer: gov.cms.bfd.pipeline.rda.grpc.source.FissClaimTransformer2
+    messageClassName: gov.cms.mpsm.rda.v1.fiss.FissClaim
+    entityClassName: gov.cms.bfd.model.rda.PreAdjFissClaim
+    transformerClassName: gov.cms.bfd.pipeline.rda.grpc.source.FissClaimTransformer2
     table:
       name: FissClaims
       schema: pre_adj
-      primaryKeyFields:
+      primaryKeyColumns:
         - dcn
+      columns:
+        - name: dcn
+          sqlType: varchar(23)
+          nullable: false
+        - name: sequenceNumber
+          sqlType: bigint
+          nullable: false
+        - name: hicNo
+          sqlType: varchar(12)
+          nullable: false
+        - name: currStatus
+          sqlType: varchar(1)
+          javaType: char
+          nullable: false
+        - name: currLoc1
+          sqlType: varchar(1)
+          javaType: char
+          nullable: false
+        - name: currLoc2
+          sqlType: varchar(5)
+          nullable: false
+        - name: medaProvId
+          sqlType: varchar(13)
+        - name: medaProv_6
+          sqlType: varchar(6)
+        - name: totalChargeAmount
+          sqlType: decimal(11,2)
+        - name: receivedDate
+          sqlType: date
+        - name: currTranDate
+          sqlType: date
+        - name: admitDiagCode
+          sqlType: varchar(7)
+        - name: principleDiag
+          sqlType: varchar(7)
+        - name: npiNumber
+          sqlType: varchar(10)
+        - name: mbi
+          sqlType: varchar(13)
+        - name: mbiHash
+          sqlType: varchar(64)
+        - name: fedTaxNumber
+          sqlType: varchar(10)
+        - name: lastUpdated
+          sqlType: timestamp with time zone
+        - name: pracLocAddr1
+          sqlType: varchar(max)
+        - name: pracLocAddr2
+          sqlType: varchar(max)
+        - name: pracLocCity
+          sqlType: varchar(max)
+        - name: pracLocState
+          sqlType: varchar(2)
+        - name: pracLocZip
+          sqlType: varchar(max)
+        - name: stmtCovFromDate
+          sqlType: date
+        - name: stmtCovToDate
+          sqlType: date
+        - name: servTypeCdMapping
+          enumType: ServTypeCdMapping
+          sqlType: varchar(20)
+        - name: lobCd
+          sqlType: varchar(1)
+        - name: servTypeCd
+          sqlType: varchar(1)
+        - name: freqCd
+          sqlType: varchar(1)
+        - name: billTypCd
+          sqlType: varchar(3)
     enumTypes:
       - name: ServTypeCdMapping
         values:
@@ -15,144 +85,75 @@ mappings:
           - Clinic
           - SpecialFacility
           - Unrecognized
-    fields:
+    transformations:
       - from: dcn
         optional: false
-        column:
-          sqlType: varchar(23)
-          nullable: false
       - from: seq
         to: sequenceNumber
         optional: false
-        column:
-          sqlType: bigint
-          nullable: false
       - from: hicNo
         optional: false
-        column:
-          sqlType: varchar(12)
-          nullable: false
       - from: currStatus
         optional: false
-        column:
-          sqlType: varchar(1)
-          javaType: char
-          nullable: false
         transformer: MessageEnum
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissClaimStatus
           extractorOptions: RejectUnrecognized
       - from: currLoc1
         optional: false
-        column:
-          sqlType: varchar(1)
-          javaType: char
-          nullable: false
         transformer: MessageEnum
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissProcessingType
       - from: currLoc2
         optional: false
-        column:
-          sqlType: varchar(5)
-          nullable: false
         transformer: MessageEnum
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissCurrentLocation2
       - from: medaProvId
-        column:
-          sqlType: varchar(13)
       - from: medaProv6
         to: medaProv_6
-        column:
-          sqlType: varchar(6)
       - from: totalChargeAmount
-        column:
-          sqlType: decimal(11,2)
       - from: recdDtCymd
         to: receivedDate
-        column:
-          sqlType: date
       - from: currTranDtCymd
         to: currTranDate
-        column:
-          sqlType: date
       - from: admDiagCode
         to: admitDiagCode
-        column:
-          sqlType: varchar(7)
       - from: principleDiag
-        column:
-          sqlType: varchar(7)
       - from: npiNumber
-        column:
-          sqlType: varchar(10)
       - from: mbi
-        column:
-          sqlType: varchar(13)
       - from: mbi
         to: mbiHash
         transformer: IdHash
-        column:
-          sqlType: varchar(64)
       - from: fedTaxNb
         to: fedTaxNumber
-        column:
-          sqlType: varchar(10)
       - from: NOW
         to: lastUpdated
-        column:
-          sqlType: timestamp with time zone
       - from: pracLocAddr1
-        column:
-          sqlType: varchar(max)
       - from: pracLocAddr2
-        column:
-          sqlType: varchar(max)
       - from: pracLocCity
-        column:
-          sqlType: varchar(max)
       - from: pracLocState
-        column:
-          sqlType: varchar(2)
       - from: pracLocZip
-        column:
-          sqlType: varchar(max)
       - from: stmtCovFromCymd
         to: stmtCovFromDate
-        column:
-          sqlType: date
       - from: stmtCovToCymd
         to: stmtCovToDate
-        column:
-          sqlType: date
       - from: NONE
         to: servTypeCdMapping
-        column:
-          enumType: ServTypeCdMapping
-          sqlType: varchar(20)
       - from: lobCd
-        column:
-          sqlType: varchar(1)
         transformer: MessageEnum
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissBillFacilityType
       - from: servTypeCd
-        column:
-          sqlType: varchar(1)
         transformer: MessageEnum
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissBillClassification
           hasUnrecognized: false
       - from: freqCd
-        column:
-          sqlType: varchar(1)
         transformer: MessageEnum
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissBillFrequency
       - from: billTypCd
-        column:
-          sqlType: varchar(3)
     arrays:
       - from: fissProcCodes
         to: procCodes
@@ -165,198 +166,197 @@ mappings:
         mapping: FissPayer
 
   - id: FissProcCode
-    message: gov.cms.mpsm.rda.v1.fiss.FissProcedureCode
-    entity: gov.cms.bfd.model.rda.PreAdjFissProcCode
+    messageClassName: gov.cms.mpsm.rda.v1.fiss.FissProcedureCode
+    entityClassName: gov.cms.bfd.model.rda.PreAdjFissProcCode
     table:
       name: FissProcCodes
       schema: pre_adj
-      primaryKeyFields:
+      primaryKeyColumns:
         - dcn
         - priority
-    fields:
-      - from: PARENT
-        to: dcn
-        column:
+      columns:
+        - name: dcn
           sqlType: varchar(23)
           nullable: false
-      - from: INDEX
-        to: priority
-        column:
+        - name: priority
           sqlType: smallint
           javaType: short
           nullable: false
+        - name: procCode
+          sqlType: varchar(10)
+          nullable: false
+        - name: procFlag
+          sqlType: varchar(4)
+        - name: procDate
+          sqlType: date
+        - name: lastUpdated
+          sqlType: timestamp with time zone
+    transformations:
+      - from: PARENT
+        to: dcn
+      - from: INDEX
+        to: priority
       - from: procCd
         to: procCode
         optional: false
-        column:
-          sqlType: varchar(10)
-          nullable: false
       - from: procFlag
-        column:
-          sqlType: varchar(4)
       - from: procDt
         to: procDate
-        column:
-          sqlType: date
       - from: NOW
         to: lastUpdated
-        column:
-          sqlType: timestamp with time zone
 
   - id: FissDiagnosisCode
-    message: gov.cms.mpsm.rda.v1.fiss.FissDiagnosisCode
-    entity: gov.cms.bfd.model.rda.PreAdjFissDiagnosisCode
+    messageClassName: gov.cms.mpsm.rda.v1.fiss.FissDiagnosisCode
+    entityClassName: gov.cms.bfd.model.rda.PreAdjFissDiagnosisCode
     table:
       name: FissDiagnosisCodes
       schema: pre_adj
-      primaryKeyFields:
+      primaryKeyColumns:
         - dcn
         - priority
-    fields:
-      - from: PARENT
-        to: dcn
-        column:
+      columns:
+        - name: dcn
           sqlType: varchar(23)
           nullable: false
-        transformer: NONE
-      - from: INDEX
-        to: priority
-        column:
+        - name: priority
           sqlType: smallint
           javaType: short
           nullable: false
-        transformer: NONE
-      - from: diagCd2
-        optional: false
-        column:
+        - name: diagCd2
           sqlType: varchar(7)
           nullable: false
-      - from: diagPoaInd
-        optional: false
-        column:
+        - name: diagPoaInd
           sqlType: varchar(1)
           nullable: false
+        - name: bitFlags
+          sqlType: varchar(4)
+        - name: lastUpdated
+          sqlType: timestamp with time zone
+    transformations:
+      - from: PARENT
+        to: dcn
+      - from: INDEX
+        to: priority
+      - from: diagCd2
+        optional: false
+      - from: diagPoaInd
+        optional: false
         transformer: MessageEnum
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissDiagnosisPresentOnAdmissionIndicator
       - from: bitFlags
-        column:
-          sqlType: varchar(4)
       - from: NOW
         to: lastUpdated
-        column:
-          sqlType: timestamp with time zone
 
   - id: FissPayer
-    message: gov.cms.mpsm.rda.v1.fiss.FissPayer
-    entity: gov.cms.bfd.model.rda.PreAdjFissPayer
+    messageClassName: gov.cms.mpsm.rda.v1.fiss.FissPayer
+    entityClassName: gov.cms.bfd.model.rda.PreAdjFissPayer
     table:
       name: FissPayers
       schema: pre_adj
-      primaryKeyFields:
+      primaryKeyColumns:
         - dcn
         - priority
+      columns:
+        - name: dcn
+          sqlType: varchar(23)
+          nullable: false
+        - name: priority
+          sqlType: smallint
+          javaType: short
+          nullable: false
+        - name: payerType
+          enumType: PayerType
+          sqlType: varchar(20)
+        - name: payersId
+          sqlType: varchar(1)
+        - name: payersName
+          sqlType: varchar(32)
+        - name: relInd
+          sqlType: varchar(1)
+        - name: assignInd
+          sqlType: varchar(1)
+        - name: providerNumber
+          sqlType: varchar(13)
+        - name: adjDcnIcn
+          sqlType: varchar(23)
+        - name: priorPmt
+          sqlType: decimal(11,2)
+        - name: estAmtDue
+          sqlType: decimal(11,2)
+        - name: beneRel
+          sqlType: varchar(2)
+        - name: beneLastName
+          sqlType: varchar(15)
+        - name: beneFirstName
+          sqlType: varchar(10)
+        - name: beneMidInit
+          sqlType: varchar(1)
+        - name: beneSsnHic
+          sqlType: varchar(19)
+        - name: insuredRel
+          sqlType: varchar(2)
+        - name: insuredName
+          sqlType: varchar(25)
+        - name: insuredSsnHic
+          sqlType: varchar(19)
+        - name: insuredGroupName
+          sqlType: varchar(17)
+        - name: insuredGroupNbr
+          sqlType: varchar(20)
+        - name: beneDob
+          sqlType: date
+        - name: beneSex
+          sqlType: varchar(1)
+        - name: treatAuthCd
+          sqlType: varchar(18)
+        - name: insuredSex
+          sqlType: varchar(1)
+        - name: insuredRelX12
+          sqlType: varchar(2)
+        - name: insuredDob
+          sqlType: date
+        - name: insuredDobText
+          sqlType: varchar(9)
+        - name: lastUpdated
+          sqlType: timestamp with time zone
     enumTypes:
       - name: PayerType
         values:
           - BeneZ
           - Insured
-    fields:
+    transformations:
       - from: PARENT
         to: dcn
-        column:
-          sqlType: varchar(23)
-          nullable: false
-        transformer: NONE
       - from: INDEX
         to: priority
-        column:
-          sqlType: smallint
-          javaType: short
-          nullable: false
-        transformer: NONE
       - from: NONE
         to: payerType
-        column:
-          enumType: PayerType
-          sqlType: varchar(20)
       - from: payersId
         optional: false
-        column:
-          sqlType: varchar(1)
       - from: payersName
-        column:
-          sqlType: varchar(32)
       - from: relInd
-        column:
-          sqlType: varchar(1)
       - from: assignInd
-        column:
-          sqlType: varchar(1)
       - from: providerNumber
-        column:
-          sqlType: varchar(13)
       - from: adjDcnIcn
-        column:
-          sqlType: varchar(23)
       - from: priorPmt
-        column:
-          sqlType: decimal(11,2)
       - from: estAmtDue
-        column:
-          sqlType: decimal(11,2)
       - from: beneRel
-        column:
-          sqlType: varchar(2)
       - from: beneLastName
-        column:
-          sqlType: varchar(15)
       - from: beneFirstName
-        column:
-          sqlType: varchar(10)
       - from: beneMidInit
-        column:
-          sqlType: varchar(1)
       - from: beneSsnHic
-        column:
-          sqlType: varchar(19)
       - from: insuredRel
-        column:
-          sqlType: varchar(2)
       - from: insuredName
-        column:
-          sqlType: varchar(25)
       - from: insuredSsnHic
-        column:
-          sqlType: varchar(19)
       - from: insuredGroupName
-        column:
-          sqlType: varchar(17)
       - from: insuredGroupNbr
-        column:
-          sqlType: varchar(20)
       - from: beneDob
-        column:
-          sqlType: date
       - from: beneSex
-        column:
-          sqlType: varchar(1)
       - from: treatAuthCd
-        column:
-          sqlType: varchar(18)
       - from: insuredSex
-        column:
-          sqlType: varchar(1)
       - from: insuredRelX12
-        column:
-          sqlType: varchar(2)
       - from: insuredDob
-        column:
-          sqlType: date
       - from: insuredDobText
-        column:
-          sqlType: varchar(9)
       - from: NOW
         to: lastUpdated
-        column:
-          sqlType: timestamp with time zone

@@ -10,7 +10,6 @@ import com.squareup.javapoet.TypeSpec;
 import gov.cms.model.rda.codegen.plugin.model.ArrayElement;
 import gov.cms.model.rda.codegen.plugin.model.ColumnBean;
 import gov.cms.model.rda.codegen.plugin.model.EnumTypeBean;
-import gov.cms.model.rda.codegen.plugin.model.FieldBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import gov.cms.model.rda.codegen.plugin.model.ModelUtil;
 import gov.cms.model.rda.codegen.plugin.model.RootBean;
@@ -139,40 +138,38 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
       MappingBean mapping, TypeSpec.Builder classBuilder, List<FieldSpec> primaryKeySpecs)
       throws MojoExecutionException {
     TypeName fieldType;
-    for (FieldBean field : mapping.getFields()) {
-      if (field.getColumn().isEnum()) {
+    for (ColumnBean column : mapping.getTable().getColumns()) {
+      if (column.isEnum()) {
         fieldType =
             ClassName.get(
-                mapping.entityPackageName(),
-                mapping.entityClassName(),
-                field.getColumn().getEnumType());
+                mapping.entityPackageName(), mapping.entityClassName(), column.getEnumType());
       } else {
-        fieldType = field.getColumn().computeJavaType();
+        fieldType = column.computeJavaType();
       }
       FieldSpec.Builder builder =
-          FieldSpec.builder(fieldType, field.getTo())
+          FieldSpec.builder(fieldType, column.getName())
               .addModifiers(Modifier.PRIVATE)
-              .addAnnotation(createColumnAnnotation(field));
-      if (mapping.getTable().isPrimaryKey(field.getTo())) {
+              .addAnnotation(createColumnAnnotation(column));
+      if (mapping.getTable().isPrimaryKey(column.getName())) {
         builder.addAnnotation(Id.class).addAnnotation(EqualsAndHashCode.Include.class);
       }
-      if (field.getColumn().isEnum()) {
-        builder.addAnnotation(createEnumeratedAnnotation(mapping, field));
+      if (column.isEnum()) {
+        builder.addAnnotation(createEnumeratedAnnotation(mapping, column));
       }
       FieldSpec fieldSpec = builder.build();
       classBuilder.addField(fieldSpec);
-      if (mapping.getTable().isPrimaryKey(field.getTo())) {
+      if (mapping.getTable().isPrimaryKey(column.getName())) {
         primaryKeySpecs.add(fieldSpec);
       }
     }
   }
 
-  private AnnotationSpec createEnumeratedAnnotation(MappingBean mapping, FieldBean fieldMapping)
+  private AnnotationSpec createEnumeratedAnnotation(MappingBean mapping, ColumnBean column)
       throws MojoExecutionException {
-    if (!fieldMapping.getColumn().isString()) {
+    if (!column.isString()) {
       fail(
-          "enum columns must have String type but this one does not: mapping=%s field=%s",
-          mapping.getId(), fieldMapping.getTo());
+          "enum columns must have String type but this one does not: mapping=%s column=%s",
+          mapping.getId(), column.getName());
     }
     return AnnotationSpec.builder(Enumerated.class)
         .addMember("value", "$T.$L", EnumType.class, EnumType.STRING)
@@ -187,7 +184,7 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
       throws MojoExecutionException {
     if (primaryKeySpecs.size() != 1) {
       fail(
-          "classes with arrays must have a single primary key field but this one has %d: mapping=%s",
+          "classes with arrays must have a single primary key column but this one has %d: mapping=%s",
           primaryKeySpecs.size(), mapping.getId());
     }
     for (ArrayElement arrayElement : mapping.getArrays()) {
@@ -199,7 +196,7 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
       }
       addArrayField(
           classBuilder,
-          mapping.getTable().getPrimaryKeyFields().get(0),
+          mapping.getTable().getPrimaryKeyColumns().get(0),
           arrayElement,
           arrayMapping.get());
     }
@@ -280,11 +277,10 @@ public class RdaEntityCodeGenMojo extends AbstractMojo {
     return builder.build();
   }
 
-  private AnnotationSpec createColumnAnnotation(FieldBean field) {
-    ColumnBean column = field.getColumn();
+  private AnnotationSpec createColumnAnnotation(ColumnBean column) {
     AnnotationSpec.Builder builder =
         AnnotationSpec.builder(Column.class)
-            .addMember("name", "$S", quoteName(column.getColumnName(field.getTo())));
+            .addMember("name", "$S", quoteName(column.getColumnName(column.getName())));
     if (!column.isNullable()) {
       builder.addMember("nullable", "$L", false);
     }

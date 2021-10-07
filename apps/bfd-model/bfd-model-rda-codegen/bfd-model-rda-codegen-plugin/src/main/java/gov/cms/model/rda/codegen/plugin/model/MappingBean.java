@@ -16,35 +16,35 @@ import lombok.Singular;
 @Builder
 public class MappingBean {
   private String id;
-  private String message;
-  private String entity;
-  private String transformer;
+  private String messageClassName;
+  private String entityClassName;
+  private String transformerClassName;
   private TableBean table;
   @Singular private List<EnumTypeBean> enumTypes = new ArrayList<>();
-  @Singular private List<FieldBean> fields = new ArrayList<>();
+  @Singular private List<TransformationBean> transformations = new ArrayList<>();
   @Singular private List<ArrayElement> arrays = new ArrayList<>();
 
   public boolean hasTransformer() {
-    return !Strings.isNullOrEmpty(transformer);
+    return !Strings.isNullOrEmpty(transformerClassName);
   }
 
   public String entityPackageName() {
-    return ModelUtil.packageName(entity);
+    return ModelUtil.packageName(entityClassName);
   }
 
   public String entityClassName() {
-    return ModelUtil.className(entity);
+    return ModelUtil.className(entityClassName);
   }
 
-  public String transformerPackageName() {
-    return ModelUtil.packageName(transformer);
+  public String transformerPackage() {
+    return ModelUtil.packageName(transformerClassName);
   }
 
-  public String transformerClassName() {
-    return ModelUtil.className(transformer);
+  public String transformerSimpleName() {
+    return ModelUtil.className(transformerClassName);
   }
 
-  public Optional<FieldBean> firstPrimaryKeyField() {
-    return fields.stream().findFirst();
+  public Optional<TransformationBean> firstPrimaryKeyField() {
+    return transformations.stream().findFirst();
   }
 }

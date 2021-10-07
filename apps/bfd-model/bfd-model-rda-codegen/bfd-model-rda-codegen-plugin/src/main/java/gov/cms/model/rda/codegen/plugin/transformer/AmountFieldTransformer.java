@@ -1,38 +1,42 @@
 package gov.cms.model.rda.codegen.plugin.transformer;
 
 import com.squareup.javapoet.CodeBlock;
-import gov.cms.model.rda.codegen.plugin.model.FieldBean;
+import gov.cms.model.rda.codegen.plugin.model.ColumnBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
+import gov.cms.model.rda.codegen.plugin.model.TransformationBean;
 
 public class AmountFieldTransformer extends AbstractFieldTransformer {
   @Override
-  public CodeBlock generateCodeBlock(MappingBean mapping, FieldBean field) {
-    return field.isOptional()
-        ? generateBlockForOptional(mapping, field)
-        : generateBlockForRequired(mapping, field);
+  public CodeBlock generateCodeBlock(
+      MappingBean mapping, ColumnBean column, TransformationBean transformation) {
+    return transformation.isOptional()
+        ? generateBlockForOptional(mapping, column, transformation)
+        : generateBlockForRequired(mapping, column, transformation);
   }
 
-  private CodeBlock generateBlockForRequired(MappingBean mapping, FieldBean field) {
+  private CodeBlock generateBlockForRequired(
+      MappingBean mapping, ColumnBean column, TransformationBean transformation) {
     return CodeBlock.builder()
         .addStatement(
             "$L.copyAmount($L, $L, $L, $L)",
             TRANSFORMER_VAR,
-            fieldNameReference(mapping, field),
-            field.getColumn().isNullable(),
-            sourceValue(field),
-            destSetRef(field))
+            fieldNameReference(mapping, column),
+            column.isNullable(),
+            sourceValue(transformation),
+            destSetRef(column))
         .build();
   }
 
-  private CodeBlock generateBlockForOptional(MappingBean mapping, FieldBean field) {
+  private CodeBlock generateBlockForOptional(
+      MappingBean mapping, ColumnBean column, TransformationBean transformation) {
     return CodeBlock.builder()
         .addStatement(
             "$L.copyOptionalAmount($L, $L, $L, $L)",
             TRANSFORMER_VAR,
-            fieldNameReference(mapping, field),
-            sourceHasRef(field),
-            sourceGetRef(field),
-            destSetRef(field))
+            fieldNameReference(mapping, column),
+            sourceHasRef(transformation),
+            sourceGetRef(transformation),
+            destSetRef(column))
         .build();
   }
 }
