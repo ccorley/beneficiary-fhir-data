@@ -149,6 +149,20 @@ mappings:
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissBillClassification
           hasUnrecognized: false
+      - from: servTypeCdForClinics
+        to: servTypeCd
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissBillClassificationForClinics
+          hasUnrecognized: false
+      - from: servTypeCdForSpecialFacilities
+        to: servTypeCd
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissBillClassificationForSpecialFacilities
+          hasUnrecognized: false
+      - from: servTypCdUnrecognized
+        to: servTypeCd
       - from: freqCd
         transformer: MessageEnum
         transformerOptions:

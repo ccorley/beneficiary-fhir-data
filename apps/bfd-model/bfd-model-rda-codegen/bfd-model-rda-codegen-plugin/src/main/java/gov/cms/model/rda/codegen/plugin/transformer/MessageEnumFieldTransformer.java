@@ -26,13 +26,15 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
   @Override
   public CodeBlock generateCodeBlock(
       MappingBean mapping, ColumnBean column, TransformationBean transformation) {
+    final ClassName enumClass =
+        PoetUtil.toClassName(transformation.transformerOption(ENUM_CLASS_OPT).get());
     CodeBlock.Builder builder = CodeBlock.builder();
     if (column.isChar()) {
       builder.addStatement(
           "$L.copyEnumAsCharacter($L, $L.getEnumString($L), $L)",
           TRANSFORMER_VAR,
           fieldNameReference(mapping, column),
-          extractorName(mapping, transformation),
+          extractorName(mapping, enumClass.simpleName()),
           SOURCE_VAR,
           destSetRef(column));
     } else {
@@ -42,7 +44,7 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
           fieldNameReference(mapping, column),
           column.isNullable(),
           column.computeLength(),
-          extractorName(mapping, transformation),
+          extractorName(mapping, enumClass.simpleName()),
           SOURCE_VAR,
           destSetRef(column));
     }
@@ -59,7 +61,7 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
         FieldSpec.builder(
             ParameterizedTypeName.get(
                 ClassName.get(EnumStringExtractor.class), messageClass, enumClass),
-            extractorName(mapping, transformation),
+            extractorName(mapping, enumClass.simpleName()),
             Modifier.PRIVATE,
             Modifier.FINAL);
     return ImmutableList.of(builder.build());
@@ -80,7 +82,7 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
         CodeBlock.builder()
             .addStatement(
                 "$L = $L.createEnumStringExtractor($L,$L,$L,$L,$T.UNRECOGNIZED,$L,$L)",
-                extractorName(mapping, transformation),
+                extractorName(mapping, enumClass.simpleName()),
                 ENUM_FACTORY_VAR,
                 sourceEnumHashValueMethod(messageClass, transformation),
                 sourceEnumGetValueMethod(messageClass, transformation),
@@ -146,7 +148,7 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
     return builder.build();
   }
 
-  private static String extractorName(MappingBean mapping, TransformationBean transformation) {
-    return String.format("%s_%s_Extractor", mapping.entityClassName(), transformation.getTo());
+  private static String extractorName(MappingBean mapping, String enumName) {
+    return String.format("%s_%s_Extractor", mapping.entityClassName(), enumName);
   }
 }
