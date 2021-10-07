@@ -24,6 +24,6 @@ public class TimestampFieldTransformerTest {
 
     TimestampFieldTransformer generator = new TimestampFieldTransformer();
     CodeBlock block = generator.generateCodeBlock(mapping, column, transformation);
-    assertEquals("to.setLastUpdated(clock.instant());\n", block.toString());
+    assertEquals("to.setLastUpdated(now);\n", block.toString());
   }
 }
