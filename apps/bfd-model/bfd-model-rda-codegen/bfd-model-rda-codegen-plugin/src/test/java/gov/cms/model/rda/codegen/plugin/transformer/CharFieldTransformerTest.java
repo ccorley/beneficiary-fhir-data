@@ -26,7 +26,7 @@ public class CharFieldTransformerTest {
     CharFieldTransformer generator = new CharFieldTransformer();
     CodeBlock block = generator.generateCodeBlock(mapping, column, transformation);
     assertEquals(
-        "transformer.copyCharacter(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.curr1Status, from.getCurr1Status(), to::setCurr1Status);\n",
+        "transformer.copyCharacter(namePrefix + gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.curr1Status, from.getCurr1Status(), to::setCurr1Status);\n",
         block.toString());
   }
 

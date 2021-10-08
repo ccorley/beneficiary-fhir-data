@@ -26,7 +26,7 @@ public class AmountFieldTransformerTest {
     AmountFieldTransformer generator = new AmountFieldTransformer();
     CodeBlock block = generator.generateCodeBlock(mapping, column, transformation);
     assertEquals(
-        "transformer.copyAmount(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.estAmtDue, true, from.getEstAmtDue(), to::setEstAmtDue);\n",
+        "transformer.copyAmount(namePrefix + gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.estAmtDue, true, from.getEstAmtDue(), to::setEstAmtDue);\n",
         block.toString());
   }
 
@@ -45,7 +45,7 @@ public class AmountFieldTransformerTest {
     AmountFieldTransformer generator = new AmountFieldTransformer();
     CodeBlock block = generator.generateCodeBlock(mapping, column, field);
     assertEquals(
-        "transformer.copyOptionalAmount(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.estAmtDue, from::hasEstAmtDue, from::getEstAmtDue, to::setEstAmtDue);\n",
+        "transformer.copyOptionalAmount(namePrefix + gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.estAmtDue, from::hasEstAmtDue, from::getEstAmtDue, to::setEstAmtDue);\n",
         block.toString());
   }
 }

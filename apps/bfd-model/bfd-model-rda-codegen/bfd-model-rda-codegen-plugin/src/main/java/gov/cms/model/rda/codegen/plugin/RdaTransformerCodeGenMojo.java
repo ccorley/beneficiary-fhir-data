@@ -194,21 +194,23 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
             .addParameter(DataTransformer.class, AbstractFieldTransformer.TRANSFORMER_VAR)
             .addParameter(Instant.class, AbstractFieldTransformer.NOW_VAR);
     builder.addStatement(
-        "final $T $L = $L($L,$L,$L)",
+        "final $T $L = $L($L,$L,$L,$S)",
         entityClassType,
         AbstractFieldTransformer.DEST_VAR,
         PRIVATE_TRANSFORM_METHOD_NAME,
         AbstractFieldTransformer.SOURCE_VAR,
         AbstractFieldTransformer.TRANSFORMER_VAR,
-        AbstractFieldTransformer.NOW_VAR);
+        AbstractFieldTransformer.NOW_VAR,
+        "");
     if (mapping.hasArrayElements()) {
       builder.addStatement(
-          "$L($L,$L,$L,$L)",
+          "$L($L,$L,$L,$L,$S)",
           PRIVATE_TRANSFORM_ARRAYS_METHOD_NAME,
           AbstractFieldTransformer.SOURCE_VAR,
           AbstractFieldTransformer.DEST_VAR,
           AbstractFieldTransformer.TRANSFORMER_VAR,
-          AbstractFieldTransformer.NOW_VAR);
+          AbstractFieldTransformer.NOW_VAR,
+          "");
     }
     builder.addStatement("return $L", AbstractFieldTransformer.DEST_VAR);
     return builder.build();
@@ -225,6 +227,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
             .addParameter(messageClassType, AbstractFieldTransformer.SOURCE_VAR)
             .addParameter(DataTransformer.class, AbstractFieldTransformer.TRANSFORMER_VAR)
             .addParameter(Instant.class, AbstractFieldTransformer.NOW_VAR)
+            .addParameter(String.class, AbstractFieldTransformer.NAME_PREFIX_VAR)
             .addStatement(
                 "final $T $L = new $T()",
                 entityClassType,
@@ -251,7 +254,8 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
             .addParameter(messageClassType, AbstractFieldTransformer.SOURCE_VAR)
             .addParameter(entityClassType, AbstractFieldTransformer.DEST_VAR)
             .addParameter(DataTransformer.class, AbstractFieldTransformer.TRANSFORMER_VAR)
-            .addParameter(Instant.class, AbstractFieldTransformer.NOW_VAR);
+            .addParameter(Instant.class, AbstractFieldTransformer.NOW_VAR)
+            .addParameter(String.class, AbstractFieldTransformer.NAME_PREFIX_VAR);
     for (ArrayElement arrayElement : mapping.getArrays()) {
       final MappingBean elementMapping =
           mappingFinder
@@ -268,12 +272,16 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
                   AbstractFieldTransformer.SOURCE_VAR,
                   TransformerUtil.capitalize(arrayElement.getFrom()));
       loop.addStatement(
+              "final String itemNamePrefix = $L + $S + \"-\" + index + \"-\"",
+              AbstractFieldTransformer.NAME_PREFIX_VAR,
+              arrayElement.getNamePrefix())
+          .addStatement(
               "final $T itemFrom = $L.get$L(index)",
               PoetUtil.toClassName(elementMapping.getMessageClassName()),
               AbstractFieldTransformer.SOURCE_VAR,
               TransformerUtil.capitalize(arrayElement.getFrom()))
           .addStatement(
-              "final $T itemTo = $L(itemFrom,$L,$L)",
+              "final $T itemTo = $L(itemFrom,$L,$L,itemNamePrefix)",
               PoetUtil.toClassName(elementMapping.getEntityClassName()),
               PRIVATE_TRANSFORM_METHOD_NAME,
               AbstractFieldTransformer.TRANSFORMER_VAR,
@@ -295,7 +303,7 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
       }
       if (elementMapping.hasArrayElements()) {
         loop.addStatement(
-            "$L(itemFrom,itemTo,$L,$L)",
+            "$L(itemFrom,itemTo,$L,$L,itemNamePrefix)",
             PRIVATE_TRANSFORM_ARRAYS_METHOD_NAME,
             AbstractFieldTransformer.TRANSFORMER_VAR,
             AbstractFieldTransformer.NOW_VAR);

@@ -25,7 +25,7 @@ public class DateFieldTransformerTest {
     DateFieldTransformer generator = new DateFieldTransformer();
     CodeBlock block = generator.generateCodeBlock(mapping, column, transformation);
     assertEquals(
-        "transformer.copyDate(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.beneDob, true, from.getBeneDob(), to::setBeneDob);\n",
+        "transformer.copyDate(namePrefix + gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.beneDob, true, from.getBeneDob(), to::setBeneDob);\n",
         block.toString());
   }
 
@@ -43,7 +43,7 @@ public class DateFieldTransformerTest {
     DateFieldTransformer generator = new DateFieldTransformer();
     CodeBlock block = generator.generateCodeBlock(mapping, column, transformation);
     assertEquals(
-        "transformer.copyOptionalDate(gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.beneDob, from::hasBeneDob, from::getBeneDob, to::setBeneDob);\n",
+        "transformer.copyOptionalDate(namePrefix + gov.cms.bfd.model.rda.PreAdjFissClaim.Fields.beneDob, from::hasBeneDob, from::getBeneDob, to::setBeneDob);\n",
         block.toString());
   }
 }

@@ -197,12 +197,15 @@ mappings:
       - from: fissProcCodes
         to: procCodes
         mapping: FissProcCode
+        namePrefix: "procCode"
       - from: fissDiagCodes
         to: diagCodes
         mapping: FissDiagnosisCode
+        namePrefix: "diagCode"
       - from: fissPayers
         to: payers
         mapping: FissPayer
+        namePrefix: "payer"
 
   - id: FissProcCode
     messageClassName: gov.cms.mpsm.rda.v1.fiss.FissProcedureCode

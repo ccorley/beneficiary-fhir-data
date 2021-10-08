@@ -13,4 +13,5 @@ public class ArrayElement {
   private String from;
   private String to;
   private String mapping;
+  private String namePrefix;
 }
