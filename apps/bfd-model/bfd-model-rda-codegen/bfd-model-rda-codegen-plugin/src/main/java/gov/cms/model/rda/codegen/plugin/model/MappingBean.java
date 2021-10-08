@@ -39,6 +39,10 @@ public class MappingBean {
     return !Strings.isNullOrEmpty(transformerClassName);
   }
 
+  public boolean hasArrayElements() {
+    return arrays.size() > 0;
+  }
+
   public String entityPackageName() {
     return ModelUtil.packageName(entityClassName);
   }

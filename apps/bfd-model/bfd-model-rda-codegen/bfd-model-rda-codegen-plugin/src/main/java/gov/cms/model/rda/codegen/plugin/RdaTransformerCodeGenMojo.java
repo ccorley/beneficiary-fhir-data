@@ -124,8 +124,10 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
         .addMethod(createPublicTransformMessageMethodForParentMapping(mapping));
     for (MappingBean aMapping : allMappings) {
       classBuilder.addMethod(createPrivateTransformMessageMethodForMapping(aMapping));
-      classBuilder.addMethod(
-          createPrivateTransformMessageArraysMethodForMapping(aMapping, mappingFinder));
+      if (aMapping.hasArrayElements()) {
+        classBuilder.addMethod(
+            createPrivateTransformMessageArraysMethodForMapping(aMapping, mappingFinder));
+      }
     }
     return classBuilder.build();
   }
@@ -316,11 +318,13 @@ public class RdaTransformerCodeGenMojo extends AbstractMojo {
               TransformerUtil.capitalize(elementField.getTo()));
         }
       }
-      loop.addStatement(
-          "$L(itemFrom,itemTo,$L,$L)",
-          TRANSFORM_ARRAYS_METHOD_NAME,
-          AbstractFieldTransformer.TRANSFORMER_VAR,
-          AbstractFieldTransformer.NOW_VAR);
+      if (elementMapping.hasArrayElements()) {
+        loop.addStatement(
+            "$L(itemFrom,itemTo,$L,$L)",
+            TRANSFORM_ARRAYS_METHOD_NAME,
+            AbstractFieldTransformer.TRANSFORMER_VAR,
+            AbstractFieldTransformer.NOW_VAR);
+      }
       loop.addStatement(
               "$L.get$L().add(itemTo)",
               AbstractFieldTransformer.DEST_VAR,
