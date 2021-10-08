@@ -33,6 +33,8 @@ public class ColumnBean {
     Matcher matcher = Pattern.compile("char\\((\\d+)\\)").matcher(sqlType);
     if (matcher.find()) {
       return Integer.parseInt(matcher.group(1));
+    } else if (sqlType.equalsIgnoreCase("varchar(max)")) {
+      return Integer.MAX_VALUE;
     } else {
       return 0;
     }

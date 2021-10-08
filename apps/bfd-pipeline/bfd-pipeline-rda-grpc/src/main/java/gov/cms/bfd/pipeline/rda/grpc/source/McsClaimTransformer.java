@@ -6,6 +6,7 @@ import gov.cms.bfd.model.rda.PreAdjMcsDetail;
 import gov.cms.bfd.model.rda.PreAdjMcsDiagnosisCode;
 import gov.cms.bfd.pipeline.rda.grpc.RdaChange;
 import gov.cms.bfd.pipeline.sharedutils.IdHasher;
+import gov.cms.model.rda.codegen.library.DataTransformer;
 import gov.cms.mpsm.rda.v1.McsClaimChange;
 import gov.cms.mpsm.rda.v1.mcs.McsBeneficiarySex;
 import gov.cms.mpsm.rda.v1.mcs.McsBillingProviderIndicator;

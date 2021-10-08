@@ -62,7 +62,7 @@ public interface EnumStringExtractor<TRecord, TEnum extends ProtocolMessageEnum>
   @Getter
   @EqualsAndHashCode
   @ToString
-  public static class Result {
+  class Result {
     private final Status status;
     @Nullable private final String value;
 
@@ -87,7 +87,7 @@ public interface EnumStringExtractor<TRecord, TEnum extends ProtocolMessageEnum>
    * option available but using an enum instead of a boolean to enable the option improves code
    * clarity.
    */
-  public enum Options {
+  enum Options {
     /** Report an unsupported value result if the field has its unrecognized value. */
     RejectUnrecognized
   }

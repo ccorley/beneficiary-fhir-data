@@ -62,7 +62,7 @@ mappings:
         - name: pracLocState
           sqlType: varchar(2)
         - name: pracLocZip
-          sqlType: varchar(max)
+          sqlType: varchar(15)
         - name: stmtCovFromDate
           sqlType: date
         - name: stmtCovToDate
@@ -127,8 +127,6 @@ mappings:
         transformer: IdHash
       - from: fedTaxNb
         to: fedTaxNumber
-      - from: NOW
-        to: lastUpdated
       - from: pracLocAddr1
       - from: pracLocAddr2
       - from: pracLocCity
@@ -193,6 +191,8 @@ mappings:
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissBillFrequency
       - from: billTypCd
+      - from: NOW
+        to: lastUpdated
     arrays:
       - from: fissProcCodes
         to: procCodes
@@ -369,6 +369,20 @@ mappings:
         to: dcn
       - from: INDEX
         to: priority
+      # The payerType is set to one of 2 enum values depending on which of the 2
+      # nested payer fields is populated.
+      - from: beneZPayer
+        to: payerType
+        transformer: EnumValueIfPresent
+        transformerOptions:
+          enumName: PayerType
+          enumValue: BeneZ
+      - from: insuredPayer
+        to: payerType
+        transformer: EnumValueIfPresent
+        transformerOptions:
+          enumName: PayerType
+          enumValue: Insured
       - from: NONE
         to: payerType
       - from: insuredPayer.payersId
@@ -412,6 +426,7 @@ mappings:
         transformer: MessageEnum
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissPayersCode
+      - from: beneZPayer.payersName
       - from: beneZPayer.relInd
         transformer: MessageEnum
         transformerOptions:
@@ -432,11 +447,20 @@ mappings:
       - from: beneZPayer.beneFirstName
       - from: beneZPayer.beneMidInit
       - from: beneZPayer.beneSsnHic
+      - from: beneZPayer.insuredGroupName
       - from: beneZPayer.beneDob
       - from: beneZPayer.beneSex
         transformer: MessageEnum
         transformerOptions:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissBeneficiarySex
       - from: beneZPayer.treatAuthCd
+      - from: beneZPayer.insuredSex
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissBeneficiarySex
+      - from: beneZPayer.insuredRelX12
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissPatientRelationshipCode
       - from: NOW
         to: lastUpdated
