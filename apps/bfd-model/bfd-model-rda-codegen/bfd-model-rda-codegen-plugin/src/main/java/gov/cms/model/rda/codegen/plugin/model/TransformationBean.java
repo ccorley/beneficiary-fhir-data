@@ -24,7 +24,16 @@ public class TransformationBean {
   @Singular Map<String, String> transformerOptions = new HashMap<>();
 
   public String getTo() {
-    return to == null ? from : to;
+    if (to != null) {
+      return to;
+    } else {
+      final int dotIndex = from.indexOf('.');
+      if (dotIndex < 0) {
+        return from;
+      } else {
+        return from.substring(dotIndex + 1);
+      }
+    }
   }
 
   public boolean hasTransformer() {

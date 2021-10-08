@@ -1,7 +1,5 @@
 package gov.cms.model.rda.codegen.plugin.transformer;
 
-import static gov.cms.model.rda.codegen.plugin.transformer.TransformerUtil.capitalize;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.ClassName;
@@ -34,7 +32,7 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
           "$L.copyEnumAsCharacter($L, $L.getEnumString($L), $L)",
           TRANSFORMER_VAR,
           fieldNameReference(mapping, column),
-          extractorName(mapping, enumClass.simpleName()),
+          extractorName(mapping, transformation),
           SOURCE_VAR,
           destSetRef(column));
     } else {
@@ -44,7 +42,7 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
           fieldNameReference(mapping, column),
           column.isNullable(),
           column.computeLength(),
-          extractorName(mapping, enumClass.simpleName()),
+          extractorName(mapping, transformation),
           SOURCE_VAR,
           destSetRef(column));
     }
@@ -61,7 +59,7 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
         FieldSpec.builder(
             ParameterizedTypeName.get(
                 ClassName.get(EnumStringExtractor.class), messageClass, enumClass),
-            extractorName(mapping, enumClass.simpleName()),
+            extractorName(mapping, transformation),
             Modifier.PRIVATE,
             Modifier.FINAL);
     return ImmutableList.of(builder.build());
@@ -82,9 +80,9 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
         CodeBlock.builder()
             .addStatement(
                 "$L = $L.createEnumStringExtractor($L,$L,$L,$L,$T.UNRECOGNIZED,$L,$L)",
-                extractorName(mapping, enumClass.simpleName()),
+                extractorName(mapping, transformation),
                 ENUM_FACTORY_VAR,
-                sourceEnumHashValueMethod(messageClass, transformation),
+                sourceEnumHasValueMethod(messageClass, transformation),
                 sourceEnumGetValueMethod(messageClass, transformation),
                 sourceHasUnrecognizedMethod(hasUnrecognized, messageClass, transformation),
                 sourceGetUnrecognizedMethod(hasUnrecognized, messageClass, transformation),
@@ -95,20 +93,40 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
     return ImmutableList.of(initializer);
   }
 
-  private CodeBlock sourceEnumHashValueMethod(
+  private CodeBlock sourceEnumHasValueMethod(
       ClassName sourceClass, TransformationBean transformation) {
-    return CodeBlock.of("$T::has$LEnum", sourceClass, capitalize(transformation.getFrom()));
+    return transformationPropertyCodeBlock(
+        transformation,
+        fieldName -> CodeBlock.of("$T::has$LEnum", sourceClass, fieldName),
+        (fieldName, propertyName) ->
+            CodeBlock.of(
+                "message -> message.has$L() && message.get$L().has$LEnum()",
+                fieldName,
+                fieldName,
+                propertyName));
   }
 
-  private CodeBlock sourceEnumGetValueMethod(ClassName sourceClass, TransformationBean field) {
-    return CodeBlock.of("$T::get$LEnum", sourceClass, capitalize(field.getFrom()));
+  private CodeBlock sourceEnumGetValueMethod(
+      ClassName sourceClass, TransformationBean transformation) {
+    return transformationPropertyCodeBlock(
+        transformation,
+        fieldName -> CodeBlock.of("$T::get$LEnum", sourceClass, fieldName),
+        (fieldName, propertyName) ->
+            CodeBlock.of("message -> message.get$L().get$LEnum()", fieldName, propertyName));
   }
 
   private CodeBlock sourceHasUnrecognizedMethod(
       boolean hasMethod, ClassName sourceClass, TransformationBean transformation) {
     if (hasMethod) {
-      return CodeBlock.of(
-          "$T::has$LUnrecognized", sourceClass, capitalize(transformation.getFrom()));
+      return transformationPropertyCodeBlock(
+          transformation,
+          fieldName -> CodeBlock.of("$T::has$LUnrecognized", sourceClass, fieldName),
+          (fieldName, propertyName) ->
+              CodeBlock.of(
+                  "message -> message.has$L() && message.get$L().has$LUnrecognized()",
+                  fieldName,
+                  fieldName,
+                  propertyName));
     } else {
       return CodeBlock.of("ignored -> false");
     }
@@ -117,8 +135,12 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
   private CodeBlock sourceGetUnrecognizedMethod(
       boolean hasMethod, ClassName sourceClass, TransformationBean transformation) {
     if (hasMethod) {
-      return CodeBlock.of(
-          "$T::get$LUnrecognized", sourceClass, capitalize(transformation.getFrom()));
+      return transformationPropertyCodeBlock(
+          transformation,
+          fieldName -> CodeBlock.of("$T::get$LUnrecognized", sourceClass, fieldName),
+          (fieldName, propertyName) ->
+              CodeBlock.of(
+                  "message -> message.get$L().get$LUnrecognized()", fieldName, propertyName));
     } else {
       return CodeBlock.of("ignored -> null");
     }
@@ -148,7 +170,8 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
     return builder.build();
   }
 
-  private static String extractorName(MappingBean mapping, String enumName) {
-    return String.format("%s_%s_Extractor", mapping.entityClassName(), enumName);
+  private static String extractorName(MappingBean mapping, TransformationBean transformation) {
+    final String fromName = transformation.getFrom().replace(".", "_");
+    return String.format("%s_%s_Extractor", mapping.entityClassName(), fromName);
   }
 }

@@ -10,6 +10,8 @@ import gov.cms.model.rda.codegen.plugin.model.ColumnBean;
 import gov.cms.model.rda.codegen.plugin.model.MappingBean;
 import gov.cms.model.rda.codegen.plugin.model.TransformationBean;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * A FieldTransformGenerator is an object that generates java code for a specific type of field
@@ -61,20 +63,101 @@ public abstract class AbstractFieldTransformer {
         "$T.Fields.$L", PoetUtil.toClassName(mapping.getEntityClassName()), column.getName());
   }
 
+  /**
+   * Helper method to parse the {@code from} of the specified Transformation and call one of two
+   * methods depending on whether the field is a simple field or a nested field (i.e. one with a
+   * field and a property of that field). Only a single period is supported in the field name. This
+   * is a "hole in the middle" pattern to centralize the field name parsing in one place. The names
+   * passed to the methods are already capitalized so they are ready to have has or get prepended to
+   * them as needed.
+   *
+   * @param transformation defines the {@code from} field
+   * @param simpleProperty accepts a field name and returns a CodeBlock
+   * @param nestedProperty accepts a field and property name and returns a CodeBlock
+   * @return CodeBlock created by appropriate method
+   */
+  protected CodeBlock transformationPropertyCodeBlock(
+      TransformationBean transformation,
+      Function<String, CodeBlock> simpleProperty,
+      BiFunction<String, String, CodeBlock> nestedProperty) {
+    final String from = capitalize(transformation.getFrom());
+    final int dotIndex = from.indexOf('.');
+    if (dotIndex < 0) {
+      return simpleProperty.apply(from);
+    } else {
+      final String fieldName = from.substring(0, dotIndex);
+      final String propertyName = capitalize(from.substring(dotIndex + 1));
+      return nestedProperty.apply(fieldName, propertyName);
+    }
+  }
+
+  /**
+   * Generates a {@code Supplier<Boolean>} compatible CodeBlock that that returns true if the field
+   * is present in the message.
+   *
+   * @param transformation defines the {@code from} field
+   * @return CodeBlock for a lambda function
+   */
   protected CodeBlock sourceHasRef(TransformationBean transformation) {
-    return CodeBlock.of("$L::has$L", SOURCE_VAR, capitalize(transformation.getFrom()));
+    return transformationPropertyCodeBlock(
+        transformation,
+        fieldName -> CodeBlock.of("$L::has$L", SOURCE_VAR, fieldName),
+        (fieldName, propertyName) ->
+            CodeBlock.of(
+                "() -> $L.has$L() && $L.get$L().has$L()",
+                SOURCE_VAR,
+                fieldName,
+                SOURCE_VAR,
+                fieldName,
+                propertyName));
   }
 
+  /**
+   * Generates an expression CodeBlock that returns true if the field is present in the message.
+   *
+   * @param transformation defines the {@code from} field
+   * @return CodeBlock for an expression
+   */
   protected CodeBlock sourceHasValue(TransformationBean transformation) {
-    return CodeBlock.of("$L.has$L()", SOURCE_VAR, capitalize(transformation.getFrom()));
+    return transformationPropertyCodeBlock(
+        transformation,
+        fieldName -> CodeBlock.of("$L.has$L()", SOURCE_VAR, fieldName),
+        (fieldName, propertyName) ->
+            CodeBlock.of(
+                "($L.has$L() && $L.get$L().has$L())",
+                SOURCE_VAR,
+                fieldName,
+                SOURCE_VAR,
+                fieldName,
+                propertyName));
   }
 
+  /**
+   * Generates a {@code Supplier<T>} compatible CodeBlock that that returns the value of the field.
+   *
+   * @param transformation defines the {@code from} field
+   * @return CodeBlock for a lambda function
+   */
   protected CodeBlock sourceGetRef(TransformationBean transformation) {
-    return CodeBlock.of("$L::get$L", SOURCE_VAR, capitalize(transformation.getFrom()));
+    return transformationPropertyCodeBlock(
+        transformation,
+        fieldName -> CodeBlock.of("$L::get$L", SOURCE_VAR, fieldName),
+        (fieldName, propertyName) ->
+            CodeBlock.of("() -> $L.get$L().get$L()", SOURCE_VAR, fieldName, propertyName));
   }
 
+  /**
+   * Generates an expression CodeBlock that that returns the value of the field.
+   *
+   * @param transformation defines the {@code from} field
+   * @return CodeBlock for an expression
+   */
   protected CodeBlock sourceValue(TransformationBean transformation) {
-    return CodeBlock.of("$L.get$L()", SOURCE_VAR, capitalize(transformation.getFrom()));
+    return transformationPropertyCodeBlock(
+        transformation,
+        fieldName -> CodeBlock.of("$L.get$L()", SOURCE_VAR, fieldName),
+        (fieldName, propertyName) ->
+            CodeBlock.of("$L.get$L().get$L()", SOURCE_VAR, fieldName, propertyName));
   }
 
   protected CodeBlock destSetter(ColumnBean column, CodeBlock value) {

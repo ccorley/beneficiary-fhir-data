@@ -371,31 +371,72 @@ mappings:
         to: priority
       - from: NONE
         to: payerType
-      - from: payersId
-        optional: false
-      - from: payersName
-      - from: relInd
-      - from: assignInd
-      - from: providerNumber
-      - from: adjDcnIcn
-      - from: priorPmt
-      - from: estAmtDue
-      - from: beneRel
-      - from: beneLastName
-      - from: beneFirstName
-      - from: beneMidInit
-      - from: beneSsnHic
-      - from: insuredRel
-      - from: insuredName
-      - from: insuredSsnHic
-      - from: insuredGroupName
-      - from: insuredGroupNbr
-      - from: beneDob
-      - from: beneSex
-      - from: treatAuthCd
-      - from: insuredSex
-      - from: insuredRelX12
-      - from: insuredDob
-      - from: insuredDobText
+      - from: insuredPayer.payersId
+        to: payersId
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissPayersCode
+      - from: insuredPayer.payersName
+      - from: insuredPayer.relInd
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissReleaseOfInformation
+      - from: insuredPayer.assignInd
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissAssignmentOfBenefitsIndicator
+      - from: insuredPayer.providerNumber
+      - from: insuredPayer.adjDcnIcn
+      - from: insuredPayer.priorPmt
+      - from: insuredPayer.estAmtDue
+      - from: insuredPayer.insuredRel
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissPatientRelationshipCode
+      - from: insuredPayer.insuredName
+      - from: insuredPayer.insuredSsnHic
+      - from: insuredPayer.insuredGroupName
+      - from: insuredPayer.insuredGroupNbr
+      - from: insuredPayer.treatAuthCd
+      - from: insuredPayer.insuredSex
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissBeneficiarySex
+      - from: insuredPayer.insuredRelX12
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissPatientRelationshipCode
+      - from: insuredPayer.insuredDob
+      - from: insuredPayer.insuredDobText
+      - from: beneZPayer.payersId
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissPayersCode
+      - from: beneZPayer.relInd
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissAssignmentOfBenefitsIndicator
+      - from: beneZPayer.assignInd
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissAssignmentOfBenefitsIndicator
+      - from: beneZPayer.providerNumber
+      - from: beneZPayer.adjDcnIcn
+      - from: beneZPayer.priorPmt
+      - from: beneZPayer.estAmtDue
+      - from: beneZPayer.beneRel
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissPatientRelationshipCode
+      - from: beneZPayer.beneLastName
+      - from: beneZPayer.beneFirstName
+      - from: beneZPayer.beneMidInit
+      - from: beneZPayer.beneSsnHic
+      - from: beneZPayer.beneDob
+      - from: beneZPayer.beneSex
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.fiss.FissBeneficiarySex
+      - from: beneZPayer.treatAuthCd
       - from: NOW
         to: lastUpdated
