@@ -34,7 +34,7 @@ public class FissClaimTransformer {
         claimTransformer.transformMessage(from, transformer, clock.instant());
     to.setSequenceNumber(change.getSeq());
 
-    List<DataTransformer.ErrorMessage> errors = transformer.getErrors();
+    final List<DataTransformer.ErrorMessage> errors = transformer.getErrors();
     if (errors.size() > 0) {
       String message =
           String.format(

@@ -20,6 +20,10 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
   public static final String HAS_UNRECOGNIZED_OPT = "hasUnrecognized";
   public static final String UNSUPPORTED_ENUM_VALUES_OPT = "unsupportedEnumValues";
   public static final String EXTRACTOR_OPTIONS_OPT = "extractorOptions";
+  public static final String ENUM_NAME_SUFFIX = "enumNameSuffix";
+  public static final String UNRECOGNIZED_NAME_SUFFIX = "unrecognizedNameSuffix";
+  public static final String DEFAULT_ENUM_NAME_SUFFIX = "Enum";
+  public static final String DEFAULT_UNRECOGNIZED_NAME_SUFFIX = "Unrecognized";
 
   @Override
   public CodeBlock generateCodeBlock(
@@ -93,26 +97,43 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
     return ImmutableList.of(initializer);
   }
 
+  private String enumFieldName(TransformationBean transformation, String baseFieldName) {
+    return baseFieldName
+        + transformation.transformerOption(ENUM_NAME_SUFFIX).orElse(DEFAULT_ENUM_NAME_SUFFIX);
+  }
+
+  private String unrecognizedFieldName(TransformationBean transformation, String baseFieldName) {
+    return baseFieldName
+        + transformation
+            .transformerOption(UNRECOGNIZED_NAME_SUFFIX)
+            .orElse(DEFAULT_UNRECOGNIZED_NAME_SUFFIX);
+  }
+
   private CodeBlock sourceEnumHasValueMethod(
       ClassName sourceClass, TransformationBean transformation) {
     return transformationPropertyCodeBlock(
         transformation,
-        fieldName -> CodeBlock.of("$T::has$LEnum", sourceClass, fieldName),
+        fieldName ->
+            CodeBlock.of("$T::has$L", sourceClass, enumFieldName(transformation, fieldName)),
         (fieldName, propertyName) ->
             CodeBlock.of(
-                "message -> message.has$L() && message.get$L().has$LEnum()",
+                "message -> message.has$L() && message.get$L().has$L()",
                 fieldName,
                 fieldName,
-                propertyName));
+                enumFieldName(transformation, propertyName)));
   }
 
   private CodeBlock sourceEnumGetValueMethod(
       ClassName sourceClass, TransformationBean transformation) {
     return transformationPropertyCodeBlock(
         transformation,
-        fieldName -> CodeBlock.of("$T::get$LEnum", sourceClass, fieldName),
+        fieldName ->
+            CodeBlock.of("$T::get$L", sourceClass, enumFieldName(transformation, fieldName)),
         (fieldName, propertyName) ->
-            CodeBlock.of("message -> message.get$L().get$LEnum()", fieldName, propertyName));
+            CodeBlock.of(
+                "message -> message.get$L().get$L()",
+                fieldName,
+                enumFieldName(transformation, propertyName)));
   }
 
   private CodeBlock sourceHasUnrecognizedMethod(
@@ -120,13 +141,15 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
     if (hasMethod) {
       return transformationPropertyCodeBlock(
           transformation,
-          fieldName -> CodeBlock.of("$T::has$LUnrecognized", sourceClass, fieldName),
+          fieldName ->
+              CodeBlock.of(
+                  "$T::has$L", sourceClass, unrecognizedFieldName(transformation, fieldName)),
           (fieldName, propertyName) ->
               CodeBlock.of(
-                  "message -> message.has$L() && message.get$L().has$LUnrecognized()",
+                  "message -> message.has$L() && message.get$L().has$L()",
                   fieldName,
                   fieldName,
-                  propertyName));
+                  unrecognizedFieldName(transformation, propertyName)));
     } else {
       return CodeBlock.of("ignored -> false");
     }
@@ -137,10 +160,14 @@ public class MessageEnumFieldTransformer extends AbstractFieldTransformer {
     if (hasMethod) {
       return transformationPropertyCodeBlock(
           transformation,
-          fieldName -> CodeBlock.of("$T::get$LUnrecognized", sourceClass, fieldName),
+          fieldName ->
+              CodeBlock.of(
+                  "$T::get$L", sourceClass, unrecognizedFieldName(transformation, fieldName)),
           (fieldName, propertyName) ->
               CodeBlock.of(
-                  "message -> message.get$L().get$LUnrecognized()", fieldName, propertyName));
+                  "message -> message.get$L().get$L()",
+                  fieldName,
+                  unrecognizedFieldName(transformation, propertyName)));
     } else {
       return CodeBlock.of("ignored -> null");
     }

@@ -67,7 +67,7 @@ public class ColumnBean {
   }
 
   public boolean isInt() {
-    return "int".equals(javaType);
+    return "int".equals(javaType) || isIntType(mapSqlTypeToTypeName());
   }
 
   public boolean isDecimal() {
@@ -82,6 +82,10 @@ public class ColumnBean {
     return (type instanceof ClassName) && ((ClassName) type).simpleName().equals("String");
   }
 
+  private boolean isIntType(TypeName type) {
+    return (type instanceof ClassName) && ((ClassName) type).simpleName().equals("Integer");
+  }
+
   private TypeName mapSqlTypeToTypeName() {
     if (sqlType.contains("char")) {
       return ClassName.get(String.class);
@@ -89,8 +93,11 @@ public class ColumnBean {
     if (sqlType.contains("smallint")) {
       return ClassName.get(Short.class);
     }
-    if (sqlType.contains("int")) {
+    if (sqlType.equals("bigint")) {
       return ClassName.get(Long.class);
+    }
+    if (sqlType.equals("int")) {
+      return ClassName.get(Integer.class);
     }
     if (sqlType.contains("decimal")) {
       return ClassName.get(BigDecimal.class);

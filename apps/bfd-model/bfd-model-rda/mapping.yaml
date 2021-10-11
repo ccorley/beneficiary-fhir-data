@@ -467,3 +467,275 @@ mappings:
           enumClass: gov.cms.mpsm.rda.v1.fiss.FissPatientRelationshipCode
       - from: NOW
         to: lastUpdated
+  - id: McsClaim
+    messageClassName: gov.cms.mpsm.rda.v1.mcs.McsClaim
+    entityClassName: gov.cms.bfd.model.rda.PreAdjMcsClaim
+    transformerClassName: gov.cms.bfd.pipeline.rda.grpc.source.McsClaimTransformer2
+    table:
+      name: McsClaims
+      schema: pre_adj
+      primaryKeyColumns:
+        - idrClmHdIcn
+      columns:
+        - name: idrClmHdIcn
+          sqlType: varchar(15)
+          nullable: false
+        - name: sequenceNumber
+          sqlType: bigint
+          nullable: false
+        - name: idrContrId
+          sqlType: varchar(5)
+          nullable: false
+        - name: idrHic
+          sqlType: varchar(12)
+        - name: idrClaimType
+          sqlType: varchar(1)
+          nullable: false
+        - name: idrDtlCnt
+          sqlType: int
+        - name: idrBeneLast_1_6
+          sqlType: varchar(6)
+        - name: idrBeneFirstInit
+          sqlType: varchar(1)
+        - name: idrBeneMidInit
+          sqlType: varchar(1)
+        - name: idrBeneSex
+          sqlType: varchar(1)
+        - name: idrStatusCode
+          sqlType: varchar(1)
+        - name: idrStatusDate
+          sqlType: date
+        - name: idrBillProvNpi
+          sqlType: varchar(10)
+        - name: idrBillProvNum
+          sqlType: varchar(10)
+        - name: idrBillProvEin
+          sqlType: varchar(10)
+        - name: idrBillProvType
+          sqlType: varchar(2)
+        - name: idrBillProvSpec
+          sqlType: varchar(2)
+        - name: idrBillProvGroupInd
+          sqlType: varchar(1)
+        - name: idrBillProvPriceSpec
+          sqlType: varchar(2)
+        - name: idrBillProvCounty
+          sqlType: varchar(2)
+        - name: idrBillProvLoc
+          sqlType: varchar(2)
+        - name: idrTotAllowed
+          sqlType: decimal(7,2)
+        - name: idrCoinsurance
+          sqlType: decimal(7,2)
+        - name: idrDeductible
+          sqlType: decimal(7,2)
+        - name: idrBillProvStatusCd
+          sqlType: varchar(1)
+        - name: idrTotBilledAmt
+          sqlType: decimal(7,2)
+        - name: idrClaimReceiptDate
+          sqlType: date
+        - name: idrClaimMbi
+          sqlType: varchar(13)
+        - name: idrClaimMbiHash
+          sqlType: varchar(64)
+        - name: idrHdrFromDateOfSvc
+          sqlType: date
+        - name: idrHdrToDateOfSvc
+          sqlType: date
+        - name: lastUpdated
+          sqlType: timestamp with time zone
+    transformations:
+      - from: idrClmHdIcn
+        optional: false
+      - from: sequenceNumber
+      - from: idrContrId
+        optional: false
+      - from: idrHic
+      - from: idrClaimType
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.mcs.McsClaimType
+      - from: idrDtlCnt
+      - from: idrBeneLast16
+        to: idrBeneLast_1_6
+      - from: idrBeneFirstInit
+      - from: idrBeneMidInit
+      - from: idrBeneSex
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.mcs.McsBeneficiarySex
+      - from: idrStatusCode
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.mcs.McsStatusCode
+          extractorOptions: RejectUnrecognized
+          unsupportedEnumValues: STATUS_CODE_NOT_USED
+      - from: idrStatusDate
+      - from: idrBillProvNpi
+      - from: idrBillProvNum
+      - from: idrBillProvEin
+      - from: idrBillProvType
+      - from: idrBillProvSpec
+      - from: idrBillProvGroupInd
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.mcs.McsBillingProviderIndicator
+      - from: idrBillProvPriceSpec
+      - from: idrBillProvCounty
+      - from: idrBillProvLoc
+      - from: idrTotAllowed
+      - from: idrCoinsurance
+      - from: idrDeductible
+      - from: idrBillProvStatusCd
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.mcs.McsBillingProviderStatusCode
+      - from: idrTotBilledAmt
+      - from: idrClaimReceiptDate
+      - from: idrClaimMbi
+      - from: idrClaimMbi
+        to: idrClaimMbiHash
+        transformer: IdHash
+      - from: idrHdrFromDos
+        to: idrHdrFromDateOfSvc
+      - from: idrHdrToDos
+        to: idrHdrToDateOfSvc
+      - from: NOW
+        to: lastUpdated
+    arrays:
+      - from: mcsDetails
+        to: details
+        mapping: McsDetail
+        namePrefix: detail
+      - from: mcsDiagnosisCodes
+        to: diagCodes
+        mapping: McsDiagnosisCode
+        namePrefix: diagCode
+  - id: McsDetail
+    messageClassName: gov.cms.mpsm.rda.v1.mcs.McsDetail
+    entityClassName: gov.cms.bfd.model.rda.PreAdjMcsDetail
+    table:
+      name: McsDetails
+      schema: pre_adj
+      primaryKeyColumns:
+        - idrClmHdIcn
+        - priority
+      columns:
+        - name: idrClmHdIcn
+          sqlType: varchar(15)
+          nullable: false
+        - name: priority
+          sqlType: smallint
+          javaType: short
+          nullable: false
+        - name: idrDtlStatus
+          sqlType: varchar(1)
+        - name: idrDtlFromDate
+          sqlType: date
+        - name: idrDtlToDate
+          sqlType: date
+        - name: idrProcCode
+          sqlType: varchar(5)
+        - name: idrModOne
+          sqlType: varchar(2)
+        - name: idrModTwo
+          sqlType: varchar(2)
+        - name: idrModThree
+          sqlType: varchar(2)
+        - name: idrModFour
+          sqlType: varchar(2)
+        - name: idrDtlDiagIcdType
+          sqlType: varchar(1)
+        - name: idrDtlPrimaryDiagCode
+          sqlType: varchar(7)
+        - name: idrKPosLnameOrg
+          sqlType: varchar(60)
+        - name: idrKPosFname
+          sqlType: varchar(35)
+        - name: idrKPosMname
+          sqlType: varchar(25)
+        - name: idrKPosAddr1
+          sqlType: varchar(55)
+        - name: idrKPosAddr2_1st
+          sqlType: varchar(30)
+        - name: idrKPosAddr2_2nd
+          sqlType: varchar(25)
+        - name: idrKPosCity
+          sqlType: varchar(30)
+        - name: idrKPosState
+          sqlType: varchar(2)
+        - name: idrKPosZip
+          sqlType: varchar(15)
+        - name: lastUpdated
+          sqlType: timestamp with time zone
+    transformations:
+      - from: PARENT
+        to: idrClmHdIcn
+      - from: INDEX
+        to: priority
+      - from: idrDtlStatus
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.mcs.McsDetailStatus
+      - from: idrDtlFromDate
+      - from: idrDtlToDate
+      - from: idrProcCode
+      - from: idrModOne
+      - from: idrModTwo
+      - from: idrModThree
+      - from: idrModFour
+      - from: idrDtlDiagIcdType
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.mcs.McsDiagnosisIcdType
+      - from: idrDtlPrimaryDiagCode
+      - from: idrKPosLnameOrg
+      - from: idrKPosFname
+      - from: idrKPosMname
+      - from: idrKPosAddr1
+      - from: idrKPosAddr21St
+        to: idrKPosAddr2_1st
+      - from: idrKPosAddr22Nd
+        to: idrKPosAddr2_2nd
+      - from: idrKPosCity
+      - from: idrKPosState
+      - from: idrKPosZip
+      - from: NOW
+        to: lastUpdated
+  - id: McsDiagnosisCode
+    messageClassName: gov.cms.mpsm.rda.v1.mcs.McsDiagnosisCode
+    entityClassName: gov.cms.bfd.model.rda.PreAdjMcsDiagnosisCode
+    table:
+      name: McsDiagnosisCodes
+      schema: pre_adj
+      primaryKeyColumns:
+        - idrClmHdIcn
+        - priority
+      columns:
+        - name: idrClmHdIcn
+          sqlType: varchar(15)
+          nullable: false
+        - name: priority
+          sqlType: smallint
+          javaType: short
+          nullable: false
+        - name: idrDiagIcdType
+          sqlType: varchar(1)
+        - name: idrDiagCode
+          sqlType: varchar(7)
+        - name: lastUpdated
+          sqlType: timestamp with time zone
+    transformations:
+      - from: PARENT
+        to: idrClmHdIcn
+      - from: INDEX
+        to: priority
+      - from: idrDiagIcdType
+        transformer: MessageEnum
+        transformerOptions:
+          enumClass: gov.cms.mpsm.rda.v1.mcs.McsDiagnosisIcdType
+          unrecognizedNameSuffix: EnumUnrecognized
+      - from: idrDiagCode
+      - from: NOW
+        to: lastUpdated
