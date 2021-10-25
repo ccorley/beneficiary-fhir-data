@@ -36,20 +36,11 @@ public class McsClaimRdaSinkIT {
                   .idrClaimType("c")
                   .build();
 
-          final PreAdjMcsDetail detail =
-              PreAdjMcsDetail.builder()
-                  .idrClmHdIcn(claim.getIdrClmHdIcn())
-                  .priority((short) 0)
-                  .idrDtlStatus("P")
-                  .build();
+          final PreAdjMcsDetail detail = PreAdjMcsDetail.builder().idrDtlStatus("P").build();
           claim.getDetails().add(detail);
 
           final PreAdjMcsDiagnosisCode diagCode =
-              PreAdjMcsDiagnosisCode.builder()
-                  .idrClmHdIcn(claim.getIdrClmHdIcn())
-                  .priority((short) 0)
-                  .idrDiagIcdType("T")
-                  .build();
+              PreAdjMcsDiagnosisCode.builder().idrDiagIcdType("T").build();
           claim.getDiagCodes().add(diagCode);
 
           int count =

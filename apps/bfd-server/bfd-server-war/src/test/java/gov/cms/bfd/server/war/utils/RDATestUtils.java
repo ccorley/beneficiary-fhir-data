@@ -2,7 +2,7 @@ package gov.cms.bfd.server.war.utils;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import gov.cms.bfd.model.rda.PreAdjFissClaim;
 import gov.cms.bfd.model.rda.PreAdjFissClaimJson;
 import gov.cms.bfd.model.rda.PreAdjFissProcCode;
@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
@@ -123,19 +122,15 @@ public class RDATestUtils {
             .stmtCovToDate(LocalDate.ofEpochDay(200))
             .build();
 
-    Set<PreAdjFissProcCode> codes =
-        Sets.newHashSet(
+    List<PreAdjFissProcCode> codes =
+        Lists.newArrayList(
             PreAdjFissProcCode.builder()
-                .dcn("123456")
-                .priority((short) 0)
                 .procCode("CODEABC")
                 .procFlag("FLAG")
                 .procDate(LocalDate.ofEpochDay(200))
                 .lastUpdated(Instant.ofEpochMilli(0))
                 .build(),
             PreAdjFissProcCode.builder()
-                .dcn("123456")
-                .priority((short) 1)
                 .procCode("CODECBA")
                 .procFlag("FLA2")
                 .lastUpdated(Instant.ofEpochMilli(0))
@@ -172,15 +167,13 @@ public class RDATestUtils {
 
     PreAdjFissProcCode code =
         PreAdjFissProcCode.builder()
-            .dcn("123457")
-            .priority((short) 0)
             .procCode("CODEABD")
             .procFlag("FLAC")
             .procDate(LocalDate.ofEpochDay(211))
             .lastUpdated(Instant.ofEpochMilli(5000))
             .build();
 
-    claim.setProcCodes(Collections.singleton(code));
+    claim.setProcCodes(Collections.singletonList(code));
 
     return new PreAdjFissClaimJson(claim);
   }
@@ -226,28 +219,20 @@ public class RDATestUtils {
             .lastUpdated(Instant.ofEpochMilli(4000))
             .build();
 
-    Set<PreAdjMcsDetail> procCodes =
-        Sets.newHashSet(
+    List<PreAdjMcsDetail> procCodes =
+        Lists.newArrayList(
             PreAdjMcsDetail.builder()
-                .priority((short) 0)
-                .idrClmHdIcn("654321")
                 .idrDtlToDate(LocalDate.ofEpochDay(208))
                 .idrProcCode("FDSAE")
                 .build(),
-            PreAdjMcsDetail.builder()
-                .priority((short) 1)
-                .idrClmHdIcn("654321")
-                .idrProcCode("FDAAA")
-                .build());
+            PreAdjMcsDetail.builder().idrProcCode("FDAAA").build());
 
     claim.setDetails(procCodes);
 
     claim.setDiagCodes(
-        Sets.newHashSet(
-            new PreAdjMcsDiagnosisCode(
-                "654321", (short) 0, "0", "HF3IJIF", Instant.ofEpochMilli(4000)),
-            new PreAdjMcsDiagnosisCode(
-                "654321", (short) 1, "1", "HF3IJIG", Instant.ofEpochMilli(4000))));
+        Lists.newArrayList(
+            new PreAdjMcsDiagnosisCode("0", "HF3IJIF", Instant.ofEpochMilli(4000)),
+            new PreAdjMcsDiagnosisCode("1", "HF3IJIG", Instant.ofEpochMilli(4000))));
 
     return new PreAdjMcsClaimJson(claim);
   }

@@ -86,8 +86,6 @@ public class SimpleRdaInsertApp {
 
     final PreAdjFissProcCode procCode0 =
         PreAdjFissProcCode.builder()
-            .dcn(claim.getDcn())
-            .priority((short) 0)
             .procCode("P")
             .procFlag("F")
             .procDate(LocalDate.now())
@@ -97,8 +95,6 @@ public class SimpleRdaInsertApp {
 
     final PreAdjFissDiagnosisCode diagCode0 =
         PreAdjFissDiagnosisCode.builder()
-            .dcn(claim.getDcn())
-            .priority((short) 0)
             .diagCd2("cd2")
             .diagPoaInd("Q")
             .lastUpdated(Instant.now())
@@ -107,8 +103,6 @@ public class SimpleRdaInsertApp {
 
     final PreAdjFissPayer payer0 =
         PreAdjFissPayer.builder()
-            .dcn(claim.getDcn())
-            .priority((short) 0)
             .payerType(PreAdjFissPayer.PayerType.BeneZ)
             .estAmtDue(new BigDecimal("1.23"))
             .lastUpdated(Instant.now())
@@ -142,20 +136,12 @@ public class SimpleRdaInsertApp {
 
   private static PreAdjMcsDetail quickMcsDetail(
       PreAdjMcsClaim claim, int priority, String dtlStatus) {
-    return PreAdjMcsDetail.builder()
-        .idrClmHdIcn(claim.getIdrClmHdIcn())
-        .priority((short) priority)
-        .idrDtlStatus(dtlStatus)
-        .build();
+    return PreAdjMcsDetail.builder().idrDtlStatus(dtlStatus).build();
   }
 
   private static PreAdjMcsDiagnosisCode quickMcsDiagCode(
       PreAdjMcsClaim claim, int priority, String icdType) {
-    return PreAdjMcsDiagnosisCode.builder()
-        .idrClmHdIcn(claim.getIdrClmHdIcn())
-        .priority((short) priority)
-        .idrDiagIcdType(icdType)
-        .build();
+    return PreAdjMcsDiagnosisCode.builder().idrDiagIcdType(icdType).build();
   }
 
   private static DatabaseOptions readDatabaseOptions(Properties props) {

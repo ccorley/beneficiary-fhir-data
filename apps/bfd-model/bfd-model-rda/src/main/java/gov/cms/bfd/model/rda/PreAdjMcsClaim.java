@@ -3,8 +3,8 @@ package gov.cms.bfd.model.rda;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -51,6 +51,6 @@ public class PreAdjMcsClaim {
   private LocalDate idrHdrToDateOfSvc;
   private Instant lastUpdated;
 
-  @Builder.Default private Set<PreAdjMcsDetail> details = new HashSet<>();
-  @Builder.Default private Set<PreAdjMcsDiagnosisCode> diagCodes = new HashSet<>();
+  @Builder.Default private List<PreAdjMcsDetail> details = new ArrayList<>();
+  @Builder.Default private List<PreAdjMcsDiagnosisCode> diagCodes = new ArrayList<>();
 }

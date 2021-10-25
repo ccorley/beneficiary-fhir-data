@@ -48,8 +48,6 @@ public class FissClaimRdaSinkIT {
                   .build();
 
           final PreAdjFissProcCode procCode0 = new PreAdjFissProcCode();
-          procCode0.setDcn(claim.getDcn());
-          procCode0.setPriority((short) 0);
           procCode0.setProcCode("P");
           procCode0.setProcFlag("F");
           procCode0.setProcDate(LocalDate.now());
@@ -57,8 +55,6 @@ public class FissClaimRdaSinkIT {
           claim.getProcCodes().add(procCode0);
 
           final PreAdjFissDiagnosisCode diagCode0 = new PreAdjFissDiagnosisCode();
-          diagCode0.setDcn(claim.getDcn());
-          diagCode0.setPriority((short) 0);
           diagCode0.setDiagCd2("cd2");
           diagCode0.setDiagPoaInd("Q");
           claim.getDiagCodes().add(diagCode0);

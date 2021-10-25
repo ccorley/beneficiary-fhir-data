@@ -14,7 +14,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import org.hl7.fhir.r4.model.CanonicalType;
@@ -176,9 +175,7 @@ public class McsClaimTransformerV2 {
   private static List<Claim.DiagnosisComponent> getDiagnosis(PreAdjMcsClaim claimGroup) {
     List<Claim.DiagnosisComponent> diagnosisComponents = new ArrayList<>();
 
-    // Sort diagnosis codes by priority prior to building resource
-    List<PreAdjMcsDiagnosisCode> dxCodes = new ArrayList<>(claimGroup.getDiagCodes());
-    dxCodes.sort(Comparator.comparingInt(PreAdjMcsDiagnosisCode::getPriority));
+    List<PreAdjMcsDiagnosisCode> dxCodes = claimGroup.getDiagCodes();
 
     for (int i = 0; i < dxCodes.size(); ++i) {
       diagnosisComponents.add(getDiagnosis(dxCodes.get(i), i + 1));
@@ -205,9 +202,7 @@ public class McsClaimTransformerV2 {
   private static List<Claim.ProcedureComponent> getProcedure(PreAdjMcsClaim claimGroup) {
     List<Claim.ProcedureComponent> procedure = new ArrayList<>();
 
-    // Sort proc codes by priority prior to building resource
-    List<PreAdjMcsDetail> procCodes = new ArrayList<>(claimGroup.getDetails());
-    procCodes.sort(Comparator.comparingInt(PreAdjMcsDetail::getPriority));
+    List<PreAdjMcsDetail> procCodes = claimGroup.getDetails();
 
     for (int i = 0; i < procCodes.size(); ++i) {
       procedure.add(getProcedure(procCodes.get(i), i + 1));

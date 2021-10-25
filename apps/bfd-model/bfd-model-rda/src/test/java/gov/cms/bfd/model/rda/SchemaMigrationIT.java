@@ -61,8 +61,6 @@ public class SchemaMigrationIT {
 
     final PreAdjFissProcCode procCode0 =
         PreAdjFissProcCode.builder()
-            .dcn(claim.getDcn())
-            .priority((short) 0)
             .procCode("P")
             .procFlag("F")
             .procDate(LocalDate.now())
@@ -72,8 +70,6 @@ public class SchemaMigrationIT {
 
     final PreAdjFissProcCode procCode1 =
         PreAdjFissProcCode.builder()
-            .dcn(claim.getDcn())
-            .priority((short) 1)
             .procCode("P")
             .procFlag("G")
             .procDate(LocalDate.now())
@@ -83,8 +79,6 @@ public class SchemaMigrationIT {
 
     final PreAdjFissDiagnosisCode diagCode0 =
         PreAdjFissDiagnosisCode.builder()
-            .dcn(claim.getDcn())
-            .priority((short) 0)
             .diagCd2("cd2")
             .diagPoaInd("Q")
             .lastUpdated(Instant.now())
@@ -93,8 +87,6 @@ public class SchemaMigrationIT {
 
     final PreAdjFissDiagnosisCode diagCode1 =
         PreAdjFissDiagnosisCode.builder()
-            .dcn(claim.getDcn())
-            .priority((short) 1)
             .diagCd2("cd2")
             .diagPoaInd("R")
             .lastUpdated(Instant.now())
@@ -103,8 +95,6 @@ public class SchemaMigrationIT {
 
     final PreAdjFissPayer payer0 =
         PreAdjFissPayer.builder()
-            .dcn(claim.getDcn())
-            .priority((short) 0)
             .payerType(PreAdjFissPayer.PayerType.BeneZ)
             .estAmtDue(new BigDecimal("1.23"))
             .lastUpdated(Instant.now())
@@ -113,8 +103,6 @@ public class SchemaMigrationIT {
 
     final PreAdjFissPayer payer1 =
         PreAdjFissPayer.builder()
-            .dcn(claim.getDcn())
-            .priority((short) 1)
             .payerType(PreAdjFissPayer.PayerType.Insured)
             .estAmtDue(new BigDecimal("4.56"))
             .lastUpdated(Instant.now())
@@ -140,9 +128,9 @@ public class SchemaMigrationIT {
     assertEquals(Long.valueOf(3), resultClaim.getSequenceNumber());
     assertEquals("city name can be very long indeed", resultClaim.getPracLocCity());
 
-    assertEquals("0:F,1:G", summarizeFissProcCodes(resultClaim));
-    assertEquals("0:Q,1:R", summarizeFissDiagCodes(resultClaim));
-    assertEquals("0:BeneZ:1.23,1:Insured:4.56", summarizeFissPayers(resultClaim));
+    assertEquals("F,G", summarizeFissProcCodes(resultClaim));
+    assertEquals("Q,R", summarizeFissDiagCodes(resultClaim));
+    assertEquals("BeneZ:1.23,Insured:4.56", summarizeFissPayers(resultClaim));
 
     // Remove a procCode and diagCode and modify the remaining ones, update, and read back to verify
     // all records updated correctly.
@@ -161,9 +149,9 @@ public class SchemaMigrationIT {
             .getResultList()
             .get(0)
             .getClaim();
-    assertEquals("0:H", summarizeFissProcCodes(resultClaim));
-    assertEquals("1:S", summarizeFissDiagCodes(resultClaim));
-    assertEquals("1:Insured:7.89", summarizeFissPayers(resultClaim));
+    assertEquals("H", summarizeFissProcCodes(resultClaim));
+    assertEquals("S", summarizeFissDiagCodes(resultClaim));
+    assertEquals("Insured:7.89", summarizeFissPayers(resultClaim));
   }
 
   /**
@@ -182,16 +170,16 @@ public class SchemaMigrationIT {
             .lastUpdated(Instant.now())
             .build();
 
-    claim.getDetails().add(quickMcsDetail(claim, 0, "P"));
-    PreAdjMcsDetail detail1 = quickMcsDetail(claim, 1, "Q");
+    claim.getDetails().add(quickMcsDetail("P"));
+    PreAdjMcsDetail detail1 = quickMcsDetail("Q");
     claim.getDetails().add(detail1);
-    PreAdjMcsDetail detail2 = quickMcsDetail(claim, 2, "R");
+    PreAdjMcsDetail detail2 = quickMcsDetail("R");
     claim.getDetails().add(detail2);
 
-    PreAdjMcsDiagnosisCode diag0 = quickMcsDiagCode(claim, 0, "T");
+    PreAdjMcsDiagnosisCode diag0 = quickMcsDiagCode("T");
     claim.getDiagCodes().add(diag0);
-    claim.getDiagCodes().add(quickMcsDiagCode(claim, 1, "U"));
-    PreAdjMcsDiagnosisCode diag2 = quickMcsDiagCode(claim, 2, "V");
+    claim.getDiagCodes().add(quickMcsDiagCode("U"));
+    PreAdjMcsDiagnosisCode diag2 = quickMcsDiagCode("V");
     claim.getDiagCodes().add(diag2);
 
     final PreAdjMcsClaimJson container = new PreAdjMcsClaimJson(claim);
@@ -208,8 +196,8 @@ public class SchemaMigrationIT {
             .getResultList();
     assertEquals(1, resultClaims.size());
     PreAdjMcsClaim resultClaim = resultClaims.get(0).getClaim();
-    assertEquals("0:P,1:Q,2:R", summarizeMcsDetails(resultClaim));
-    assertEquals("0:T,1:U,2:V", summarizeMcsDiagCodes(resultClaim));
+    assertEquals("P,Q,R", summarizeMcsDetails(resultClaim));
+    assertEquals("T,U,V", summarizeMcsDiagCodes(resultClaim));
 
     // Remove a detail and diagCode and modify the remaining ones, update, and read back to verify
     // all records updated correctly.
@@ -229,59 +217,43 @@ public class SchemaMigrationIT {
     assertEquals(1, resultClaims.size());
     resultClaim = resultClaims.get(0).getClaim();
     assertEquals(Long.valueOf(3), resultClaim.getSequenceNumber());
-    assertEquals("0:P,2:S", summarizeMcsDetails(resultClaim));
-    assertEquals("0:W,1:U", summarizeMcsDiagCodes(resultClaim));
+    assertEquals("P,S", summarizeMcsDetails(resultClaim));
+    assertEquals("W,U", summarizeMcsDiagCodes(resultClaim));
   }
 
-  private PreAdjMcsDetail quickMcsDetail(PreAdjMcsClaim claim, int priority, String dtlStatus) {
-    return PreAdjMcsDetail.builder()
-        .idrClmHdIcn(claim.getIdrClmHdIcn())
-        .priority((short) priority)
-        .idrDtlStatus(dtlStatus)
-        .build();
+  private PreAdjMcsDetail quickMcsDetail(String dtlStatus) {
+    return PreAdjMcsDetail.builder().idrDtlStatus(dtlStatus).build();
   }
 
-  private PreAdjMcsDiagnosisCode quickMcsDiagCode(
-      PreAdjMcsClaim claim, int priority, String icdType) {
-    return PreAdjMcsDiagnosisCode.builder()
-        .idrClmHdIcn(claim.getIdrClmHdIcn())
-        .priority((short) priority)
-        .idrDiagIcdType(icdType)
-        .build();
+  private PreAdjMcsDiagnosisCode quickMcsDiagCode(String icdType) {
+    return PreAdjMcsDiagnosisCode.builder().idrDiagIcdType(icdType).build();
   }
 
   private String summarizeFissProcCodes(PreAdjFissClaim resultClaim) {
-    return summarizeObjects(
-        resultClaim.getProcCodes().stream(),
-        d -> format("%d:%s", d.getPriority(), d.getProcFlag()));
+    return summarizeObjects(resultClaim.getProcCodes().stream(), PreAdjFissProcCode::getProcFlag);
   }
 
   private String summarizeFissDiagCodes(PreAdjFissClaim resultClaim) {
     return summarizeObjects(
-        resultClaim.getDiagCodes().stream(),
-        d -> format("%d:%s", d.getPriority(), d.getDiagPoaInd()));
+        resultClaim.getDiagCodes().stream(), PreAdjFissDiagnosisCode::getDiagPoaInd);
   }
 
   private String summarizeFissPayers(PreAdjFissClaim resultClaim) {
     return summarizeObjects(
-        resultClaim.getPayers().stream(),
-        d -> format("%d:%s:%s", d.getPriority(), d.getPayerType(), d.getEstAmtDue()));
+        resultClaim.getPayers().stream(), d -> format("%s:%s", d.getPayerType(), d.getEstAmtDue()));
   }
 
   private String summarizeMcsDetails(PreAdjMcsClaim resultClaim) {
-    return summarizeObjects(
-        resultClaim.getDetails().stream(),
-        d -> format("%d:%s", d.getPriority(), d.getIdrDtlStatus()));
+    return summarizeObjects(resultClaim.getDetails().stream(), PreAdjMcsDetail::getIdrDtlStatus);
   }
 
   private String summarizeMcsDiagCodes(PreAdjMcsClaim resultClaim) {
     return summarizeObjects(
-        resultClaim.getDiagCodes().stream(),
-        d -> format("%d:%s", d.getPriority(), d.getIdrDiagIcdType()));
+        resultClaim.getDiagCodes().stream(), PreAdjMcsDiagnosisCode::getIdrDiagIcdType);
   }
 
   private <T> String summarizeObjects(Stream<T> objects, Function<T, String> mapping) {
-    return objects.map(mapping).sorted().collect(Collectors.joining(","));
+    return objects.map(mapping).collect(Collectors.joining(","));
   }
 
   private EntityManager createEntityManager(JDBCDataSource dataSource) {

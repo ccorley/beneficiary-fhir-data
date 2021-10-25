@@ -339,14 +339,6 @@ public class McsClaimTransformer {
       String fieldPrefix) {
     final PreAdjMcsDiagnosisCode to = new PreAdjMcsDiagnosisCode();
     transformer
-        .copyStringWithExpectedValue(
-            fieldPrefix + PreAdjMcsDiagnosisCode.Fields.idrClmHdIcn,
-            false,
-            1,
-            15,
-            idrClmHdIcn,
-            from.getIdrClmHdIcn(),
-            to::setIdrClmHdIcn)
         .copyEnumAsString(
             fieldPrefix + PreAdjMcsDiagnosisCode.Fields.idrDiagIcdType,
             true,
@@ -361,7 +353,6 @@ public class McsClaimTransformer {
             from::hasIdrDiagCode,
             from::getIdrDiagCode,
             to::setIdrDiagCode);
-    to.setPriority(priority);
     to.setLastUpdated(now);
     return to;
   }
@@ -518,8 +509,6 @@ public class McsClaimTransformer {
             from::getIdrKPosZip,
             to::setIdrKPosZip);
 
-    to.setIdrClmHdIcn(idrClmHdIcn);
-    to.setPriority(priority);
     to.setLastUpdated(now);
     return to;
   }

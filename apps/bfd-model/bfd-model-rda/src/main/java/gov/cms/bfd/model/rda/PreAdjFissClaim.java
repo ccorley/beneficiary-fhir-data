@@ -3,8 +3,8 @@ package gov.cms.bfd.model.rda;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -58,7 +58,7 @@ public class PreAdjFissClaim {
   private String freqCd;
   private String billTypCd;
 
-  @Builder.Default private Set<PreAdjFissProcCode> procCodes = new HashSet<>();
-  @Builder.Default private Set<PreAdjFissDiagnosisCode> diagCodes = new HashSet<>();
-  @Builder.Default private Set<PreAdjFissPayer> payers = new HashSet<>();
+  @Builder.Default private List<PreAdjFissProcCode> procCodes = new ArrayList<>();
+  @Builder.Default private List<PreAdjFissDiagnosisCode> diagCodes = new ArrayList<>();
+  @Builder.Default private List<PreAdjFissPayer> payers = new ArrayList<>();
 }

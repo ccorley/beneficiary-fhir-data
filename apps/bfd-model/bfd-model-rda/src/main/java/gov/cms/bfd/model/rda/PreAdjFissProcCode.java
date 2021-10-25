@@ -14,8 +14,6 @@ import lombok.experimental.FieldNameConstants;
 @NoArgsConstructor
 @FieldNameConstants
 public class PreAdjFissProcCode {
-  private String dcn;
-  private short priority;
   private String procCode;
   private String procFlag;
   private LocalDate procDate;

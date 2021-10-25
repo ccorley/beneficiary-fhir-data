@@ -14,8 +14,6 @@ import lombok.experimental.FieldNameConstants;
 @NoArgsConstructor
 @FieldNameConstants
 public class PreAdjMcsDetail {
-  private String idrClmHdIcn;
-  private short priority;
   private String idrDtlStatus;
   private LocalDate idrDtlFromDate;
   private LocalDate idrDtlToDate;

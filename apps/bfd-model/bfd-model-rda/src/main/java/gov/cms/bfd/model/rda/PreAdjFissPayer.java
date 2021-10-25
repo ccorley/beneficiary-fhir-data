@@ -20,8 +20,6 @@ public class PreAdjFissPayer {
     Insured
   }
 
-  private String dcn;
-  private short priority;
   private PayerType payerType;
   private String payersId;
   private String payersName;

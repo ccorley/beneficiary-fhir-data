@@ -13,8 +13,6 @@ import lombok.experimental.FieldNameConstants;
 @NoArgsConstructor
 @FieldNameConstants
 public class PreAdjMcsDiagnosisCode {
-  private String idrClmHdIcn;
-  private short priority;
   private String idrDiagIcdType;
   private String idrDiagCode;
   private Instant lastUpdated;

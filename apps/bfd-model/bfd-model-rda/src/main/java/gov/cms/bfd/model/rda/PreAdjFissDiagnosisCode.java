@@ -13,8 +13,6 @@ import lombok.experimental.FieldNameConstants;
 @NoArgsConstructor
 @FieldNameConstants
 public class PreAdjFissDiagnosisCode {
-  private String dcn;
-  private short priority;
   private String diagCd2;
   private String diagPoaInd;
   private String bitFlags;
