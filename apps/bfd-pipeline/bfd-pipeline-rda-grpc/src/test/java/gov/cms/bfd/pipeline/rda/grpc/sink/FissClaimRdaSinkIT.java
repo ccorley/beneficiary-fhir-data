@@ -84,7 +84,7 @@ public class FissClaimRdaSinkIT {
   }
 
   /**
-   * Tests that a single batch can safely contains multiple objects with the same claim id and that
+   * Tests that a single batch can safely contain multiple objects with the same claim id and that
    * when this happens the version written to the database has the correct detail records in the
    * database. Verifies that {@code dedupChanges()} is working as expected.
    */
@@ -133,8 +133,10 @@ public class FissClaimRdaSinkIT {
           assertEquals(numberOfUniqueClaims, count);
 
           List<PreAdjFissClaim> dbClaims =
-              entityManager.createQuery("select c from PreAdjFissClaim c", PreAdjFissClaim.class)
+              entityManager
+                  .createQuery("select c from PreAdjFissClaimJson c", PreAdjFissClaimJson.class)
                   .getResultList().stream()
+                  .map(PreAdjFissClaimJson::getClaim)
                   .sorted(Comparator.comparingLong(PreAdjFissClaim::getSequenceNumber))
                   .collect(Collectors.toList());
           assertEquals(numberOfUniqueClaims, dbClaims.size());
