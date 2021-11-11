@@ -276,6 +276,10 @@ final class PartDEventTransformerV2 {
         C4BBClaimPharmacyTeamRole.PRESCRIBING,
         Optional.ofNullable(claimGroup.getPrescriberId()));
 
+    // PRSCRBR_ID => ExplanationOfBenefit.provider
+    TransformerUtilsV2.addProvider(
+        eob, C4BBPractitionerIdentifierType.NPI, Optional.ofNullable(claimGroup.getPrescriberId()));
+
     // This can't use TransformerUtilsV2.addNationalDrugCode because it maps differently
     // PROD_SRVC_ID => ExplanationOfBenefit.item.productOrService
     rxItem.setProductOrService(

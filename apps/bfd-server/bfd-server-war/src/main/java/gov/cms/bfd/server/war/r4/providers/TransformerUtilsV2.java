@@ -74,6 +74,7 @@ import org.hl7.fhir.r4.model.ExplanationOfBenefit.BenefitBalanceComponent;
 import org.hl7.fhir.r4.model.ExplanationOfBenefit.BenefitComponent;
 import org.hl7.fhir.r4.model.ExplanationOfBenefit.CareTeamComponent;
 import org.hl7.fhir.r4.model.ExplanationOfBenefit.ExplanationOfBenefitStatus;
+import org.hl7.fhir.r4.model.ExplanationOfBenefit.InsuranceComponent;
 import org.hl7.fhir.r4.model.ExplanationOfBenefit.ItemComponent;
 import org.hl7.fhir.r4.model.ExplanationOfBenefit.ProcedureComponent;
 import org.hl7.fhir.r4.model.ExplanationOfBenefit.RemittanceOutcome;
@@ -1812,7 +1813,10 @@ public final class TransformerUtilsV2 {
         .setType(createC4BBClaimCodeableConcept());
 
     // BENE_ID + Coverage Type => ExplanationOfBenefit.insurance.coverage (ref)
-    eob.addInsurance().setCoverage(referenceCoverage(beneficiaryId, coverageType));
+    // ExplanationOfBenefit.insurance.focal must be provided
+    InsuranceComponent insurance = eob.addInsurance();
+    insurance.setCoverage(referenceCoverage(beneficiaryId, coverageType));
+    insurance.setFocal(true);
 
     // BENE_ID => ExplanationOfBenefit.patient (reference)
     eob.setPatient(referencePatient(beneficiaryId));
@@ -2834,6 +2838,25 @@ public final class TransformerUtilsV2 {
       C4BBClaimProfessionalAndNonClinicianCareTeamRole role,
       Optional<String> id) {
     return addCareTeamMember(eob, null, type, role, id);
+  }
+
+  /**
+   * Optionally sets the provider in {@link ExplanationOfBenefit}
+   *
+   * @param eob the {@link ExplanationOfBenefit} that the {@link #provider} should be added to
+   * @param type Coding System to use, either NPI or UPIN
+   * @param practitionerIdValue the {@link Identifier#getValue()} of the practitioner to reference
+   */
+  static void addProvider(
+      ExplanationOfBenefit eob,
+      C4BBPractitionerIdentifierType type,
+      Optional<String> practitionerIdValue) {
+
+    // ExplanationOfBenefit.provider must be set, so add it if necessary
+    if (!eob.hasProvider()) {
+      practitionerIdValue.ifPresent(
+          value -> eob.setProvider(createPractitionerIdentifierReference(type, value)));
+    }
   }
 
   /**

@@ -12,6 +12,7 @@ import gov.cms.bfd.server.war.commons.MedicareSegment;
 import gov.cms.bfd.server.war.commons.ProfileConstants;
 import gov.cms.bfd.server.war.commons.carin.C4BBAdjudication;
 import gov.cms.bfd.server.war.commons.carin.C4BBClaimProfessionalAndNonClinicianCareTeamRole;
+import gov.cms.bfd.server.war.commons.carin.C4BBOrganizationIdentifierType;
 import gov.cms.bfd.server.war.commons.carin.C4BBPractitionerIdentifierType;
 import gov.cms.bfd.sharedutils.exceptions.BadCodeMonkeyException;
 import java.math.BigDecimal;
@@ -225,6 +226,10 @@ public class CarrierClaimTransformerV2 {
           C4BBPractitionerIdentifierType.NPI,
           C4BBClaimProfessionalAndNonClinicianCareTeamRole.PRIMARY,
           line.getOrganizationNpi());
+
+      // ORG_NPI_NUM => ExplanationOfBenefit.provider
+      TransformerUtilsV2.addProviderSlice(
+          eob, C4BBOrganizationIdentifierType.NPI, line.getOrganizationNpi(), Optional.empty());
 
       // CARR_LINE_RDCD_PMT_PHYS_ASTN_C => ExplanationOfBenefit.item.adjudication
       TransformerUtilsV2.addAdjudication(
