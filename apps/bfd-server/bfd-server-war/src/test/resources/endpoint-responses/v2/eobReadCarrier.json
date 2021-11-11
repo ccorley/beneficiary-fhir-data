@@ -6,6 +6,24 @@
     "profile" : [ "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit-Professional-NonClinician" ]
   },
   "contained" : [ {
+      "resourceType":"Organization",
+      "id":"provider-org",
+      "meta":{
+        "profile":[
+          "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-Organization"
+        ] },
+      "identifier":[ {
+        "type":{
+          "coding":[ {
+            "system":"http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+            "code":"npi"
+          } ]
+        },
+        "system":"http://hl7.org/fhir/sid/us-npi",
+        "value":"1497758544"
+      } ],
+      "active":true
+    },{
     "resourceType" : "Observation",
     "id" : "line-observation-6",
     "status" : "unknown",
@@ -116,6 +134,9 @@
     "identifier" : {
       "value" : "CMS"
     }
+  },
+  "provider":{
+    "reference":"#provider-org"
   },
   "referral" : {
     "identifier" : {
@@ -347,6 +368,7 @@
     } ]
   } ],
   "insurance" : [ {
+    "focal" : true,
     "coverage" : {
       "reference" : "Coverage/part-b-567834"
     }

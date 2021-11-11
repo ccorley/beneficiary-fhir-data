@@ -915,6 +915,17 @@
           "value" : "CMS"
         }
       },
+        "identifier": {
+          "type": {
+            "coding": [ {
+              "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+              "code": "npi",
+              "display": "National Provider Identifier"
+            } ]
+          },
+          "value": "1244444444"
+        }
+      },
       "referral" : {
         "identifier" : {
           "type" : {
@@ -1068,6 +1079,7 @@
         } ]
       } ],
       "insurance" : [ {
+        "focal" : true,
         "coverage" : {
           "reference" : "Coverage/part-a-567834"
         }
@@ -1883,6 +1895,7 @@
         } ]
       } ],
       "insurance" : [ {
+        "focal" : true,
         "coverage" : {
           "reference" : "Coverage/part-b-567834"
         }
@@ -2709,6 +2722,7 @@
         }
       } ],
       "insurance" : [ {
+        "focal" : true,
         "coverage" : {
           "reference" : "Coverage/part-a-567834"
         }
@@ -3634,6 +3648,7 @@
         }
       } ],
       "insurance" : [ {
+        "focal" : true,
         "coverage" : {
           "reference" : "Coverage/part-a-567834"
         }
@@ -3984,6 +3999,19 @@
           "value" : "CMS"
         }
       },
+      "provider" : {
+        "identifier" : {
+          "type" : {
+            "coding" : [ {
+              "system" : "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+              "code" : "npi",
+              "display" : "National Provider Identifier"
+            } ]
+          },
+          "value" : "1750384806"
+        },
+        "display" : "DR. ROBERT BISBEE MD"
+      },
       "facility" : {
         "extension" : [ {
           "url" : "https://bluebutton.cms.gov/resources/variables/phrmcy_srvc_type_cd",
@@ -4302,6 +4330,7 @@
         }
       } ],
       "insurance" : [ {
+        "focal" : true,
         "coverage" : {
           "extension" : [ {
             "url" : "https://bluebutton.cms.gov/resources/variables/plan_cntrct_rec_id",
@@ -4492,6 +4521,23 @@
         "profile" : [ "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit-Professional-NonClinician" ]
       },
       "contained" : [ {
+        "resourceType" : "Organization",
+        "id" : "provider-org",
+        "meta" : {
+          "profile" : [ "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-Organization" ]
+        },
+        "identifier" : [ {
+          "type" : {
+            "coding" : [ {
+              "system" : "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+              "code" : "npi"
+            } ]
+          },
+          "system" : "http://hl7.org/fhir/sid/us-npi",
+          "value" : "1497758544"
+        } ],
+        "active" : true
+      }, {
         "resourceType" : "Observation",
         "id" : "line-observation-6",
         "status" : "unknown",
@@ -4602,6 +4648,9 @@
         "identifier" : {
           "value" : "CMS"
         }
+      },
+      "provider" : {
+        "reference" : "#provider-org"
       },
       "referral" : {
         "identifier" : {
@@ -4833,6 +4882,7 @@
         } ]
       } ],
       "insurance" : [ {
+        "focal" : true,
         "coverage" : {
           "reference" : "Coverage/part-b-567834"
         }
@@ -5540,6 +5590,7 @@
         } ]
       } ],
       "insurance" : [ {
+        "focal" : true,
         "coverage" : {
           "reference" : "Coverage/part-a-567834"
         }

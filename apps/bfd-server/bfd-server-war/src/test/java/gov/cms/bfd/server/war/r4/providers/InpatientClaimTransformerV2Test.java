@@ -892,11 +892,17 @@ public final class InpatientClaimTransformerV2Test {
 
     InsuranceComponent insurance = eob.getInsuranceFirstRep();
 
-    InsuranceComponent compare =
-        new InsuranceComponent()
-            .setCoverage(new Reference().setReference("Coverage/part-a-567834"));
+    InsuranceComponent compare = new InsuranceComponent();
+    compare.setCoverage(new Reference().setReference("Coverage/part-a-567834"));
+    compare.setFocal(true);
 
     Assert.assertTrue(compare.equalsDeep(insurance));
+  }
+
+  /** ExplanationOfBenefit.provider */
+  @Test
+  public void shouldHaveProvider() {
+    Assert.assertTrue(eob.hasProvider());
   }
 
   /** Top level Type */

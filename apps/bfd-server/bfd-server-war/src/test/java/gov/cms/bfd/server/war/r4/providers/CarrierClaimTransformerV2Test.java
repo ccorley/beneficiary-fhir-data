@@ -363,6 +363,13 @@ public class CarrierClaimTransformerV2Test {
     Assert.assertNotNull(eob.getInsurance());
     Assert.assertEquals(
         "Coverage/part-b-567834", eob.getInsurance().get(0).getCoverage().getReference());
+    Assert.assertTrue(eob.getInsurance().get(0).hasFocal());
+  }
+
+  /** ExplanationOfBenefit.provider */
+  @Test
+  public void shouldHaveProvider() {
+    Assert.assertTrue(eob.hasProvider());
   }
 
   @Test

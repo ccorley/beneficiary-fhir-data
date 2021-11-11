@@ -190,6 +190,10 @@ final class DMEClaimTransformerV2 {
               C4BBClaimProfessionalAndNonClinicianCareTeamRole.PERFORMING,
               line.getProviderNPI());
 
+      // PRVDR_NPI => ExplanationOfBenefit.provider
+      TransformerUtilsV2.addProvider(
+          eob, C4BBPractitionerIdentifierType.NPI, line.getProviderNPI());
+
       // Update the responsible flag
       performing.ifPresent(
           p -> {

@@ -61,6 +61,19 @@
       "value" : "CMS"
     }
   },
+  "provider" : {
+    "identifier" : {
+      "type" : {
+        "coding" : [ {
+          "system" : "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBIdentifierType",
+          "code" : "npi",
+          "display" : "National Provider Identifier"
+        } ]
+      },
+      "value" : "1750384806"
+    },
+    "display" : "DR. ROBERT BISBEE MD"
+  },
   "facility" : {
     "extension" : [ {
       "url" : "https://bluebutton.cms.gov/resources/variables/phrmcy_srvc_type_cd",
@@ -379,6 +392,7 @@
     }
   } ],
   "insurance" : [ {
+    "focal" : true,
     "coverage" : {
       "extension" : [ {
         "url" : "https://bluebutton.cms.gov/resources/variables/plan_cntrct_rec_id",
