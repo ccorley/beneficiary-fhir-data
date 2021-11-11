@@ -395,6 +395,7 @@
         }
       } ],
       "insurance" : [ {
+        "focal" : true,
         "coverage" : {
           "reference" : "Coverage/part-b-567834"
         }
@@ -915,6 +916,7 @@
           "value" : "CMS"
         }
       },
+      "provider" : {
         "identifier": {
           "type": {
             "coding": [ {
